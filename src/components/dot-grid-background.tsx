@@ -65,17 +65,36 @@ const FRAGMENT_SHADER = `
   }
 `;
 
+function supportsWebGL2() {
+  try {
+    const canvas = document.createElement("canvas");
+    return !!canvas.getContext("webgl2");
+  } catch {
+    return false;
+  }
+}
+
 export function DotGridBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    // Some mobile browsers / in-app webviews have no WebGL2 support at all;
+    // requesting a renderer there throws synchronously and can crash the
+    // whole tab. Skip the animation entirely rather than risk that — the
+    // page still looks fine with the plain black background.
+    if (!canvas || !supportsWebGL2()) return;
 
     let active = true;
     let animationId = 0;
+    let renderer: THREE.WebGLRenderer;
 
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
+    } catch {
+      return;
+    }
+
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -120,7 +139,12 @@ export function DotGridBackground() {
       if (!active) return;
       animationId = requestAnimationFrame(animate);
       uniforms.u_time.value = (performance.now() - startTime) / 1000.0;
-      renderer.render(scene, camera);
+      try {
+        renderer.render(scene, camera);
+      } catch {
+        // GPU context lost mid-session — stop trying to render further frames.
+        active = false;
+      }
     };
     animate();
 
