@@ -83,7 +83,13 @@ export function DotGridBackground() {
     // requesting a renderer there throws synchronously and can crash the
     // whole tab. Skip the animation entirely rather than risk that — the
     // page still looks fine with the plain black background.
-    if (!canvas || !supportsWebGL2()) return;
+    if (!canvas) return;
+    if (!supportsWebGL2()) {
+      console.warn(
+        "DotGridBackground: WebGL2 not available in this browser (disabled hardware acceleration, or blocked by a privacy extension) — skipping animation.",
+      );
+      return;
+    }
 
     let active = true;
     let animationId = 0;
@@ -91,7 +97,8 @@ export function DotGridBackground() {
 
     try {
       renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
-    } catch {
+    } catch (err) {
+      console.warn("DotGridBackground: failed to create WebGL renderer, skipping animation.", err);
       return;
     }
 
@@ -141,8 +148,9 @@ export function DotGridBackground() {
       uniforms.u_time.value = (performance.now() - startTime) / 1000.0;
       try {
         renderer.render(scene, camera);
-      } catch {
+      } catch (err) {
         // GPU context lost mid-session — stop trying to render further frames.
+        console.warn("DotGridBackground: render() failed, stopping animation.", err);
         active = false;
       }
     };
