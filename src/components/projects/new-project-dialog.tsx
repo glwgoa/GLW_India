@@ -1,0 +1,146 @@
+"use client";
+
+import { useState } from "react";
+import { toast } from "sonner";
+import { Plus } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+export function NewProjectDialog({
+  vendors,
+  regions,
+  onAdded,
+}: {
+  vendors: { id: string; name: string }[];
+  regions: { id: string; name: string }[];
+  onAdded: () => void | Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [vendorId, setVendorId] = useState<string>("");
+  const [regionId, setRegionId] = useState<string>("");
+
+  async function handleSubmit(formData: FormData) {
+    if (!regionId) {
+      toast.error("Select a region");
+      return;
+    }
+    setSubmitting(true);
+    const supabase = createClient();
+
+    const title = formData.get("title") as string;
+    const budget = formData.get("budget") ? Number(formData.get("budget")) : null;
+    const deadline = (formData.get("deadline") as string) || null;
+
+    const { error } = await supabase.from("projects").insert({
+      title,
+      region_id: regionId,
+      assigned_vendor_id: vendorId || null,
+      budget,
+      deadline: deadline ? new Date(deadline).toISOString() : null,
+      status: "active",
+    });
+
+    setSubmitting(false);
+
+    if (error) {
+      toast.error(`Could not create project: ${error.message}`);
+      return;
+    }
+
+    toast.success("Project created");
+    setOpen(false);
+    setVendorId("");
+    setRegionId("");
+    await onAdded();
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger render={<Button size="sm" />}>
+        <Plus />
+        New project
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>New project</DialogTitle>
+          <DialogDescription>Assign a project to a vendor and region.</DialogDescription>
+        </DialogHeader>
+        <form action={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="title">Title</Label>
+            <Input id="title" name="title" required />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Region</Label>
+              <Select value={regionId} onValueChange={(v) => setRegionId(v ?? "")}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select region" />
+                </SelectTrigger>
+                <SelectContent>
+                  {regions.map((r) => (
+                    <SelectItem key={r.id} value={r.id}>
+                      {r.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Vendor</Label>
+              <Select value={vendorId} onValueChange={(v) => setVendorId(v ?? "")}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Optional" />
+                </SelectTrigger>
+                <SelectContent>
+                  {vendors.map((v) => (
+                    <SelectItem key={v.id} value={v.id}>
+                      {v.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="budget">Budget (₹)</Label>
+              <Input id="budget" name="budget" type="number" step="0.01" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="deadline">Deadline</Label>
+              <Input id="deadline" name="deadline" type="date" />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button type="submit" disabled={submitting}>
+              {submitting ? "Creating..." : "Create project"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

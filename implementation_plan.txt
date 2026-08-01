@@ -1,0 +1,245 @@
+GLW INDIA OPS DASHBOARD — FULL IMPLEMENTATION PLAN
+====================================================
+
+CONTEXT
+-------
+Building a Next.js + Supabase ops dashboard covering bookings/vendor SLA
+tracking, regional inventory, projects/attendance, and MIS analytics, based
+on the supplied architecture spec (dashboard_implementation_plan.txt). Repo:
+/home/hrithik/Documents/GLW_India (git remote: github.com/glwgoa/GLW_India).
+Connected Supabase project: dpfhlpbccnlvddaokeai ("glwgoa's Project").
+Building the full system in one pass, schema applied live via the Supabase
+MCP, using Email/Password auth only.
+
+KEY DECISIONS
+-------------
+1. Scaffold into the repo root, not a nested "dashboard-app/" folder — the
+   repo root already is the intended app root.
+   Command used: create-next-app --typescript --tailwind --app --src-dir
+   (npm rejected the literal directory name "GLW_India" due to uppercase
+   letters, so it was scaffolded into a temp dir and merged into the repo
+   root; package.json name set to "glw-india-dashboard".)
+
+2. Add profiles.vendor_id UUID REFERENCES vendors(id) — one column beyond
+   the literal spec DDL. Without it, "vendor sees only their own bookings"
+   RLS has no way to link an authenticated user to a vendor row. All other
+   tables are created verbatim as specified in the original doc.
+
+3. "Total Revenue" MIS metric = SUM(projects.budget) per region (no
+   orders/invoice-amount table exists in the schema); "Total Orders" =
+   COUNT(bookings) per region.
+
+4. Auth users are seeded through the app, not SQL — Supabase Auth requires
+   the Auth API for password hashing. Seed migration covers only regions /
+   vendors / sla_guidelines / catalog_items / regional_inventory / bookings
+   / projects. Test users are created via /register then promoted to roles
+   with an execute_sql UPDATE (documented in Verification).
+
+5. GitHub branch protection / CI workflows are OUT OF SCOPE for this pass —
+   only the main/development/feature/* convention is documented in the
+   README, no GitHub Actions or protection rules are configured.
+
+PHASE 1 — NEXT.JS SCAFFOLD
+--------------------------
+- create-next-app . --typescript --tailwind --app --src-dir
+  --import-alias "@/*" --eslint
+- npm install @supabase/supabase-js @supabase/ssr
+- npx supabase init
+- npx shadcn@latest init, then add: button table badge card dialog
+  dropdown-menu select input label form tabs avatar sidebar
+  navigation-menu sonner separator skeleton
+- npm install recharts lucide-react date-fns
+  (Recharts chosen over Tremor — avoids a conflicting Tailwind preset)
+- .env.local (gitignored) + .env.example with NEXT_PUBLIC_SUPABASE_URL /
+  NEXT_PUBLIC_SUPABASE_ANON_KEY, populated via the get_project_url /
+  get_publishable_keys Supabase MCP tools
+- Verify .gitignore covers .env*.local, node_modules, .next,
+  supabase/.temp
+
+PHASE 2 — DATABASE MIGRATIONS
+------------------------------
+Write files under supabase/migrations/ and apply each via the Supabase MCP
+apply_migration tool against project dpfhlpbccnlvddaokeai, confirming with
+list_migrations after each.
+
+1. 20260801000001_enums_and_extensions.sql
+   - pgcrypto extension
+   - enums: user_role, sla_status, booking_status (verbatim from spec)
+
+2. 20260801000002_core_tables.sql
+   - all 9 spec tables verbatim: profiles, vendors, sla_guidelines,
+     regions, catalog_items, regional_inventory, bookings, projects,
+     attendance
+   - plus profiles.vendor_id (decision #2)
+   - indexes: profiles(vendor_id, region_id), bookings(assigned_vendor_id,
+     region_id, sla_status), projects(assigned_vendor_id, region_id),
+     regional_inventory(region_id), attendance(user_id)
+   - ALTER PUBLICATION supabase_realtime ADD TABLE bookings,
+     regional_inventory;
+
+3. 20260801000003_functions_and_triggers.sql
+   - handle_new_user() trigger: auto-creates a profiles row (role
+     'employee') on auth.users insert
+   - SECURITY DEFINER helpers: get_user_role(), get_user_region(),
+     get_user_vendor() (avoids RLS self-recursion on profiles)
+
+4. 20260801000004_rls_policies.sql
+   - enable RLS on all 9 tables; policies:
+     * profiles: self row + admin unrestricted
+     * vendors: admin unrestricted; vendor sees/updates own row via
+       vendor_id = get_user_vendor(); PM read-only
+     * sla_guidelines: admin write; vendor/PM read scoped
+     * regions / catalog_items: readable by all authenticated;
+       admin-only writes
+     * regional_inventory: readable by all authenticated; admin
+       unrestricted writes; PM writes scoped to region_id =
+       get_user_region()
+     * bookings: admin unrestricted; vendor scoped to assigned_vendor_id
+       = get_user_vendor(); PM scoped to region_id = get_user_region();
+       insert restricted to admin/PM
+     * projects: same region/vendor scoping pattern as bookings
+     * attendance: user sees/creates only own rows (user_id = auth.uid());
+       admin/hr unrestricted
+
+5. 20260801000005_mis_views.sql
+   - 4 security_invoker = true views: vw_vendor_response_efficiency,
+     vw_region_revenue_orders, vw_monthly_attendance_summary,
+     vw_sla_compliance_by_region (each role automatically sees only the
+     rows their table RLS already permits)
+
+6. 20260801000006_seed_data.sql (idempotent, on conflict do nothing)
+   - 4 regions, 5 vendors + their SLA guidelines, 8-10 catalog items,
+     cross-joined regional_inventory (some rows near low-stock threshold),
+     6-8 bookings (mixed status/sla_status, some near-deadline, some
+     already breached), 4-5 projects
+
+7. Run get_advisors (security) after this phase to catch missed RLS gaps
+
+PHASE 3 — SUPABASE CLIENT/SERVER/MIDDLEWARE
+--------------------------------------------
+(@supabase/ssr, current App Router pattern)
+- src/lib/supabase/client.ts — createBrowserClient
+- src/lib/supabase/server.ts — createServerClient using next/headers
+  cookies with getAll/setAll (not the deprecated get/set/remove API)
+- src/lib/supabase/middleware.ts — updateSession(request): refreshes
+  session via getUser(), redirects unauth -> /login for (dashboard)
+  routes and auth -> / for /login and /register
+- middleware.ts at repo root wiring the above, matcher excludes static
+  assets
+
+PHASE 4 — AUTH PAGES & ACTIONS
+--------------------------------
+- src/app/(auth)/{layout, login/page, register/page, forgot-password/page,
+  update-password/page}.tsx
+- src/app/auth/confirm/route.ts — exchanges recovery/confirmation token
+  for a session
+- src/lib/actions/auth.ts — server actions signIn / signUp / signOut
+
+PHASE 5 — DASHBOARD SHELL & ROLE-BASED GUARDING
+--------------------------------------------------
+- src/app/(dashboard)/layout.tsx — fetches session + profiles row
+  server-side, renders role-filtered sidebar/navbar, wraps children in
+  RegionProvider
+- src/lib/auth/require-role.ts — requireRole(profile, allowedRoles[])
+  guard, used on mis-reports (admin/PM only)
+- src/app/(dashboard)/page.tsx — role-aware landing overview
+- Flat route tree per spec: bookings/, inventory/, projects/,
+  attendance/, mis-reports/ — role scoping enforced via RLS (data) +
+  requireRole/conditional rendering (UI), not separate route trees
+
+PHASE 6 — MODULE 1: BOOKINGS & VENDOR ATTRIBUTION
+----------------------------------------------------
+REVISED (user decision, superseding the original realtime/auto-flip design):
+bookings are NOT realtime and sla_status is NOT auto-updated. Staff set
+status and sla_status manually via dropdowns; RLS still governs who can
+write which rows.
+- src/lib/sla.ts — computeSlaHint(deadline, status) pure function +
+  countdown formatter. Purely informational, never written to the DB.
+- src/hooks/use-polling-bookings.ts — initial fetch + setInterval re-fetch
+  every 30s (no websocket/postgres_changes subscription)
+- src/components/bookings/sla-badge.tsx — shows the persisted sla_status
+  badge plus a live countdown + due-soon/overdue hint label recomputed
+  every 30s client-side for display only
+- src/components/bookings/bookings-table.tsx — manual status and
+  sla_status Select dropdowns per row; admin/PM also get a vendor
+  assignment Select
+- src/components/bookings/bookings-client.tsx — wraps the table with the
+  polling hook and a manual "Refresh" button
+- src/app/(dashboard)/bookings/page.tsx — server-fetches initial bookings
+  (joined to region/vendor names) + vendor list for admin/PM
+
+PHASE 7 — MODULE 2: REGIONAL CATALOGS & INVENTORY
+----------------------------------------------------
+- src/lib/region-context.tsx — RegionProvider/useRegion(), cookie
+  persisted, "All Regions" option admin-only
+- src/components/region-switcher.tsx — navbar dropdown
+- src/lib/constants.ts — LOW_STOCK_THRESHOLD
+- src/app/(dashboard)/inventory/page.tsx — per-region or aggregated
+  stock view, available = stock_quantity - reserved_quantity, low-stock
+  badge
+- src/hooks/use-realtime-inventory.ts — live stock updates
+
+PHASE 8 — MODULE 3: PROJECTS & ATTENDANCE
+---------------------------------------------
+- src/components/projects/kanban-board.tsx — status columns
+  (active/in_progress/completed/on_hold, defined at UI layer), vendor
+  assignment select, "new project" dialog
+- src/components/attendance/clock-widget.tsx — clock-in/out using
+  navigator.geolocation, writes location_coordinates as Postgres POINT
+  text form; graceful handling if geolocation is denied
+- src/app/(dashboard)/{projects, attendance}/page.tsx
+
+PHASE 9 — MODULE 4: MIS & ANALYTICS
+---------------------------------------
+- src/app/(dashboard)/mis-reports/page.tsx (guarded: admin/PM only)
+  fetching all 4 views
+- src/components/mis/{vendor-efficiency-chart, region-revenue-chart,
+  attendance-summary-chart, sla-compliance-chart}.tsx (Recharts)
+
+PHASE 10 — TYPE GENERATION
+------------------------------
+- After Phase 2 migrations land, run generate_typescript_types MCP tool
+  -> src/types/supabase.ts
+- Parametrize createBrowserClient<Database> / createServerClient<Database>
+  with it
+- Re-run once more after seed migration if shapes changed
+
+VERIFICATION
+------------
+1. npm run build succeeds, no TS errors
+2. npm run dev — logged-out / redirects to /login
+3. Sign up user #1 via /register; confirm auto-created profiles row via
+   execute_sql; promote to admin; confirm all 5 modules load with seeded
+   data
+4. Sign up user #2, promote to vendor, set vendor_id; assign a seeded
+   booking/project to that vendor as admin; confirm the vendor only sees
+   their own bookings/projects, and RLS blocks cross-vendor rows
+5. Sign up user #3 (employee); confirm clock-in/out works, only own
+   attendance visible, mis-reports redirects away
+6. Sign up user #4, promote to project_manager with a region_id; confirm
+   inventory/projects/bookings scoped to that region
+7. Re-run get_advisors (security) post-seed — expect no warnings
+8. Realtime check: two sessions side by side, confirm a booking update
+   appears live without refresh
+9. SLA check: create a booking with sla_deadline = now() + 20s, watch it
+   auto-flip warning -> breached live
+10. Low-stock check: edit reserved_quantity near stock_quantity, confirm
+    live low-stock badge in another open tab
+11. Document branching convention (main/development/feature/*) in README;
+    no CI/branch-protection setup this pass
+
+CRITICAL FILES
+--------------
+- supabase/migrations/20260801000004_rls_policies.sql,
+  20260801000005_mis_views.sql
+- src/lib/supabase/{client,server,middleware}.ts
+- src/hooks/use-realtime-bookings.ts, src/lib/sla.ts
+- src/app/(dashboard)/layout.tsx
+
+STATUS AS OF THIS FILE
+-----------------------
+Phase 1 in progress: Next.js app scaffolded into repo root (App Router,
+TypeScript, Tailwind, src/ dir), package.json renamed to
+"glw-india-dashboard", @supabase/supabase-js + @supabase/ssr installed.
+Remaining Phase 1 steps (supabase init, shadcn/ui, recharts/lucide/
+date-fns, .env files) and all later phases not yet started.

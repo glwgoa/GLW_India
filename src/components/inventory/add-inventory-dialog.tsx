@@ -1,0 +1,210 @@
+"use client";
+
+import { useState } from "react";
+import { toast } from "sonner";
+import { Plus } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+export function AddInventoryDialog({
+  vendors,
+  regions,
+  onAdded,
+}: {
+  vendors: { id: string; name: string }[];
+  regions: { id: string; name: string }[];
+  onAdded: () => void | Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [vendorId, setVendorId] = useState<string>("");
+  const [regionId, setRegionId] = useState<string>("");
+
+  async function handleSubmit(formData: FormData) {
+    setSubmitting(true);
+    const supabase = createClient();
+
+    const sku = formData.get("sku") as string;
+    const name = formData.get("name") as string;
+    const category = (formData.get("category") as string) || null;
+    const imageFile = formData.get("imageFile") as File | null;
+    const b2bPrice = Number(formData.get("b2bPrice"));
+    const salePrice = Number(formData.get("salePrice"));
+    const stockQuantity = Number(formData.get("stockQuantity"));
+
+    if (!vendorId || !regionId) {
+      toast.error("Select a vendor and a region");
+      setSubmitting(false);
+      return;
+    }
+
+    let imageUrl: string | null = null;
+    if (imageFile && imageFile.size > 0) {
+      const uploadForm = new FormData();
+      uploadForm.set("file", imageFile);
+      const uploadRes = await fetch("/api/products/upload-image", {
+        method: "POST",
+        body: uploadForm,
+      });
+      const uploadJson = await uploadRes.json();
+      if (!uploadRes.ok) {
+        toast.error(`Image upload failed: ${uploadJson.error ?? "unknown error"}`);
+        setSubmitting(false);
+        return;
+      }
+      imageUrl = uploadJson.path as string;
+    }
+
+    const { data: item, error: itemError } = await supabase
+      .from("catalog_items")
+      .insert({
+        sku,
+        name,
+        category,
+        image_url: imageUrl,
+        b2b_price: b2bPrice,
+        sale_price: salePrice,
+        vendor_id: vendorId,
+      })
+      .select("id")
+      .single();
+
+    if (itemError || !item) {
+      toast.error(`Could not add product: ${itemError?.message ?? "unknown error"}`);
+      setSubmitting(false);
+      return;
+    }
+
+    const { error: stockError } = await supabase.from("regional_inventory").insert({
+      region_id: regionId,
+      item_id: item.id,
+      stock_quantity: stockQuantity,
+      reserved_quantity: 0,
+    });
+
+    setSubmitting(false);
+
+    if (stockError) {
+      toast.error(`Product created, but stocking it failed: ${stockError.message}`);
+      return;
+    }
+
+    toast.success("Product added to inventory");
+    setOpen(false);
+    setVendorId("");
+    setRegionId("");
+    await onAdded();
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger render={<Button size="sm" />}>
+        <Plus />
+        Add inventory
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Add product to inventory</DialogTitle>
+          <DialogDescription>
+            Create a new product with its vendor, pricing, and starting stock in a region.
+          </DialogDescription>
+        </DialogHeader>
+        <form action={handleSubmit} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Product name</Label>
+              <Input id="name" name="name" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="sku">SKU</Label>
+              <Input id="sku" name="sku" required />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="category">Category</Label>
+              <Input id="category" name="category" />
+            </div>
+            <div className="space-y-2">
+              <Label>Vendor</Label>
+              <Select value={vendorId} onValueChange={(v) => setVendorId(v ?? "")}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select vendor" />
+                </SelectTrigger>
+                <SelectContent>
+                  {vendors.map((v) => (
+                    <SelectItem key={v.id} value={v.id}>
+                      {v.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="imageFile">Product image</Label>
+            <Input id="imageFile" name="imageFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
+            <p className="text-xs text-muted-foreground">Saved into the repo under public/products/.</p>
+          </div>
+
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="b2bPrice">B2B price</Label>
+              <Input id="b2bPrice" name="b2bPrice" type="number" step="0.01" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="salePrice">Sale price</Label>
+              <Input id="salePrice" name="salePrice" type="number" step="0.01" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="stockQuantity">Initial stock</Label>
+              <Input id="stockQuantity" name="stockQuantity" type="number" required />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Region</Label>
+            <Select value={regionId} onValueChange={(v) => setRegionId(v ?? "")}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select region" />
+              </SelectTrigger>
+              <SelectContent>
+                {regions.map((r) => (
+                  <SelectItem key={r.id} value={r.id}>
+                    {r.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <DialogFooter>
+            <Button type="submit" disabled={submitting}>
+              {submitting ? "Adding..." : "Add product"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
