@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { RegionProvider } from "@/lib/region-context";
 import { AppSidebar } from "@/components/app-sidebar";
 import { RegionSwitcher } from "@/components/region-switcher";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import type { Profile } from "@/types/profile";
@@ -54,7 +55,10 @@ export default async function DashboardLayout({
                 GLW India Ops Dashboard
               </span>
             </div>
-            <RegionSwitcher regions={regions ?? []} canViewAll={canViewAllRegions} />
+            <div className="flex items-center gap-2">
+              <ThemeToggle />
+              <RegionSwitcher regions={regions ?? []} canViewAll={canViewAllRegions} />
+            </div>
           </header>
           <div className="flex-1 p-4 md:p-6">{children}</div>
         </SidebarInset>
