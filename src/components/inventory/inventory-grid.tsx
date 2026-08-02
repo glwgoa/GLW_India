@@ -36,12 +36,11 @@ export function InventoryGrid({
     return false;
   }
 
-  function canDelete(row: InventoryRow) {
-    // Aggregated cards span multiple regions' rows — only admins (who can
-    // write to every region) get to delete across all of them from here.
-    // PMs still delete from the single-region view (canEditStock above).
-    if (aggregated) return profile.role === "admin";
-    return canEditStock(row);
+  function canDelete() {
+    // Deleting removes the product itself (catalog_items), which is
+    // admin-only by RLS — PMs can edit/remove regional stock but not the
+    // product record, so they never see this control.
+    return profile.role === "admin";
   }
 
   async function updateStock(row: InventoryRow, value: number) {
@@ -60,43 +59,27 @@ export function InventoryGrid({
 
   async function deleteRow(row: AggregatedRow) {
     const label = row.item?.name ?? "this item";
-    const supabase = createClient();
+    const regionCount = row.regionCount ?? 1;
+    const scope = aggregated && regionCount > 1 ? ` across all ${regionCount} regions` : "";
 
-    if (aggregated) {
-      const regionCount = row.regionCount ?? 1;
-      const scope = regionCount > 1 ? `all ${regionCount} regions it's stocked in` : "its region";
-      if (
-        !window.confirm(
-          `Remove ${label} from ${scope}? This only removes stock tracking — the product itself isn't deleted.`,
-        )
-      ) {
-        return;
-      }
-      const { error } = await supabase.from("regional_inventory").delete().eq("item_id", row.item_id);
-      if (error) {
-        toast.error(`Delete failed: ${error.message}`);
-        return;
-      }
-      setRows((prev) => prev.filter((r) => r.item_id !== row.item_id));
-      toast.success("Removed from inventory");
-      return;
-    }
-
-    const region = row.region?.name ? ` in ${row.region.name}` : "";
     if (
       !window.confirm(
-        `Remove ${label}${region} from inventory? This only removes stock tracking here — the product itself isn't deleted.`,
+        `Permanently delete ${label}${scope}? This removes the product itself, not just its stock — this cannot be undone.`,
       )
     ) {
       return;
     }
-    const { error } = await supabase.from("regional_inventory").delete().eq("id", row.id);
+
+    const supabase = createClient();
+    // Deleting the product cascades to every regional_inventory row for it
+    // (ON DELETE CASCADE), so one delete clears it out of every region.
+    const { error } = await supabase.from("catalog_items").delete().eq("id", row.item_id);
     if (error) {
       toast.error(`Delete failed: ${error.message}`);
       return;
     }
-    setRows((prev) => prev.filter((r) => r.id !== row.id));
-    toast.success("Removed from inventory");
+    setRows((prev) => prev.filter((r) => r.item_id !== row.item_id));
+    toast.success("Product deleted");
   }
 
   if (rows.length === 0) {
@@ -109,7 +92,7 @@ export function InventoryGrid({
         const available = row.stock_quantity - row.reserved_quantity;
         const lowStock = available <= LOW_STOCK_THRESHOLD;
         const editableStock = canEditStock(row);
-        const deletable = canDelete(row);
+        const deletable = canDelete();
 
         return (
           <Card key={row.id} className="overflow-hidden py-0 gap-0">
