@@ -21,13 +21,16 @@ export default async function BookingsPage() {
 
   const canAssignVendor = profile.role === "admin" || profile.role === "project_manager";
 
-  const [{ data: bookings }, { data: vendors }] = await Promise.all([
+  const [{ data: bookings }, { data: vendors }, { data: regions }] = await Promise.all([
     supabase
       .from("bookings")
       .select("*, region:regions(name), vendor:vendors(name)")
       .order("created_at", { ascending: false }),
     canAssignVendor
       ? supabase.from("vendors").select("id, name").order("name")
+      : Promise.resolve({ data: [] as { id: string; name: string }[] }),
+    canAssignVendor
+      ? supabase.from("regions").select("id, name").order("name")
       : Promise.resolve({ data: [] as { id: string; name: string }[] }),
   ]);
 
@@ -36,6 +39,7 @@ export default async function BookingsPage() {
       initialBookings={(bookings ?? []) as unknown as BookingRow[]}
       profile={profile}
       vendors={vendors ?? []}
+      regions={regions ?? []}
     />
   );
 }

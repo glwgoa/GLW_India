@@ -1,6 +1,7 @@
 "use client";
 
 import { toast } from "sonner";
+import { Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { SlaBadge } from "./sla-badge";
 import {
@@ -12,6 +13,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import type { BookingRow, BookingStatus, SlaStatus } from "@/types/booking";
 import type { Profile } from "@/types/profile";
 import type { TablesUpdate } from "@/types/supabase";
@@ -39,6 +41,7 @@ export function BookingsTable({
   vendors: { id: string; name: string }[];
 }) {
   const canAssignVendor = profile.role === "admin" || profile.role === "project_manager";
+  const canDelete = profile.role === "admin";
 
   async function updateBooking(id: string, patch: BookingUpdate) {
     const supabase = createClient();
@@ -51,6 +54,20 @@ export function BookingsTable({
       prev.map((b) => (b.id === id ? { ...b, ...patch } as BookingRow : b)),
     );
     toast.success("Booking updated");
+  }
+
+  async function deleteBooking(booking: BookingRow) {
+    if (!window.confirm(`Delete the booking for ${booking.customer_name}? This cannot be undone.`)) {
+      return;
+    }
+    const supabase = createClient();
+    const { error } = await supabase.from("bookings").delete().eq("id", booking.id);
+    if (error) {
+      toast.error(`Delete failed: ${error.message}`);
+      return;
+    }
+    setBookings((prev) => prev.filter((b) => b.id !== booking.id));
+    toast.success("Booking deleted");
   }
 
   if (bookings.length === 0) {
@@ -67,6 +84,7 @@ export function BookingsTable({
             <TableHead>Vendor</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>SLA</TableHead>
+            {canDelete && <TableHead className="w-10" />}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -145,6 +163,18 @@ export function BookingsTable({
                   </Select>
                 </div>
               </TableCell>
+              {canDelete && (
+                <TableCell>
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label="Delete booking"
+                    onClick={() => deleteBooking(booking)}
+                  >
+                    <Trash2 className="text-destructive" />
+                  </Button>
+                </TableCell>
+              )}
             </TableRow>
           ))}
         </TableBody>
