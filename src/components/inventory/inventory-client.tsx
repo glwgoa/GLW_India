@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useRegion } from "@/lib/region-context";
 import { useRealtimeInventory, type InventoryRow } from "@/hooks/use-realtime-inventory";
-import { InventoryTable } from "./inventory-table";
+import { InventoryGrid } from "./inventory-grid";
 import { AddInventoryDialog } from "./add-inventory-dialog";
 import type { Profile } from "@/types/profile";
 
@@ -57,7 +57,7 @@ export function InventoryClient({
           <AddInventoryDialog vendors={vendors} regions={regions} onAdded={refresh} />
         )}
       </div>
-      <InventoryTable rows={visibleRows} setRows={setRows} profile={profile} aggregated={aggregated} />
+      <InventoryGrid rows={visibleRows} setRows={setRows} profile={profile} aggregated={aggregated} />
     </div>
   );
 }
