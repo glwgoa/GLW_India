@@ -58,19 +58,26 @@ export function AddInventoryDialog({
 
     let imageUrl: string | null = null;
     if (imageFile && imageFile.size > 0) {
-      const uploadForm = new FormData();
-      uploadForm.set("file", imageFile);
-      const uploadRes = await fetch("/api/products/upload-image", {
-        method: "POST",
-        body: uploadForm,
-      });
-      const uploadJson = await uploadRes.json();
-      if (!uploadRes.ok) {
-        toast.error(`Image upload failed: ${uploadJson.error ?? "unknown error"}`);
+      const extension = imageFile.name.split(".").pop() ?? "jpg";
+      const path = `${crypto.randomUUID()}.${extension}`;
+
+      try {
+        const { error: uploadError } = await supabase.storage
+          .from("product-images")
+          .upload(path, imageFile, { contentType: imageFile.type });
+
+        if (uploadError) {
+          toast.error(`Image upload failed: ${uploadError.message}`);
+          setSubmitting(false);
+          return;
+        }
+
+        imageUrl = supabase.storage.from("product-images").getPublicUrl(path).data.publicUrl;
+      } catch (err) {
+        toast.error(`Image upload failed: ${err instanceof Error ? err.message : "unknown error"}`);
         setSubmitting(false);
         return;
       }
-      imageUrl = uploadJson.path as string;
     }
 
     const { data: item, error: itemError } = await supabase
@@ -164,7 +171,7 @@ export function AddInventoryDialog({
           <div className="space-y-2">
             <Label htmlFor="imageFile">Product image</Label>
             <Input id="imageFile" name="imageFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
-            <p className="text-xs text-muted-foreground">Saved into the repo under public/products/.</p>
+            <p className="text-xs text-muted-foreground">Uploaded to Supabase Storage.</p>
           </div>
 
           <div className="grid grid-cols-3 gap-4">
