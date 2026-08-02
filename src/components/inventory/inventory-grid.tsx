@@ -1,10 +1,11 @@
 "use client";
 
 import { toast } from "sonner";
-import { Package } from "lucide-react";
+import { Package, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LOW_STOCK_THRESHOLD } from "@/lib/constants";
@@ -49,6 +50,22 @@ export function InventoryGrid({
     toast.success("Stock updated");
   }
 
+  async function deleteRow(row: InventoryRow) {
+    const label = row.item?.name ?? "this item";
+    const region = row.region?.name ? ` in ${row.region.name}` : "";
+    if (!window.confirm(`Remove ${label}${region} from inventory? This only removes stock tracking here — the product itself isn't deleted.`)) {
+      return;
+    }
+    const supabase = createClient();
+    const { error } = await supabase.from("regional_inventory").delete().eq("id", row.id);
+    if (error) {
+      toast.error(`Delete failed: ${error.message}`);
+      return;
+    }
+    setRows((prev) => prev.filter((r) => r.id !== row.id));
+    toast.success("Removed from inventory");
+  }
+
   if (rows.length === 0) {
     return <p className="text-sm text-muted-foreground">No inventory items for this selection.</p>;
   }
@@ -62,7 +79,7 @@ export function InventoryGrid({
 
         return (
           <Card key={row.id} className="overflow-hidden py-0 gap-0">
-            <div className="aspect-square w-full bg-muted">
+            <div className="relative aspect-square w-full bg-muted">
               {row.item?.image_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -74,6 +91,17 @@ export function InventoryGrid({
                 <div className="flex h-full w-full items-center justify-center">
                   <Package className="h-8 w-8 text-muted-foreground" />
                 </div>
+              )}
+              {editableStock && (
+                <Button
+                  variant="destructive"
+                  size="icon-sm"
+                  aria-label="Remove from inventory"
+                  className="absolute top-2 right-2"
+                  onClick={() => deleteRow(row)}
+                >
+                  <Trash2 />
+                </Button>
               )}
             </div>
 
