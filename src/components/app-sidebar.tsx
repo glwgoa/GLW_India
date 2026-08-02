@@ -9,6 +9,7 @@ import {
   FolderKanban,
   Clock,
   BarChart3,
+  Building2,
   LogOut,
 } from "lucide-react";
 import {
@@ -31,6 +32,12 @@ const NAV_ITEMS = [
   { href: "/", label: "Overview", icon: LayoutDashboard, roles: null },
   { href: "/bookings", label: "Bookings", icon: CalendarClock, roles: null },
   { href: "/inventory", label: "Inventory", icon: Boxes, roles: null },
+  {
+    href: "/vendors",
+    label: "Vendors",
+    icon: Building2,
+    roles: ["admin", "project_manager", "vendor"] as const,
+  },
   { href: "/projects", label: "Projects", icon: FolderKanban, roles: null },
   { href: "/attendance", label: "Attendance", icon: Clock, roles: null },
   {
