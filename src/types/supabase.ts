@@ -62,7 +62,9 @@ export type Database = {
           created_at: string | null
           customer_name: string
           id: string
+          item_id: string | null
           region_id: string | null
+          sale_price: number | null
           sla_deadline: string
           sla_status: Database["public"]["Enums"]["sla_status"] | null
           status: Database["public"]["Enums"]["booking_status"] | null
@@ -72,7 +74,9 @@ export type Database = {
           created_at?: string | null
           customer_name: string
           id?: string
+          item_id?: string | null
           region_id?: string | null
+          sale_price?: number | null
           sla_deadline: string
           sla_status?: Database["public"]["Enums"]["sla_status"] | null
           status?: Database["public"]["Enums"]["booking_status"] | null
@@ -82,7 +86,9 @@ export type Database = {
           created_at?: string | null
           customer_name?: string
           id?: string
+          item_id?: string | null
           region_id?: string | null
+          sale_price?: number | null
           sla_deadline?: string
           sla_status?: Database["public"]["Enums"]["sla_status"] | null
           status?: Database["public"]["Enums"]["booking_status"] | null
@@ -101,6 +107,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "vw_vendor_response_efficiency"
             referencedColumns: ["vendor_id"]
+          },
+          {
+            foreignKeyName: "bookings_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "catalog_items"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "bookings_region_id_fkey"

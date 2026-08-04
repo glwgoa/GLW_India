@@ -13,11 +13,13 @@ export function BookingsClient({
   profile,
   vendors,
   regions,
+  products,
 }: {
   initialBookings: BookingRow[];
   profile: Profile;
   vendors: { id: string; name: string }[];
   regions: { id: string; name: string }[];
+  products: { id: string; name: string; sale_price: number | null }[];
 }) {
   const { bookings, setBookings, refresh, refreshing } = usePollingBookings(initialBookings);
   const canCreateBooking = profile.role === "admin" || profile.role === "project_manager";
@@ -37,7 +39,12 @@ export function BookingsClient({
             Refresh
           </Button>
           {canCreateBooking && (
-            <NewBookingDialog vendors={vendors} regions={regions} onAdded={refresh} />
+            <NewBookingDialog
+              vendors={vendors}
+              regions={regions}
+              products={products}
+              onAdded={refresh}
+            />
           )}
         </div>
       </div>

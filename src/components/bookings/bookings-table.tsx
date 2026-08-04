@@ -82,6 +82,8 @@ export function BookingsTable({
             <TableHead>Customer</TableHead>
             <TableHead>Region</TableHead>
             <TableHead>Vendor</TableHead>
+            <TableHead>Product</TableHead>
+            <TableHead>Price</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>SLA</TableHead>
             {canDelete && <TableHead className="w-10" />}
@@ -121,6 +123,10 @@ export function BookingsTable({
                 ) : (
                   (booking.vendor?.name ?? "Unassigned")
                 )}
+              </TableCell>
+              <TableCell>{booking.item?.name ?? "—"}</TableCell>
+              <TableCell>
+                {booking.sale_price != null ? `₹${booking.sale_price.toLocaleString("en-IN")}` : "—"}
               </TableCell>
               <TableCell>
                 <Select

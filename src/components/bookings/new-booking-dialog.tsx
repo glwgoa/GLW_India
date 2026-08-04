@@ -24,19 +24,33 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+type Product = { id: string; name: string; sale_price: number | null };
+
 export function NewBookingDialog({
   vendors,
   regions,
+  products,
   onAdded,
 }: {
   vendors: { id: string; name: string }[];
   regions: { id: string; name: string }[];
+  products: Product[];
   onAdded: () => void | Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [vendorId, setVendorId] = useState<string>("");
   const [regionId, setRegionId] = useState<string>("");
+  const [productId, setProductId] = useState<string>("");
+  const [salePrice, setSalePrice] = useState<string>("");
+
+  function handleProductChange(id: string) {
+    setProductId(id);
+    const product = products.find((p) => p.id === id);
+    if (product?.sale_price != null) {
+      setSalePrice(String(product.sale_price));
+    }
+  }
 
   async function handleSubmit(formData: FormData) {
     if (!regionId) {
@@ -53,11 +67,14 @@ export function NewBookingDialog({
     const supabase = createClient();
 
     const customerName = formData.get("customerName") as string;
+    const priceRaw = formData.get("salePrice") as string;
 
     const { error } = await supabase.from("bookings").insert({
       customer_name: customerName,
       region_id: regionId,
       assigned_vendor_id: vendorId || null,
+      item_id: productId || null,
+      sale_price: priceRaw ? Number(priceRaw) : null,
       sla_deadline: new Date(deadline).toISOString(),
       status: "pending",
       sla_status: "on_track",
@@ -74,6 +91,8 @@ export function NewBookingDialog({
     setOpen(false);
     setVendorId("");
     setRegionId("");
+    setProductId("");
+    setSalePrice("");
     await onAdded();
   }
 
@@ -86,7 +105,9 @@ export function NewBookingDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>New booking</DialogTitle>
-          <DialogDescription>Create a booking and optionally assign a vendor.</DialogDescription>
+          <DialogDescription>
+            Create a booking, optionally for a specific product with a sale price.
+          </DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -128,6 +149,38 @@ export function NewBookingDialog({
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Product</Label>
+              <Select value={productId} onValueChange={(v) => handleProductChange(v ?? "")}>
+                <SelectTrigger>
+                  <SelectValue>
+                    {(value: string) => products.find((p) => p.id === value)?.name ?? "Optional"}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {products.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="salePrice">Sale price (₹)</Label>
+              <Input
+                id="salePrice"
+                name="salePrice"
+                type="number"
+                step="0.01"
+                value={salePrice}
+                onChange={(e) => setSalePrice(e.target.value)}
+                placeholder="Manually set or overridden"
+              />
             </div>
           </div>
 
