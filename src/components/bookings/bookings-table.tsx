@@ -42,6 +42,14 @@ export function BookingsTable({
 }) {
   const canAssignVendor = profile.role === "admin" || profile.role === "project_manager";
   const canDelete = profile.role === "admin";
+  // Margin over what we pay the vendor — admin/PM only, not shown to the
+  // vendor themselves or other roles.
+  const canSeeProfit = canAssignVendor;
+
+  function computeProfit(booking: BookingRow) {
+    if (booking.sale_price == null || booking.item?.b2b_price == null) return null;
+    return booking.sale_price - booking.item.b2b_price;
+  }
 
   async function updateBooking(id: string, patch: BookingUpdate) {
     const supabase = createClient();
@@ -84,6 +92,7 @@ export function BookingsTable({
             <TableHead>Vendor</TableHead>
             <TableHead>Product</TableHead>
             <TableHead>Price</TableHead>
+            {canSeeProfit && <TableHead>Profit</TableHead>}
             <TableHead>Status</TableHead>
             <TableHead>SLA</TableHead>
             {canDelete && <TableHead className="w-10" />}
@@ -128,6 +137,20 @@ export function BookingsTable({
               <TableCell>
                 {booking.sale_price != null ? `₹${booking.sale_price.toLocaleString("en-IN")}` : "—"}
               </TableCell>
+              {canSeeProfit && (
+                <TableCell>
+                  {(() => {
+                    const profit = computeProfit(booking);
+                    if (profit == null) return <span className="text-muted-foreground">—</span>;
+                    return (
+                      <span className={profit >= 0 ? "text-emerald-600" : "text-destructive"}>
+                        {profit >= 0 ? "+" : ""}
+                        {`₹${profit.toLocaleString("en-IN")}`}
+                      </span>
+                    );
+                  })()}
+                </TableCell>
+              )}
               <TableCell>
                 <Select
                   value={booking.status}

@@ -4,7 +4,8 @@ import { useCallback, useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { BookingRow } from "@/types/booking";
 
-const BOOKINGS_SELECT = "*, region:regions(name), vendor:vendors(name), item:catalog_items(name)";
+const BOOKINGS_SELECT =
+  "*, region:regions(name), vendor:vendors(name), item:catalog_items(name, b2b_price)";
 
 export function usePollingBookings(initial: BookingRow[], intervalMs = 30000) {
   const [bookings, setBookings] = useState<BookingRow[]>(initial);

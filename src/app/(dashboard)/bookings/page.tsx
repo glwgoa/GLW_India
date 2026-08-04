@@ -25,7 +25,7 @@ export default async function BookingsPage() {
     await Promise.all([
       supabase
         .from("bookings")
-        .select("*, region:regions(name), vendor:vendors(name), item:catalog_items(name)")
+        .select("*, region:regions(name), vendor:vendors(name), item:catalog_items(name, b2b_price)")
         .order("created_at", { ascending: false }),
       canAssignVendor
         ? supabase.from("vendors").select("id, name").order("name")
