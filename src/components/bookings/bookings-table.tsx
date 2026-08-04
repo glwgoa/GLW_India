@@ -103,7 +103,11 @@ export function BookingsTable({
                     }
                   >
                     <SelectTrigger className="w-40">
-                      <SelectValue />
+                      <SelectValue>
+                        {(value: string) =>
+                          value === "unassigned" ? "Unassigned" : (vendors.find((v) => v.id === value)?.name ?? "Unassigned")
+                        }
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="unassigned">Unassigned</SelectItem>
@@ -125,8 +129,10 @@ export function BookingsTable({
                     value && updateBooking(booking.id, { status: value as BookingStatus })
                   }
                 >
-                  <SelectTrigger className="w-36 capitalize">
-                    <SelectValue />
+                  <SelectTrigger className="w-36">
+                    <SelectValue className="capitalize">
+                      {(value: string) => value.replace("_", " ")}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {BOOKING_STATUSES.map((s) => (
@@ -150,8 +156,10 @@ export function BookingsTable({
                       value && updateBooking(booking.id, { sla_status: value as SlaStatus })
                     }
                   >
-                    <SelectTrigger className="w-32 capitalize">
-                      <SelectValue />
+                    <SelectTrigger className="w-32">
+                      <SelectValue className="capitalize">
+                        {(value: string) => value.replace("_", " ")}
+                      </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                       {SLA_STATUSES.map((s) => (

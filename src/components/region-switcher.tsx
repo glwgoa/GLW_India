@@ -24,7 +24,11 @@ export function RegionSwitcher({
       onValueChange={(value) => setSelectedRegionId(value ?? "all")}
     >
       <SelectTrigger className="w-44">
-        <SelectValue />
+        <SelectValue>
+          {(value: string) =>
+            value === "all" ? "All Regions" : (regions.find((r) => r.id === value)?.name ?? value)
+          }
+        </SelectValue>
       </SelectTrigger>
       <SelectContent>
         {canViewAll && <SelectItem value="all">All Regions</SelectItem>}

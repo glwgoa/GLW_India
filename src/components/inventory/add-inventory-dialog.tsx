@@ -155,7 +155,9 @@ export function AddInventoryDialog({
               <Label>Vendor</Label>
               <Select value={vendorId} onValueChange={(v) => setVendorId(v ?? "")}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select vendor" />
+                  <SelectValue>
+                    {(value: string) => vendors.find((v) => v.id === value)?.name ?? "Select vendor"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {vendors.map((v) => (
@@ -193,7 +195,9 @@ export function AddInventoryDialog({
             <Label>Region</Label>
             <Select value={regionId} onValueChange={(v) => setRegionId(v ?? "")}>
               <SelectTrigger>
-                <SelectValue placeholder="Select region" />
+                <SelectValue>
+                  {(value: string) => regions.find((r) => r.id === value)?.name ?? "Select region"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {regions.map((r) => (

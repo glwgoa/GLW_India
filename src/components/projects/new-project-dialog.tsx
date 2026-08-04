@@ -95,7 +95,9 @@ export function NewProjectDialog({
               <Label>Region</Label>
               <Select value={regionId} onValueChange={(v) => setRegionId(v ?? "")}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select region" />
+                  <SelectValue>
+                    {(value: string) => regions.find((r) => r.id === value)?.name ?? "Select region"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {regions.map((r) => (
@@ -110,7 +112,9 @@ export function NewProjectDialog({
               <Label>Vendor</Label>
               <Select value={vendorId} onValueChange={(v) => setVendorId(v ?? "")}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Optional" />
+                  <SelectValue>
+                    {(value: string) => vendors.find((v) => v.id === value)?.name ?? "Optional"}
+                  </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {vendors.map((v) => (

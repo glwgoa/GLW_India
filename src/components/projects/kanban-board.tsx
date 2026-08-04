@@ -84,7 +84,7 @@ export function KanbanBoard({
                           onValueChange={(value) => value && updateStatus(project, value)}
                         >
                           <SelectTrigger className="w-full">
-                            <SelectValue />
+                            <SelectValue>{(value: string) => COLUMN_LABEL[value] ?? value}</SelectValue>
                           </SelectTrigger>
                           <SelectContent>
                             {PROJECT_STATUSES.map((s) => (
