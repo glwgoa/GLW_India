@@ -430,28 +430,58 @@ export type Database = {
       }
       vendors: {
         Row: {
+          additional_contact_number: string | null
+          bank_account_name: string | null
+          bank_account_number: string | null
+          category: string | null
+          city: string | null
           contact_email: string
           contact_phone: string | null
           created_at: string | null
           id: string
+          ifsc_code: string | null
+          location: string | null
           name: string
+          payment_terms: string | null
+          priority: string | null
           rating: number | null
+          upi_id: string | null
         }
         Insert: {
+          additional_contact_number?: string | null
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          category?: string | null
+          city?: string | null
           contact_email: string
           contact_phone?: string | null
           created_at?: string | null
           id?: string
+          ifsc_code?: string | null
+          location?: string | null
           name: string
+          payment_terms?: string | null
+          priority?: string | null
           rating?: number | null
+          upi_id?: string | null
         }
         Update: {
+          additional_contact_number?: string | null
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          category?: string | null
+          city?: string | null
           contact_email?: string
           contact_phone?: string | null
           created_at?: string | null
           id?: string
+          ifsc_code?: string | null
+          location?: string | null
           name?: string
+          payment_terms?: string | null
+          priority?: string | null
           rating?: number | null
+          upi_id?: string | null
         }
         Relationships: []
       }
