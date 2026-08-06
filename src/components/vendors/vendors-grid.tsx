@@ -1,7 +1,7 @@
 "use client";
 
 import { toast } from "sonner";
-import { Mail, Phone, Star, Trash2, MapPin, Landmark, Tag } from "lucide-react";
+import { Mail, Phone, Trash2, MapPin, Landmark, Tag } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,9 +11,9 @@ import type { VendorRow } from "@/types/vendor";
 import type { Profile } from "@/types/profile";
 
 const PRIORITY_VARIANT: Record<string, "destructive" | "outline" | "secondary"> = {
-  high: "destructive",
-  medium: "outline",
-  low: "secondary",
+  primary: "destructive",
+  secondary: "outline",
+  tertiary: "secondary",
 };
 
 export function VendorsGrid({
@@ -80,19 +80,11 @@ export function VendorsGrid({
                   </p>
                 )}
               </div>
-              <div className="flex flex-col items-end gap-1">
-                {vendor.priority && (
-                  <Badge variant={PRIORITY_VARIANT[vendor.priority] ?? "outline"} className="capitalize">
-                    {vendor.priority}
-                  </Badge>
-                )}
-                {vendor.rating != null && (
-                  <Badge variant="secondary" className="gap-1">
-                    <Star className="size-3 fill-current" />
-                    {vendor.rating.toFixed(1)}
-                  </Badge>
-                )}
-              </div>
+              {vendor.priority && (
+                <Badge variant={PRIORITY_VARIANT[vendor.priority] ?? "outline"} className="capitalize">
+                  {vendor.priority}
+                </Badge>
+              )}
             </CardHeader>
             <CardContent className="space-y-1.5 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">

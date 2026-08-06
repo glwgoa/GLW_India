@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import type { VendorRow } from "@/types/vendor";
 
-const PRIORITIES = ["high", "medium", "low"] as const;
+const PRIORITIES = ["primary", "secondary", "tertiary"] as const;
 
 export function VendorFormDialog({
   vendor,
@@ -45,7 +45,6 @@ export function VendorFormDialog({
     const supabase = createClient();
 
     const str = (key: string) => (formData.get(key) as string) || null;
-    const ratingRaw = formData.get("rating") as string;
 
     const payload = {
       name: formData.get("name") as string,
@@ -61,7 +60,6 @@ export function VendorFormDialog({
       ifsc_code: str("ifscCode"),
       upi_id: str("upiId"),
       payment_terms: str("paymentTerms"),
-      rating: ratingRaw ? Number(ratingRaw) : null,
     };
 
     const { error } = isEdit
@@ -146,7 +144,7 @@ export function VendorFormDialog({
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label>Vendor priority</Label>
                 <Select value={priority} onValueChange={(v) => setPriority(v ?? "")}>
@@ -168,21 +166,6 @@ export function VendorFormDialog({
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="rating">Rating (0-5)</Label>
-                <Input
-                  id="rating"
-                  name="rating"
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  max="5"
-                  defaultValue={vendor?.rating ?? ""}
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="city">City</Label>
                 <Input id="city" name="city" defaultValue={vendor?.city ?? ""} />

@@ -1,4 +1,4 @@
-export type VendorPriority = "high" | "medium" | "low";
+export type VendorPriority = "primary" | "secondary" | "tertiary";
 
 export type VendorRow = {
   id: string;
@@ -15,6 +15,5 @@ export type VendorRow = {
   ifsc_code: string | null;
   upi_id: string | null;
   payment_terms: string | null;
-  rating: number | null;
   created_at: string;
 };

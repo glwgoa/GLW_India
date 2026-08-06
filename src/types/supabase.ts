@@ -444,7 +444,6 @@ export type Database = {
           name: string
           payment_terms: string | null
           priority: string | null
-          rating: number | null
           upi_id: string | null
         }
         Insert: {
@@ -462,7 +461,6 @@ export type Database = {
           name: string
           payment_terms?: string | null
           priority?: string | null
-          rating?: number | null
           upi_id?: string | null
         }
         Update: {
@@ -480,7 +478,6 @@ export type Database = {
           name?: string
           payment_terms?: string | null
           priority?: string | null
-          rating?: number | null
           upi_id?: string | null
         }
         Relationships: []
