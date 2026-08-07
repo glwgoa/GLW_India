@@ -26,6 +26,7 @@ import {
 import type { VendorRow } from "@/types/vendor";
 
 const PRIORITIES = ["primary", "secondary", "tertiary"] as const;
+const PAYMENT_TERMS = ["After Every Booking", "Weekly", "Fortnightly", "Monthly"] as const;
 
 export function VendorFormDialog({
   vendor,
@@ -38,6 +39,7 @@ export function VendorFormDialog({
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [priority, setPriority] = useState<string>(vendor?.priority ?? "");
+  const [paymentTerms, setPaymentTerms] = useState<string>(vendor?.payment_terms ?? "");
   const isEdit = !!vendor;
 
   async function handleSubmit(formData: FormData) {
@@ -59,7 +61,7 @@ export function VendorFormDialog({
       bank_account_number: str("bankAccountNumber"),
       ifsc_code: str("ifscCode"),
       upi_id: str("upiId"),
-      payment_terms: str("paymentTerms"),
+      payment_terms: paymentTerms || null,
     };
 
     const { error } = isEdit
@@ -207,13 +209,19 @@ export function VendorFormDialog({
                 <Input id="upiId" name="upiId" defaultValue={vendor?.upi_id ?? ""} />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="paymentTerms">Payment terms</Label>
-                <Input
-                  id="paymentTerms"
-                  name="paymentTerms"
-                  placeholder="e.g. Net 30"
-                  defaultValue={vendor?.payment_terms ?? ""}
-                />
+                <Label>Payment terms</Label>
+                <Select value={paymentTerms} onValueChange={(v) => setPaymentTerms(v ?? "")}>
+                  <SelectTrigger>
+                    <SelectValue>{(value: string) => value || "Select terms"}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PAYMENT_TERMS.map((t) => (
+                      <SelectItem key={t} value={t}>
+                        {t}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>

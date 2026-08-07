@@ -64,11 +64,13 @@ export function AppSidebar({ profile }: { profile: Profile }) {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-2 py-1.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-semibold">
+        <div className="flex items-center gap-2 overflow-hidden px-2 py-1.5">
+          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-semibold">
             GI
           </div>
-          <span className="text-sm font-semibold">GLW India Ops</span>
+          <span className="truncate text-sm font-semibold whitespace-nowrap group-data-[collapsible=icon]:hidden">
+            GLW India Ops
+          </span>
         </div>
       </SidebarHeader>
       <SidebarContent>
@@ -92,11 +94,11 @@ export function AppSidebar({ profile }: { profile: Profile }) {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <div className="flex items-center gap-2 px-2 py-1.5">
-          <Avatar className="h-7 w-7">
+        <div className="flex items-center gap-2 overflow-hidden px-2 py-1.5">
+          <Avatar className="h-7 w-7 shrink-0">
             <AvatarFallback className="text-xs">{initials(profile.full_name)}</AvatarFallback>
           </Avatar>
-          <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex min-w-0 flex-1 flex-col group-data-[collapsible=icon]:hidden">
             <span className="truncate text-xs font-medium">{profile.full_name}</span>
             <span className="truncate text-xs capitalize text-muted-foreground">
               {profile.role.replace("_", " ")}
