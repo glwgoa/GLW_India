@@ -21,18 +21,22 @@ export default async function ProjectsPage() {
 
   const canCreateProject = profile.role === "admin" || profile.role === "project_manager";
 
-  const [{ data: projects }, { data: vendors }, { data: regions }] = await Promise.all([
-    supabase
-      .from("projects")
-      .select("*, region:regions(name), vendor:vendors(name)")
-      .order("title"),
-    canCreateProject
-      ? supabase.from("vendors").select("id, name").order("name")
-      : Promise.resolve({ data: [] as { id: string; name: string }[] }),
-    canCreateProject
-      ? supabase.from("regions").select("id, name").order("name")
-      : Promise.resolve({ data: [] as { id: string; name: string }[] }),
-  ]);
+  const [{ data: projects }, { data: vendors }, { data: regions }, { data: employees }] =
+    await Promise.all([
+      supabase
+        .from("projects")
+        .select("*, region:regions(name), vendor:vendors(name), employee:profiles!projects_assigned_employee_id_fkey(full_name)")
+        .order("title"),
+      canCreateProject
+        ? supabase.from("vendors").select("id, name").order("name")
+        : Promise.resolve({ data: [] as { id: string; name: string }[] }),
+      canCreateProject
+        ? supabase.from("regions").select("id, name").order("name")
+        : Promise.resolve({ data: [] as { id: string; name: string }[] }),
+      canCreateProject
+        ? supabase.from("profiles").select("id, full_name").order("full_name")
+        : Promise.resolve({ data: [] as { id: string; full_name: string }[] }),
+    ]);
 
   return (
     <ProjectsClient
@@ -40,6 +44,7 @@ export default async function ProjectsPage() {
       profile={profile}
       vendors={vendors ?? []}
       regions={regions ?? []}
+      employees={employees ?? []}
     />
   );
 }

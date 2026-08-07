@@ -254,6 +254,7 @@ export type Database = {
       }
       projects: {
         Row: {
+          assigned_employee_id: string | null
           assigned_vendor_id: string | null
           budget: number | null
           deadline: string | null
@@ -263,6 +264,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          assigned_employee_id?: string | null
           assigned_vendor_id?: string | null
           budget?: number | null
           deadline?: string | null
@@ -272,6 +274,7 @@ export type Database = {
           title: string
         }
         Update: {
+          assigned_employee_id?: string | null
           assigned_vendor_id?: string | null
           budget?: number | null
           deadline?: string | null
@@ -281,6 +284,20 @@ export type Database = {
           title?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "projects_assigned_employee_id_fkey"
+            columns: ["assigned_employee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_assigned_employee_id_fkey"
+            columns: ["assigned_employee_id"]
+            isOneToOne: false
+            referencedRelation: "vw_monthly_attendance_summary"
+            referencedColumns: ["user_id"]
+          },
           {
             foreignKeyName: "projects_assigned_vendor_id_fkey"
             columns: ["assigned_vendor_id"]

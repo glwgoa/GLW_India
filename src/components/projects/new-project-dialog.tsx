@@ -27,15 +27,18 @@ import {
 export function NewProjectDialog({
   vendors,
   regions,
+  employees,
   onAdded,
 }: {
   vendors: { id: string; name: string }[];
   regions: { id: string; name: string }[];
+  employees: { id: string; full_name: string }[];
   onAdded: () => void | Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [vendorId, setVendorId] = useState<string>("");
+  const [employeeId, setEmployeeId] = useState<string>("");
   const [regionId, setRegionId] = useState<string>("");
 
   async function handleSubmit(formData: FormData) {
@@ -54,6 +57,7 @@ export function NewProjectDialog({
       title,
       region_id: regionId,
       assigned_vendor_id: vendorId || null,
+      assigned_employee_id: employeeId || null,
       budget,
       deadline: deadline ? new Date(deadline).toISOString() : null,
       status: "active",
@@ -69,6 +73,7 @@ export function NewProjectDialog({
     toast.success("Project created");
     setOpen(false);
     setVendorId("");
+    setEmployeeId("");
     setRegionId("");
     await onAdded();
   }
@@ -82,7 +87,7 @@ export function NewProjectDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>New project</DialogTitle>
-          <DialogDescription>Assign a project to a vendor and region.</DialogDescription>
+          <DialogDescription>Assign a project to a vendor, employee, and region.</DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -125,6 +130,24 @@ export function NewProjectDialog({
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Employee</Label>
+            <Select value={employeeId} onValueChange={(v) => setEmployeeId(v ?? "")}>
+              <SelectTrigger>
+                <SelectValue>
+                  {(value: string) => employees.find((e) => e.id === value)?.full_name ?? "Optional"}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {employees.map((e) => (
+                  <SelectItem key={e.id} value={e.id}>
+                    {e.full_name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

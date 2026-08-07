@@ -10,6 +10,7 @@ import {
   Clock,
   BarChart3,
   Building2,
+  Users,
   LogOut,
 } from "lucide-react";
 import {
@@ -39,6 +40,7 @@ const NAV_ITEMS = [
     roles: ["admin", "project_manager", "vendor"] as const,
   },
   { href: "/projects", label: "Projects", icon: FolderKanban, roles: null },
+  { href: "/employees", label: "Employees", icon: Users, roles: null },
   { href: "/attendance", label: "Attendance", icon: Clock, roles: null },
   {
     href: "/mis-reports",
