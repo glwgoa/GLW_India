@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import type { AttendanceRow } from "@/types/attendance";
 
 function getPosition(): Promise<GeolocationPosition | null> {
@@ -33,6 +35,7 @@ export function ClockWidget({
   onClockOut: (record: AttendanceRow) => void;
 }) {
   const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState("");
 
   async function handleClockIn() {
     setBusy(true);
@@ -64,7 +67,7 @@ export function ClockWidget({
     const supabase = createClient();
     const { error } = await supabase
       .from("attendance")
-      .update({ clock_out: clockOut })
+      .update({ clock_out: clockOut, note: note || null })
       .eq("id", openRecord.id);
 
     setBusy(false);
@@ -73,7 +76,8 @@ export function ClockWidget({
       return;
     }
     toast.success("Clocked out");
-    onClockOut({ ...openRecord, clock_out: clockOut });
+    setNote("");
+    onClockOut({ ...openRecord, clock_out: clockOut, note: note || null });
   }
 
   return (
@@ -86,7 +90,21 @@ export function ClockWidget({
             : "You're not clocked in"}
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-3">
+        {openRecord && (
+          <div className="space-y-1.5">
+            <Label htmlFor="clock-out-note" className="text-xs text-muted-foreground">
+              Note (optional)
+            </Label>
+            <Textarea
+              id="clock-out-note"
+              placeholder="Anything worth flagging about today..."
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              rows={3}
+            />
+          </div>
+        )}
         {openRecord ? (
           <Button onClick={handleClockOut} disabled={busy} variant="destructive">
             {busy ? "Clocking out..." : "Clock out"}

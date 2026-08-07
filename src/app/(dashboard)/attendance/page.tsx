@@ -20,6 +20,7 @@ export default async function AttendancePage() {
   if (!profile) redirect("/login");
 
   const isAdminHr = profile.role === "admin" || profile.role === "hr";
+  const isAdmin = profile.role === "admin";
 
   const [{ data: ownRows }, { data: orgRows }] = await Promise.all([
     supabase
@@ -46,6 +47,7 @@ export default async function AttendancePage() {
       initialOwnRows={own}
       orgRows={(orgRows ?? []) as unknown as AttendanceRow[]}
       isAdminHr={isAdminHr}
+      isAdmin={isAdmin}
     />
   );
 }

@@ -25,9 +25,12 @@ function formatDuration(clockIn: string, clockOut: string | null) {
 export function AttendanceTable({
   rows,
   showEmployee,
+  showNote,
 }: {
   rows: AttendanceRow[];
   showEmployee: boolean;
+  /** Notes are admin-only, even for HR or the employee's own history. */
+  showNote: boolean;
 }) {
   function handleDownload() {
     const headers = [
@@ -36,6 +39,7 @@ export function AttendanceTable({
       "Clock out",
       "Duration",
       "Status",
+      ...(showNote ? ["Note"] : []),
     ];
     const csvRows = rows.map((row) => [
       ...(showEmployee ? [row.profile?.full_name ?? "—"] : []),
@@ -43,6 +47,7 @@ export function AttendanceTable({
       row.clock_out ? new Date(row.clock_out).toLocaleString() : "—",
       formatDuration(row.clock_in, row.clock_out),
       row.clock_out ? row.status : "active",
+      ...(showNote ? [row.note ?? ""] : []),
     ]);
     const date = new Date().toISOString().slice(0, 10);
     downloadCsv(`attendance-${date}.csv`, headers, csvRows);
@@ -69,6 +74,7 @@ export function AttendanceTable({
               <TableHead>Clock out</TableHead>
               <TableHead>Duration</TableHead>
               <TableHead>Status</TableHead>
+              {showNote && <TableHead>Note</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -85,6 +91,11 @@ export function AttendanceTable({
                     {row.clock_out ? row.status : "active"}
                   </Badge>
                 </TableCell>
+                {showNote && (
+                  <TableCell className="max-w-48 truncate text-muted-foreground">
+                    {row.note ?? "—"}
+                  </TableCell>
+                )}
               </TableRow>
             ))}
           </TableBody>

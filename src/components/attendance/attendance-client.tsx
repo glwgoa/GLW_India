@@ -12,12 +12,14 @@ export function AttendanceClient({
   initialOwnRows,
   orgRows,
   isAdminHr,
+  isAdmin,
 }: {
   userId: string;
   initialOpenRecord: AttendanceRow | null;
   initialOwnRows: AttendanceRow[];
   orgRows: AttendanceRow[];
   isAdminHr: boolean;
+  isAdmin: boolean;
 }) {
   const [openRecord, setOpenRecord] = useState<AttendanceRow | null>(initialOpenRecord);
   const [ownRows, setOwnRows] = useState<AttendanceRow[]>(initialOwnRows);
@@ -40,7 +42,7 @@ export function AttendanceClient({
         onClockIn={handleClockIn}
         onClockOut={handleClockOut}
       />
-      <AttendanceTable rows={ownRows} showEmployee={false} />
+      <AttendanceTable rows={ownRows} showEmployee={false} showNote={isAdmin} />
     </div>
   );
 
@@ -65,7 +67,7 @@ export function AttendanceClient({
           {ownSection}
         </TabsContent>
         <TabsContent value="team" className="mt-4">
-          <AttendanceTable rows={orgRows} showEmployee />
+          <AttendanceTable rows={orgRows} showEmployee showNote={isAdmin} />
         </TabsContent>
       </Tabs>
     </div>

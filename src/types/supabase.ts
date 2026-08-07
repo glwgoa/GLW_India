@@ -20,6 +20,7 @@ export type Database = {
           clock_out: string | null
           id: string
           location_coordinates: unknown
+          note: string | null
           status: string | null
           user_id: string | null
         }
@@ -28,6 +29,7 @@ export type Database = {
           clock_out?: string | null
           id?: string
           location_coordinates?: unknown
+          note?: string | null
           status?: string | null
           user_id?: string | null
         }
@@ -36,6 +38,7 @@ export type Database = {
           clock_out?: string | null
           id?: string
           location_coordinates?: unknown
+          note?: string | null
           status?: string | null
           user_id?: string | null
         }
