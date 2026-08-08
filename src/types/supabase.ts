@@ -22,6 +22,7 @@ export type Database = {
           location_coordinates: unknown
           note: string | null
           status: string | null
+          task: string | null
           user_id: string | null
         }
         Insert: {
@@ -31,6 +32,7 @@ export type Database = {
           location_coordinates?: unknown
           note?: string | null
           status?: string | null
+          task?: string | null
           user_id?: string | null
         }
         Update: {
@@ -40,6 +42,7 @@ export type Database = {
           location_coordinates?: unknown
           note?: string | null
           status?: string | null
+          task?: string | null
           user_id?: string | null
         }
         Relationships: [

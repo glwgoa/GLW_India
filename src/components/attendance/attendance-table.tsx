@@ -39,6 +39,7 @@ export function AttendanceTable({
       "Clock out",
       "Duration",
       "Status",
+      "Task",
       ...(showNote ? ["Note"] : []),
     ];
     const csvRows = rows.map((row) => [
@@ -47,6 +48,7 @@ export function AttendanceTable({
       row.clock_out ? new Date(row.clock_out).toLocaleString() : "—",
       formatDuration(row.clock_in, row.clock_out),
       row.clock_out ? row.status : "active",
+      row.task ?? "",
       ...(showNote ? [row.note ?? ""] : []),
     ]);
     const date = new Date().toISOString().slice(0, 10);
@@ -74,6 +76,7 @@ export function AttendanceTable({
               <TableHead>Clock out</TableHead>
               <TableHead>Duration</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead>Task</TableHead>
               {showNote && <TableHead>Note</TableHead>}
             </TableRow>
           </TableHeader>
@@ -91,6 +94,7 @@ export function AttendanceTable({
                     {row.clock_out ? row.status : "active"}
                   </Badge>
                 </TableCell>
+                <TableCell className="text-muted-foreground">{row.task ?? "—"}</TableCell>
                 {showNote && (
                   <TableCell className="max-w-48 truncate text-muted-foreground">
                     {row.note ?? "—"}

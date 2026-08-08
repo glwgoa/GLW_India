@@ -6,5 +6,6 @@ export type AttendanceRow = {
   location_coordinates: string | null;
   status: string;
   note: string | null;
+  task: string | null;
   profile?: { full_name: string } | null;
 };
