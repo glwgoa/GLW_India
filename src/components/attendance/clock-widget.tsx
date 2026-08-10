@@ -80,6 +80,10 @@ export function ClockWidget({
 
   async function handleClockOut() {
     if (!openRecord) return;
+    if (!task) {
+      toast.error("Select a task before clocking out");
+      return;
+    }
     setBusy(true);
     const clockOut = new Date().toISOString();
     const supabase = createClient();
@@ -113,7 +117,9 @@ export function ClockWidget({
         {openRecord && (
           <>
             <div className="space-y-1.5">
-              <Label className="text-xs text-muted-foreground">Task</Label>
+              <Label className="text-xs text-muted-foreground">
+                Task <span className="text-destructive">*</span>
+              </Label>
               <Select value={task} onValueChange={(v) => setTask(v ?? "")}>
                 <SelectTrigger className="w-full">
                   <SelectValue>{(value: string) => value || "Select task"}</SelectValue>
@@ -142,7 +148,7 @@ export function ClockWidget({
           </>
         )}
         {openRecord ? (
-          <Button onClick={handleClockOut} disabled={busy} variant="destructive">
+          <Button onClick={handleClockOut} disabled={busy || !task} variant="destructive">
             {busy ? "Clocking out..." : "Clock out"}
           </Button>
         ) : (
