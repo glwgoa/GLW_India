@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { HyperText } from "@/components/ui/hyper-text";
 
 const MODULES = [
   { href: "/bookings", label: "Bookings", description: "Active bookings and SLA status" },
@@ -29,7 +30,7 @@ export default async function DashboardOverviewPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold">Overview</h1>
+        <HyperText as="h1" className="text-2xl font-semibold">Overview</HyperText>
         <p className="text-sm text-muted-foreground">
           Scoped to what your role can see — RLS handles the filtering.
         </p>

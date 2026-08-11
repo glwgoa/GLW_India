@@ -5,6 +5,7 @@ import { usePollingBookings } from "@/hooks/use-polling-bookings";
 import { BookingsTable } from "./bookings-table";
 import { NewBookingDialog } from "./new-booking-dialog";
 import { Button } from "@/components/ui/button";
+import { HyperText } from "@/components/ui/hyper-text";
 import type { BookingRow } from "@/types/booking";
 import type { Profile } from "@/types/profile";
 
@@ -28,7 +29,7 @@ export function BookingsClient({
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">Bookings</h1>
+          <HyperText as="h1" className="text-2xl font-semibold">Bookings</HyperText>
           <p className="text-sm text-muted-foreground">
             Auto-refreshes every 30s. Status and SLA are set manually by staff.
           </p>

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { VendorsGrid } from "./vendors-grid";
 import { VendorFormDialog } from "./vendor-form-dialog";
+import { HyperText } from "@/components/ui/hyper-text";
 import type { VendorRow } from "@/types/vendor";
 import type { Profile } from "@/types/profile";
 
@@ -32,7 +33,7 @@ export function VendorsClient({
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Vendors</h1>
+          <HyperText as="h1" className="text-2xl font-semibold">Vendors</HyperText>
           <p className="text-sm text-muted-foreground">
             {profile.role === "vendor"
               ? "Your vendor profile."

@@ -5,6 +5,7 @@ import { VendorEfficiencyChart } from "@/components/mis/vendor-efficiency-chart"
 import { RegionRevenueChart } from "@/components/mis/region-revenue-chart";
 import { AttendanceSummaryChart } from "@/components/mis/attendance-summary-chart";
 import { SlaComplianceChart } from "@/components/mis/sla-compliance-chart";
+import { HyperText } from "@/components/ui/hyper-text";
 import type { Profile } from "@/types/profile";
 import type {
   VendorEfficiencyRow,
@@ -44,7 +45,7 @@ export default async function MisReportsPage() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-semibold">MIS Reports</h1>
+        <HyperText as="h1" className="text-2xl font-semibold">MIS Reports</HyperText>
         <p className="text-sm text-muted-foreground">
           Scoped to what your role can see — the underlying views inherit your row-level
           security automatically. Calculation formulas are placeholders pending final figures.

@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { KanbanBoard } from "./kanban-board";
 import { NewProjectDialog } from "./new-project-dialog";
+import { HyperText } from "@/components/ui/hyper-text";
 import type { ProjectRow } from "@/types/project";
 import type { Profile } from "@/types/profile";
 
@@ -41,7 +42,7 @@ export function ProjectsClient({
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Projects</h1>
+          <HyperText as="h1" className="text-2xl font-semibold">Projects</HyperText>
           <p className="text-sm text-muted-foreground">
             Drag isn&apos;t wired up — move a card by changing its status.
           </p>

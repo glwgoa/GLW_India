@@ -5,6 +5,7 @@ import { useRegion } from "@/lib/region-context";
 import { useRealtimeInventory, type InventoryRow } from "@/hooks/use-realtime-inventory";
 import { InventoryGrid } from "./inventory-grid";
 import { AddInventoryDialog } from "./add-inventory-dialog";
+import { HyperText } from "@/components/ui/hyper-text";
 import type { Profile } from "@/types/profile";
 
 export function InventoryClient({
@@ -46,7 +47,7 @@ export function InventoryClient({
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold">Inventory</h1>
+          <HyperText as="h1" className="text-2xl font-semibold">Inventory</HyperText>
           <p className="text-sm text-muted-foreground">
             {aggregated
               ? "Aggregated stock across all regions — live updates, read-only."
