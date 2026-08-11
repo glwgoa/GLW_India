@@ -10,18 +10,13 @@ import {
   YAxis,
 } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { HyperText } from "@/components/ui/hyper-text";
 import type { VendorEfficiencyRow } from "@/types/mis";
 
 export function VendorEfficiencyChart({ data }: { data: VendorEfficiencyRow[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>
-          <HyperText as="span" className="overflow-visible py-0 text-base font-semibold">
-            Vendor response efficiency
-          </HyperText>
-        </CardTitle>
+        <CardTitle>Vendor response efficiency</CardTitle>
         <CardDescription>% of completed bookings that met SLA, per vendor</CardDescription>
       </CardHeader>
       <CardContent className="h-72">

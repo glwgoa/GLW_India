@@ -10,18 +10,13 @@ import {
   YAxis,
 } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { HyperText } from "@/components/ui/hyper-text";
 import type { SlaComplianceRow } from "@/types/mis";
 
 export function SlaComplianceChart({ data }: { data: SlaComplianceRow[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>
-          <HyperText as="span" className="overflow-visible py-0 text-base font-semibold">
-            SLA compliance by region
-          </HyperText>
-        </CardTitle>
+        <CardTitle>SLA compliance by region</CardTitle>
         <CardDescription>% of bookings that met SLA, per region</CardDescription>
       </CardHeader>
       <CardContent className="h-72">
