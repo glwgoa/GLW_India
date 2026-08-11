@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { PROJECT_STATUSES } from "@/lib/constants";
+import { HyperText } from "@/components/ui/hyper-text";
 import type { ProjectRow } from "@/types/project";
 import type { Profile } from "@/types/profile";
 import type { TablesUpdate } from "@/types/supabase";
@@ -87,7 +88,9 @@ export function KanbanBoard({
         return (
           <div key={status} className="space-y-3">
             <div className="flex items-center justify-between px-1">
-              <h2 className="text-sm font-semibold">{COLUMN_LABEL[status]}</h2>
+              <HyperText as="h2" className="overflow-visible py-0 text-sm font-semibold">
+                {COLUMN_LABEL[status]}
+              </HyperText>
               <span className="text-xs text-muted-foreground">{columnProjects.length}</span>
             </div>
             <div className="space-y-3">

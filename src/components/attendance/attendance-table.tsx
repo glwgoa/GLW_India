@@ -15,7 +15,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { downloadCsv } from "@/lib/csv";
+import { HyperText } from "@/components/ui/hyper-text";
 import type { AttendanceRow } from "@/types/attendance";
+
+const TH = "overflow-visible py-0 text-xs font-medium";
 
 function formatDuration(clockIn: string, clockOut: string | null) {
   if (!clockOut) return "—";
@@ -149,13 +152,13 @@ export function AttendanceTable({
           <Table>
             <TableHeader>
               <TableRow>
-                {showEmployee && <TableHead>Employee</TableHead>}
-                <TableHead>Clock in</TableHead>
-                <TableHead>Clock out</TableHead>
-                <TableHead>Duration</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Task</TableHead>
-                {showNote && <TableHead>Note</TableHead>}
+                {showEmployee && <TableHead><HyperText as="span" className={TH}>Employee</HyperText></TableHead>}
+                <TableHead><HyperText as="span" className={TH}>Clock in</HyperText></TableHead>
+                <TableHead><HyperText as="span" className={TH}>Clock out</HyperText></TableHead>
+                <TableHead><HyperText as="span" className={TH}>Duration</HyperText></TableHead>
+                <TableHead><HyperText as="span" className={TH}>Status</HyperText></TableHead>
+                <TableHead><HyperText as="span" className={TH}>Task</HyperText></TableHead>
+                {showNote && <TableHead><HyperText as="span" className={TH}>Note</HyperText></TableHead>}
               </TableRow>
             </TableHeader>
             <TableBody>

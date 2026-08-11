@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { signOut } from "@/lib/actions/auth";
+import { HyperText } from "@/components/ui/hyper-text";
 import type { Profile } from "@/types/profile";
 
 const NAV_ITEMS = [
@@ -70,14 +71,21 @@ export function AppSidebar({ profile }: { profile: Profile }) {
           <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-semibold">
             GI
           </div>
-          <span className="truncate text-sm font-semibold whitespace-nowrap group-data-[collapsible=icon]:hidden">
+          <HyperText
+            as="span"
+            className="overflow-visible truncate py-0 text-sm font-semibold whitespace-nowrap group-data-[collapsible=icon]:hidden"
+          >
             GLW India Ops
-          </span>
+          </HyperText>
         </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Modules</SidebarGroupLabel>
+          <SidebarGroupLabel>
+            <HyperText as="span" className="overflow-visible py-0 text-xs font-medium">
+              Modules
+            </HyperText>
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
@@ -87,7 +95,9 @@ export function AppSidebar({ profile }: { profile: Profile }) {
                     isActive={pathname === item.href}
                   >
                     <item.icon />
-                    <span>{item.label}</span>
+                    <HyperText as="span" className="overflow-visible py-0 text-sm font-normal">
+                      {item.label}
+                    </HyperText>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -110,7 +120,9 @@ export function AppSidebar({ profile }: { profile: Profile }) {
         <form action={signOut}>
           <SidebarMenuButton type="submit" className="w-full">
             <LogOut />
-            <span>Sign out</span>
+            <HyperText as="span" className="overflow-visible py-0 text-sm font-normal">
+              Sign out
+            </HyperText>
           </SidebarMenuButton>
         </form>
       </SidebarFooter>

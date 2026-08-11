@@ -11,6 +11,7 @@ import {
   YAxis,
 } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { HyperText } from "@/components/ui/hyper-text";
 import type { AttendanceSummaryRow } from "@/types/mis";
 
 function formatMonth(value: string) {
@@ -47,7 +48,11 @@ export function AttendanceSummaryChart({ data }: { data: AttendanceSummaryRow[] 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Attendance summary</CardTitle>
+        <CardTitle>
+          <HyperText as="span" className="overflow-visible py-0 text-base font-semibold">
+            Attendance summary
+          </HyperText>
+        </CardTitle>
         <CardDescription>Org-wide average hours worked and days present, by month</CardDescription>
       </CardHeader>
       <CardContent className="h-72">

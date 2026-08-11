@@ -11,13 +11,18 @@ import {
   YAxis,
 } from "recharts";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { HyperText } from "@/components/ui/hyper-text";
 import type { RegionRevenueRow } from "@/types/mis";
 
 export function RegionRevenueChart({ data }: { data: RegionRevenueRow[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Revenue & orders by region</CardTitle>
+        <CardTitle>
+          <HyperText as="span" className="overflow-visible py-0 text-base font-semibold">
+            Revenue & orders by region
+          </HyperText>
+        </CardTitle>
         <CardDescription>Total orders (bar) vs. total revenue (line)</CardDescription>
       </CardHeader>
       <CardContent className="h-72">

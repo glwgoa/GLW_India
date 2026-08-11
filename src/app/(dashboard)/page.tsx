@@ -39,19 +39,31 @@ export default async function DashboardOverviewPage() {
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Bookings visible to you</CardDescription>
+            <CardDescription>
+              <HyperText as="span" className="overflow-visible py-0 text-sm font-normal">
+                Bookings visible to you
+              </HyperText>
+            </CardDescription>
             <CardTitle className="text-3xl">{totalBookings ?? 0}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>SLA breached</CardDescription>
+            <CardDescription>
+              <HyperText as="span" className="overflow-visible py-0 text-sm font-normal">
+                SLA breached
+              </HyperText>
+            </CardDescription>
             <CardTitle className="text-3xl text-destructive">{breachedBookings ?? 0}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>Active projects</CardDescription>
+            <CardDescription>
+              <HyperText as="span" className="overflow-visible py-0 text-sm font-normal">
+                Active projects
+              </HyperText>
+            </CardDescription>
             <CardTitle className="text-3xl">{activeProjects ?? 0}</CardTitle>
           </CardHeader>
         </Card>
@@ -62,7 +74,11 @@ export default async function DashboardOverviewPage() {
           <Link key={mod.href} href={mod.href}>
             <Card className="transition-colors hover:bg-muted/50">
               <CardHeader>
-                <CardTitle className="text-base">{mod.label}</CardTitle>
+                <CardTitle className="text-base">
+                  <HyperText as="span" className="overflow-visible py-0 text-base font-semibold">
+                    {mod.label}
+                  </HyperText>
+                </CardTitle>
                 <CardDescription>{mod.description}</CardDescription>
               </CardHeader>
             </Card>

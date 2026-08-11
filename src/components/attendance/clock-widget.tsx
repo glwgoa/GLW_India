@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { HyperText } from "@/components/ui/hyper-text";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
@@ -106,7 +107,11 @@ export function ClockWidget({
   return (
     <Card className="max-w-sm">
       <CardHeader>
-        <CardTitle>Time clock</CardTitle>
+        <CardTitle>
+          <HyperText as="span" className="overflow-visible py-0 text-base font-semibold">
+            Time clock
+          </HyperText>
+        </CardTitle>
         <CardDescription>
           {openRecord
             ? `Clocked in at ${new Date(openRecord.clock_in).toLocaleTimeString()}`

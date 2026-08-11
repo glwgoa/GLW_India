@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { HyperText } from "@/components/ui/hyper-text";
 import type { BookingRow, BookingStatus, SlaStatus } from "@/types/booking";
 import type { Profile } from "@/types/profile";
 import type { TablesUpdate } from "@/types/supabase";
@@ -28,6 +29,8 @@ const BOOKING_STATUSES: BookingStatus[] = [
   "cancelled",
 ];
 const SLA_STATUSES: SlaStatus[] = ["on_track", "warning", "breached", "met"];
+
+const TH = "overflow-visible py-0 text-xs font-medium";
 
 export function BookingsTable({
   bookings,
@@ -87,14 +90,14 @@ export function BookingsTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Customer</TableHead>
-            <TableHead>Region</TableHead>
-            <TableHead>Vendor</TableHead>
-            <TableHead>Product</TableHead>
-            <TableHead>Price</TableHead>
-            {canSeeProfit && <TableHead>Profit</TableHead>}
-            <TableHead>Status</TableHead>
-            <TableHead>SLA</TableHead>
+            <TableHead><HyperText as="span" className={TH}>Customer</HyperText></TableHead>
+            <TableHead><HyperText as="span" className={TH}>Region</HyperText></TableHead>
+            <TableHead><HyperText as="span" className={TH}>Vendor</HyperText></TableHead>
+            <TableHead><HyperText as="span" className={TH}>Product</HyperText></TableHead>
+            <TableHead><HyperText as="span" className={TH}>Price</HyperText></TableHead>
+            {canSeeProfit && <TableHead><HyperText as="span" className={TH}>Profit</HyperText></TableHead>}
+            <TableHead><HyperText as="span" className={TH}>Status</HyperText></TableHead>
+            <TableHead><HyperText as="span" className={TH}>SLA</HyperText></TableHead>
             {canDelete && <TableHead className="w-10" />}
           </TableRow>
         </TableHeader>
