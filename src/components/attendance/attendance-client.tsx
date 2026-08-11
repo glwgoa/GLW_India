@@ -4,7 +4,6 @@ import { useState } from "react";
 import { ClockWidget } from "./clock-widget";
 import { AttendanceTable } from "./attendance-table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { HyperText } from "@/components/ui/hyper-text";
 import type { AttendanceRow } from "@/types/attendance";
 
 export function AttendanceClient({
@@ -50,7 +49,7 @@ export function AttendanceClient({
   if (!isAdminHr) {
     return (
       <div className="space-y-4">
-        <HyperText as="h1" className="text-2xl font-semibold">Attendance</HyperText>
+        <h1 className="text-2xl font-semibold">Attendance</h1>
         {ownSection}
       </div>
     );
@@ -58,7 +57,7 @@ export function AttendanceClient({
 
   return (
     <div className="space-y-4">
-      <HyperText as="h1" className="text-2xl font-semibold">Attendance</HyperText>
+      <h1 className="text-2xl font-semibold">Attendance</h1>
       <Tabs defaultValue="mine">
         <TabsList>
           <TabsTrigger value="mine">My attendance</TabsTrigger>

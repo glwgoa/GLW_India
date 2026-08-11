@@ -6,7 +6,6 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { EmployeesGrid } from "./employees-grid";
 import { AddEmployeeDialog } from "./add-employee-dialog";
-import { HyperText } from "@/components/ui/hyper-text";
 import type { EmployeeRow } from "@/types/employee";
 import type { Profile } from "@/types/profile";
 
@@ -37,7 +36,7 @@ export function EmployeesClient({
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <HyperText as="h1" className="text-2xl font-semibold">Employees</HyperText>
+          <h1 className="text-2xl font-semibold">Employees</h1>
           <p className="text-sm text-muted-foreground">
             Everyone can view — only admins can add or edit.
           </p>
