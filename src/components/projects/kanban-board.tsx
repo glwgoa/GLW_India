@@ -18,6 +18,7 @@ import { PROJECT_STATUSES } from "@/lib/constants";
 import type { ProjectRow } from "@/types/project";
 import type { Profile } from "@/types/profile";
 import type { TablesUpdate } from "@/types/supabase";
+import { isPrivileged } from "@/lib/auth/roles";
 
 type ProjectUpdate = TablesUpdate<"projects">;
 
@@ -49,12 +50,12 @@ export function KanbanBoard({
   employees: { id: string; full_name: string }[];
 }) {
   function canModify(project: ProjectRow) {
-    if (profile.role === "admin") return true;
+    if (isPrivileged(profile.role)) return true;
     if (profile.role === "project_manager") return project.region_id === profile.region_id;
     return false;
   }
 
-  const canDelete = profile.role === "admin";
+  const canDelete = isPrivileged(profile.role);
 
   async function updateProject(project: ProjectRow, patch: ProjectUpdate) {
     const supabase = createClient();

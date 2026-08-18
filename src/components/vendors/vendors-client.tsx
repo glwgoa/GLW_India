@@ -8,6 +8,7 @@ import { VendorsGrid } from "./vendors-grid";
 import { VendorFormDialog } from "./vendor-form-dialog";
 import type { VendorRow } from "@/types/vendor";
 import type { Profile } from "@/types/profile";
+import { isPrivileged } from "@/lib/auth/roles";
 
 export function VendorsClient({
   initialVendors,
@@ -18,7 +19,7 @@ export function VendorsClient({
 }) {
   const [vendors, setVendors] = useState<VendorRow[]>(initialVendors);
   const [refreshing, setRefreshing] = useState(false);
-  const canAdd = profile.role === "admin";
+  const canAdd = isPrivileged(profile.role);
 
   const refresh = useCallback(async () => {
     setRefreshing(true);

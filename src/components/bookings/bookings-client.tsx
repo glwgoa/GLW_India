@@ -7,6 +7,7 @@ import { NewBookingDialog } from "./new-booking-dialog";
 import { Button } from "@/components/ui/button";
 import type { BookingRow } from "@/types/booking";
 import type { Profile } from "@/types/profile";
+import { isPrivileged } from "@/lib/auth/roles";
 
 export function BookingsClient({
   initialBookings,
@@ -22,7 +23,7 @@ export function BookingsClient({
   products: { id: string; name: string; sale_price: number | null }[];
 }) {
   const { bookings, setBookings, refresh, refreshing } = usePollingBookings(initialBookings);
-  const canCreateBooking = profile.role === "admin" || profile.role === "project_manager";
+  const canCreateBooking = isPrivileged(profile.role) || profile.role === "project_manager";
 
   return (
     <div className="space-y-4">

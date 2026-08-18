@@ -8,6 +8,7 @@ import { KanbanBoard } from "./kanban-board";
 import { NewProjectDialog } from "./new-project-dialog";
 import type { ProjectRow } from "@/types/project";
 import type { Profile } from "@/types/profile";
+import { isPrivileged } from "@/lib/auth/roles";
 
 const SELECT =
   "*, region:regions(name), vendor:vendors(name), employee:profiles!projects_assigned_employee_id_fkey(full_name)";
@@ -27,7 +28,7 @@ export function ProjectsClient({
 }) {
   const [projects, setProjects] = useState<ProjectRow[]>(initialProjects);
   const [refreshing, setRefreshing] = useState(false);
-  const canCreateProject = profile.role === "admin" || profile.role === "project_manager";
+  const canCreateProject = isPrivileged(profile.role) || profile.role === "project_manager";
 
   const refresh = useCallback(async () => {
     setRefreshing(true);

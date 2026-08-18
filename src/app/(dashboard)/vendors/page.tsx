@@ -20,7 +20,7 @@ export default async function VendorsPage() {
     .single<Profile>();
   if (!profile) redirect("/login");
 
-  requireRole(profile, ["admin", "project_manager", "vendor"]);
+  requireRole(profile, ["admin", "developer", "project_manager", "vendor"]);
 
   const { data: vendors } = await supabase.from("vendors").select("*").order("name");
 

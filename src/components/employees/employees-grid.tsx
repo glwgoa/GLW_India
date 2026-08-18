@@ -6,8 +6,10 @@ import { Badge } from "@/components/ui/badge";
 import { EditEmployeeDialog } from "./edit-employee-dialog";
 import type { EmployeeRow } from "@/types/employee";
 import type { Profile } from "@/types/profile";
+import { isPrivileged } from "@/lib/auth/roles";
 
 const ROLE_VARIANT: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
+  developer: "destructive",
   admin: "destructive",
   project_manager: "default",
   hr: "secondary",
@@ -35,7 +37,13 @@ export function EmployeesGrid({
   profile: Profile;
   refresh: () => void | Promise<void>;
 }) {
-  const canEdit = profile.role === "admin";
+  const canEdit = isPrivileged(profile.role);
+  // Admins can manage everyone except developers — only a developer can edit a developer's profile.
+  function canEditRow(employee: EmployeeRow) {
+    if (!canEdit) return false;
+    if (employee.role === "developer") return profile.role === "developer";
+    return true;
+  }
 
   if (employees.length === 0) {
     return <p className="text-sm text-muted-foreground">No employees to show.</p>;
@@ -57,7 +65,14 @@ export function EmployeesGrid({
                 </Badge>
               </div>
             </div>
-            {canEdit && <EditEmployeeDialog employee={employee} regions={regions} onSaved={refresh} />}
+            {canEditRow(employee) && (
+              <EditEmployeeDialog
+                employee={employee}
+                regions={regions}
+                actorRole={profile.role}
+                onSaved={refresh}
+              />
+            )}
           </CardHeader>
           <CardContent className="text-sm text-muted-foreground">
             {employee.region?.name ?? "No region assigned"}

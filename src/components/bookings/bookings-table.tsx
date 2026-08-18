@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import type { BookingRow, BookingStatus, SlaStatus } from "@/types/booking";
 import type { Profile } from "@/types/profile";
 import type { TablesUpdate } from "@/types/supabase";
+import { isPrivileged } from "@/lib/auth/roles";
 
 type BookingUpdate = TablesUpdate<"bookings">;
 
@@ -40,8 +41,8 @@ export function BookingsTable({
   profile: Profile;
   vendors: { id: string; name: string }[];
 }) {
-  const canAssignVendor = profile.role === "admin" || profile.role === "project_manager";
-  const canDelete = profile.role === "admin";
+  const canAssignVendor = isPrivileged(profile.role) || profile.role === "project_manager";
+  const canDelete = isPrivileged(profile.role);
   // Margin over what we pay the vendor — admin/PM only, not shown to the
   // vendor themselves or other roles.
   const canSeeProfit = canAssignVendor;

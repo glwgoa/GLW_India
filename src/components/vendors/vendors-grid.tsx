@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { VendorFormDialog } from "./vendor-form-dialog";
 import type { VendorRow } from "@/types/vendor";
 import type { Profile } from "@/types/profile";
+import { isPrivileged } from "@/lib/auth/roles";
 
 const PRIORITY_VARIANT: Record<string, "destructive" | "outline" | "secondary"> = {
   primary: "destructive",
@@ -28,7 +29,7 @@ export function VendorsGrid({
   refresh: () => void | Promise<void>;
 }) {
   function canEdit(vendor: VendorRow) {
-    if (profile.role === "admin") return true;
+    if (isPrivileged(profile.role)) return true;
     if (profile.role === "vendor") return vendor.id === profile.vendor_id;
     return false;
   }
@@ -39,7 +40,7 @@ export function VendorsGrid({
     return canEdit(vendor);
   }
 
-  const canDelete = profile.role === "admin";
+  const canDelete = isPrivileged(profile.role);
 
   async function deleteVendor(vendor: VendorRow) {
     if (

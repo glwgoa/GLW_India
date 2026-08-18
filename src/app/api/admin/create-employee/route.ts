@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient as createServiceRoleClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import type { UserRole } from "@/types/profile";
+import { isPrivileged } from "@/lib/auth/roles";
 
 const VALID_ROLES: UserRole[] = ["admin", "vendor", "project_manager", "hr", "employee", "developer"];
 
@@ -15,7 +16,7 @@ export async function POST(request: Request) {
   }
 
   const { data: profile } = await supabase.from("profiles").select("role").eq("id", user.id).single();
-  if (profile?.role !== "admin") {
+  if (!profile || !isPrivileged(profile.role as UserRole)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
@@ -40,6 +41,9 @@ export async function POST(request: Request) {
   }
   if (!VALID_ROLES.includes(role as UserRole)) {
     return NextResponse.json({ error: "Invalid role" }, { status: 400 });
+  }
+  if (role === "developer" && profile.role !== "developer") {
+    return NextResponse.json({ error: "Only a developer can grant the developer role" }, { status: 403 });
   }
 
   const admin = createServiceRoleClient(supabaseUrl, serviceRoleKey, {

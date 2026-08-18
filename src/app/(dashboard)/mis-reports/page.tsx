@@ -27,7 +27,7 @@ export default async function MisReportsPage() {
     .single<Profile>();
   if (!profile) redirect("/login");
 
-  requireRole(profile, ["admin", "project_manager"]);
+  requireRole(profile, ["admin", "developer", "project_manager"]);
 
   const [
     { data: vendorEfficiency },

@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ProjectsClient } from "@/components/projects/projects-client";
 import type { Profile } from "@/types/profile";
 import type { ProjectRow } from "@/types/project";
+import { isPrivileged } from "@/lib/auth/roles";
 
 export default async function ProjectsPage() {
   const supabase = await createClient();
@@ -19,7 +20,7 @@ export default async function ProjectsPage() {
     .single<Profile>();
   if (!profile) redirect("/login");
 
-  const canCreateProject = profile.role === "admin" || profile.role === "project_manager";
+  const canCreateProject = isPrivileged(profile.role) || profile.role === "project_manager";
 
   const [{ data: projects }, { data: vendors }, { data: regions }, { data: employees }] =
     await Promise.all([

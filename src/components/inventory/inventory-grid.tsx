@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { LOW_STOCK_THRESHOLD } from "@/lib/constants";
 import type { InventoryRow } from "@/hooks/use-realtime-inventory";
 import type { Profile } from "@/types/profile";
+import { isPrivileged } from "@/lib/auth/roles";
 
 type AggregatedRow = InventoryRow & { regionCount?: number };
 
@@ -31,7 +32,7 @@ export function InventoryGrid({
 }) {
   function canEditStock(row: InventoryRow) {
     if (aggregated) return false;
-    if (profile.role === "admin") return true;
+    if (isPrivileged(profile.role)) return true;
     if (profile.role === "project_manager") return row.region_id === profile.region_id;
     return false;
   }
@@ -40,7 +41,7 @@ export function InventoryGrid({
     // Deleting removes the product itself (catalog_items), which is
     // admin-only by RLS — PMs can edit/remove regional stock but not the
     // product record, so they never see this control.
-    return profile.role === "admin";
+    return isPrivileged(profile.role);
   }
 
   async function updateStock(row: InventoryRow, value: number) {

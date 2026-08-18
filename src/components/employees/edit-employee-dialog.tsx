@@ -31,16 +31,19 @@ const ROLES: UserRole[] = ["employee", "developer", "hr", "project_manager", "ad
 export function EditEmployeeDialog({
   employee,
   regions,
+  actorRole,
   onSaved,
 }: {
   employee: EmployeeRow;
   regions: { id: string; name: string }[];
+  actorRole: UserRole;
   onSaved: () => void | Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [role, setRole] = useState<string>(employee.role);
   const [regionId, setRegionId] = useState<string>(employee.region_id ?? "");
+  const availableRoles = actorRole === "developer" ? ROLES : ROLES.filter((r) => r !== "developer");
 
   async function handleSubmit(formData: FormData) {
     setSubmitting(true);
@@ -94,7 +97,7 @@ export function EditEmployeeDialog({
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {ROLES.map((r) => (
+                  {availableRoles.map((r) => (
                     <SelectItem key={r} value={r} className="capitalize">
                       {r.replace("_", " ")}
                     </SelectItem>

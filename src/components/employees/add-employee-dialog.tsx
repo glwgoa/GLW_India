@@ -28,15 +28,18 @@ const ROLES: UserRole[] = ["employee", "developer", "hr", "project_manager", "ad
 
 export function AddEmployeeDialog({
   regions,
+  actorRole,
   onAdded,
 }: {
   regions: { id: string; name: string }[];
+  actorRole: UserRole;
   onAdded: () => void | Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [role, setRole] = useState<string>("employee");
   const [regionId, setRegionId] = useState<string>("");
+  const availableRoles = actorRole === "developer" ? ROLES : ROLES.filter((r) => r !== "developer");
 
   async function handleSubmit(formData: FormData) {
     setSubmitting(true);
@@ -108,7 +111,7 @@ export function AddEmployeeDialog({
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {ROLES.map((r) => (
+                  {availableRoles.map((r) => (
                     <SelectItem key={r} value={r} className="capitalize">
                       {r.replace("_", " ")}
                     </SelectItem>

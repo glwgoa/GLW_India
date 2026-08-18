@@ -8,6 +8,7 @@ import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import type { Profile } from "@/types/profile";
+import { isPrivileged } from "@/lib/auth/roles";
 
 export default async function DashboardLayout({
   children,
@@ -36,7 +37,7 @@ export default async function DashboardLayout({
 
   const cookieStore = await cookies();
   const cookieRegion = cookieStore.get("selected_region_id")?.value;
-  const canViewAllRegions = profile.role === "admin" || profile.role === "project_manager";
+  const canViewAllRegions = isPrivileged(profile.role) || profile.role === "project_manager";
   const initialRegionId =
     cookieRegion ?? (canViewAllRegions ? "all" : (profile.region_id ?? "all"));
 

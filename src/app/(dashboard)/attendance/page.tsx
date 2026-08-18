@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AttendanceClient } from "@/components/attendance/attendance-client";
 import type { Profile } from "@/types/profile";
 import type { AttendanceRow } from "@/types/attendance";
+import { isPrivileged } from "@/lib/auth/roles";
 
 export default async function AttendancePage() {
   const supabase = await createClient();
@@ -19,8 +20,8 @@ export default async function AttendancePage() {
     .single<Profile>();
   if (!profile) redirect("/login");
 
-  const isAdminHr = profile.role === "admin" || profile.role === "hr";
-  const isAdmin = profile.role === "admin";
+  const isAdminHr = isPrivileged(profile.role) || profile.role === "hr";
+  const isAdmin = isPrivileged(profile.role);
 
   const [{ data: ownRows }, { data: orgRows }] = await Promise.all([
     supabase

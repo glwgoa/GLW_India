@@ -8,6 +8,7 @@ import { EmployeesGrid } from "./employees-grid";
 import { AddEmployeeDialog } from "./add-employee-dialog";
 import type { EmployeeRow } from "@/types/employee";
 import type { Profile } from "@/types/profile";
+import { isPrivileged } from "@/lib/auth/roles";
 
 const SELECT = "*, region:regions(name)";
 
@@ -22,7 +23,7 @@ export function EmployeesClient({
 }) {
   const [employees, setEmployees] = useState<EmployeeRow[]>(initialEmployees);
   const [refreshing, setRefreshing] = useState(false);
-  const canAdd = profile.role === "admin";
+  const canAdd = isPrivileged(profile.role);
 
   const refresh = useCallback(async () => {
     setRefreshing(true);
@@ -46,7 +47,9 @@ export function EmployeesClient({
             <RefreshCw className={refreshing ? "animate-spin" : ""} />
             Refresh
           </Button>
-          {canAdd && <AddEmployeeDialog regions={regions} onAdded={refresh} />}
+          {canAdd && (
+            <AddEmployeeDialog regions={regions} actorRole={profile.role} onAdded={refresh} />
+          )}
         </div>
       </div>
       <EmployeesGrid employees={employees} regions={regions} profile={profile} refresh={refresh} />

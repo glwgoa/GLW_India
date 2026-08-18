@@ -6,6 +6,7 @@ import { useRealtimeInventory, type InventoryRow } from "@/hooks/use-realtime-in
 import { InventoryGrid } from "./inventory-grid";
 import { AddInventoryDialog } from "./add-inventory-dialog";
 import type { Profile } from "@/types/profile";
+import { isPrivileged } from "@/lib/auth/roles";
 
 export function InventoryClient({
   initialRows,
@@ -21,7 +22,7 @@ export function InventoryClient({
   const { selectedRegionId } = useRegion();
   const { rows, setRows, refresh } = useRealtimeInventory(initialRows);
   const aggregated = selectedRegionId === "all";
-  const canAddProduct = profile.role === "admin";
+  const canAddProduct = isPrivileged(profile.role);
 
   const visibleRows = useMemo(() => {
     if (!aggregated) {

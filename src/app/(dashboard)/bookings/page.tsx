@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { BookingsClient } from "@/components/bookings/bookings-client";
 import type { Profile } from "@/types/profile";
 import type { BookingRow } from "@/types/booking";
+import { isPrivileged } from "@/lib/auth/roles";
 
 export default async function BookingsPage() {
   const supabase = await createClient();
@@ -19,7 +20,7 @@ export default async function BookingsPage() {
     .single<Profile>();
   if (!profile) redirect("/login");
 
-  const canAssignVendor = profile.role === "admin" || profile.role === "project_manager";
+  const canAssignVendor = isPrivileged(profile.role) || profile.role === "project_manager";
 
   const [{ data: bookings }, { data: vendors }, { data: regions }, { data: products }] =
     await Promise.all([
