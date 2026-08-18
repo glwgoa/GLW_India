@@ -42,7 +42,7 @@ export default async function ProjectsPage() {
     <ProjectsClient
       initialProjects={(projects ?? []) as unknown as ProjectRow[]}
       profile={profile}
-      vendors={vendors ?? []}
+      vendors={(vendors ?? []).map((v) => ({ ...v, name: v.name ?? "Unnamed vendor" }))}
       regions={regions ?? []}
       employees={employees ?? []}
     />

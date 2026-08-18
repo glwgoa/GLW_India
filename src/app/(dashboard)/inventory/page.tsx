@@ -34,7 +34,7 @@ export default async function InventoryPage() {
     <InventoryClient
       initialRows={(rows ?? []) as unknown as InventoryRow[]}
       profile={profile}
-      vendors={vendors ?? []}
+      vendors={(vendors ?? []).map((v) => ({ ...v, name: v.name ?? "Unnamed vendor" }))}
       regions={regions ?? []}
     />
   );

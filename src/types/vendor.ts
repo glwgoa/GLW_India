@@ -2,8 +2,8 @@ export type VendorPriority = "primary" | "secondary" | "tertiary";
 
 export type VendorRow = {
   id: string;
-  name: string;
-  contact_email: string;
+  name: string | null;
+  contact_email: string | null;
   contact_phone: string | null;
   additional_contact_number: string | null;
   category: string | null;

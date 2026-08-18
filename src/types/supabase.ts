@@ -458,13 +458,13 @@ export type Database = {
           bank_account_number: string | null
           category: string | null
           city: string | null
-          contact_email: string
+          contact_email: string | null
           contact_phone: string | null
           created_at: string | null
           id: string
           ifsc_code: string | null
           location: string | null
-          name: string
+          name: string | null
           payment_terms: string | null
           priority: string | null
           upi_id: string | null
@@ -475,13 +475,13 @@ export type Database = {
           bank_account_number?: string | null
           category?: string | null
           city?: string | null
-          contact_email: string
+          contact_email?: string | null
           contact_phone?: string | null
           created_at?: string | null
           id?: string
           ifsc_code?: string | null
           location?: string | null
-          name: string
+          name?: string | null
           payment_terms?: string | null
           priority?: string | null
           upi_id?: string | null
@@ -492,13 +492,13 @@ export type Database = {
           bank_account_number?: string | null
           category?: string | null
           city?: string | null
-          contact_email?: string
+          contact_email?: string | null
           contact_phone?: string | null
           created_at?: string | null
           id?: string
           ifsc_code?: string | null
           location?: string | null
-          name?: string
+          name?: string | null
           payment_terms?: string | null
           priority?: string | null
           upi_id?: string | null

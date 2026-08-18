@@ -49,8 +49,8 @@ export function VendorFormDialog({
     const str = (key: string) => (formData.get(key) as string) || null;
 
     const payload = {
-      name: formData.get("name") as string,
-      contact_email: formData.get("contactEmail") as string,
+      name: str("name"),
+      contact_email: str("contactEmail"),
       contact_phone: str("contactPhone"),
       additional_contact_number: str("additionalContactNumber"),
       category: str("category"),
@@ -112,7 +112,7 @@ export function VendorFormDialog({
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
-                <Input id="name" name="name" defaultValue={vendor?.name} required />
+                <Input id="name" name="name" defaultValue={vendor?.name ?? ""} required />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="category">Category</Label>
@@ -126,8 +126,7 @@ export function VendorFormDialog({
                 id="contactEmail"
                 name="contactEmail"
                 type="email"
-                defaultValue={vendor?.contact_email}
-                required
+                defaultValue={vendor?.contact_email ?? ""}
               />
             </div>
 

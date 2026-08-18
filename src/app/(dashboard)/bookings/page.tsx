@@ -42,7 +42,7 @@ export default async function BookingsPage() {
     <BookingsClient
       initialBookings={(bookings ?? []) as unknown as BookingRow[]}
       profile={profile}
-      vendors={vendors ?? []}
+      vendors={(vendors ?? []).map((v) => ({ ...v, name: v.name ?? "Unnamed vendor" }))}
       regions={regions ?? []}
       products={products ?? []}
     />

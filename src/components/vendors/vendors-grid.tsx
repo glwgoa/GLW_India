@@ -44,7 +44,7 @@ export function VendorsGrid({
   async function deleteVendor(vendor: VendorRow) {
     if (
       !window.confirm(
-        `Delete ${vendor.name}? Bookings/projects previously assigned to them will show as unassigned. This cannot be undone.`,
+        `Delete ${vendor.name ?? "this vendor"}? Bookings/projects previously assigned to them will show as unassigned. This cannot be undone.`,
       )
     ) {
       return;
@@ -72,7 +72,7 @@ export function VendorsGrid({
           <Card key={vendor.id}>
             <CardHeader className="flex items-start justify-between gap-2">
               <div>
-                <CardTitle className="text-base">{vendor.name}</CardTitle>
+                <CardTitle className="text-base">{vendor.name ?? "Unnamed vendor"}</CardTitle>
                 {vendor.category && (
                   <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
                     <Tag className="size-3" />
@@ -87,10 +87,12 @@ export function VendorsGrid({
               )}
             </CardHeader>
             <CardContent className="space-y-1.5 text-sm text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Mail className="size-3.5 shrink-0" />
-                <span className="truncate">{vendor.contact_email}</span>
-              </div>
+              {vendor.contact_email && (
+                <div className="flex items-center gap-2">
+                  <Mail className="size-3.5 shrink-0" />
+                  <span className="truncate">{vendor.contact_email}</span>
+                </div>
+              )}
               {vendor.contact_phone && (
                 <div className="flex items-center gap-2">
                   <Phone className="size-3.5 shrink-0" />
