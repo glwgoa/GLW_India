@@ -3,7 +3,7 @@ import { createClient as createServiceRoleClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import type { UserRole } from "@/types/profile";
 
-const VALID_ROLES: UserRole[] = ["admin", "vendor", "project_manager", "hr", "employee"];
+const VALID_ROLES: UserRole[] = ["admin", "vendor", "project_manager", "hr", "employee", "developer"];
 
 export async function POST(request: Request) {
   const supabase = await createClient();

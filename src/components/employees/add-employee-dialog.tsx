@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select";
 import type { UserRole } from "@/types/profile";
 
-const ROLES: UserRole[] = ["employee", "hr", "project_manager", "admin", "vendor"];
+const ROLES: UserRole[] = ["employee", "developer", "hr", "project_manager", "admin", "vendor"];
 
 export function AddEmployeeDialog({
   regions,

@@ -26,7 +26,7 @@ import {
 import type { UserRole } from "@/types/profile";
 import type { EmployeeRow } from "@/types/employee";
 
-const ROLES: UserRole[] = ["employee", "hr", "project_manager", "admin", "vendor"];
+const ROLES: UserRole[] = ["employee", "developer", "hr", "project_manager", "admin", "vendor"];
 
 export function EditEmployeeDialog({
   employee,
