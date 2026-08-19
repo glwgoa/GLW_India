@@ -5,7 +5,6 @@ import { RegionProvider } from "@/lib/region-context";
 import { AppSidebar } from "@/components/app-sidebar";
 import { RegionSwitcher } from "@/components/region-switcher";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
-import { UniversalSearch } from "@/components/universal-search";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import type { Profile } from "@/types/profile";
@@ -49,16 +48,13 @@ export default async function DashboardLayout({
       <SidebarProvider>
         <AppSidebar profile={profile} />
         <SidebarInset>
-          <header className="relative flex h-14 shrink-0 items-center justify-between gap-2 border-b px-4">
+          <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b px-4">
             <div className="flex items-center gap-2">
               <SidebarTrigger />
               <Separator orientation="vertical" className="h-4" />
               <span className="text-sm font-medium text-muted-foreground">
                 GLW India Ops Dashboard
               </span>
-            </div>
-            <div className="absolute inset-y-0 left-1/2 flex -translate-x-1/2 items-center">
-              <UniversalSearch />
             </div>
             <div className="flex items-center gap-3">
               <AnimatedThemeToggler />

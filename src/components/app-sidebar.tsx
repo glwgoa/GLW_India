@@ -27,6 +27,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { UniversalSearch } from "@/components/universal-search";
 import { signOut } from "@/lib/actions/auth";
 import type { Profile } from "@/types/profile";
 
@@ -80,6 +81,9 @@ export function AppSidebar({ profile }: { profile: Profile }) {
           <span className="truncate text-sm font-semibold whitespace-nowrap group-data-[collapsible=icon]:hidden">
             GLW India Ops
           </span>
+        </div>
+        <div className="px-1 pb-1 group-data-[collapsible=icon]:hidden">
+          <UniversalSearch />
         </div>
       </SidebarHeader>
       <SidebarContent>

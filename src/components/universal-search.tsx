@@ -345,7 +345,7 @@ export const UniversalSearch = () => {
           {step === 2 && (
             <motion.div
               key="search-text-wrapper"
-              className="search-results absolute top-full left-1/2 z-40 mt-1.5 w-56 -translate-x-1/2"
+              className="search-results absolute top-full left-0 z-40 mt-1.5 w-56"
               role="listbox"
               aria-label="Search results"
               exit={{ scale: 0, opacity: 0 }}
