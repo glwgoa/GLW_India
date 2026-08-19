@@ -13,11 +13,13 @@ export function InventoryClient({
   profile,
   vendors,
   regions,
+  categories,
 }: {
   initialRows: InventoryRow[];
   profile: Profile;
   vendors: { id: string; name: string }[];
   regions: { id: string; name: string }[];
+  categories: { id: string; name: string }[];
 }) {
   const { selectedRegionId } = useRegion();
   const { rows, setRows, refresh } = useRealtimeInventory(initialRows);
@@ -55,7 +57,12 @@ export function InventoryClient({
           </p>
         </div>
         {canAddProduct && (
-          <AddInventoryDialog vendors={vendors} regions={regions} onAdded={refresh} />
+          <AddInventoryDialog
+            vendors={vendors}
+            regions={regions}
+            categories={categories}
+            onAdded={refresh}
+          />
         )}
       </div>
       <InventoryGrid
@@ -64,6 +71,7 @@ export function InventoryClient({
         profile={profile}
         aggregated={aggregated}
         vendors={vendors}
+        categories={categories}
         refresh={refresh}
       />
     </div>

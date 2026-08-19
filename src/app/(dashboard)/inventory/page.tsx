@@ -19,16 +19,18 @@ export default async function InventoryPage() {
     .single<Profile>();
   if (!profile) redirect("/login");
 
-  const [{ data: rows }, { data: vendors }, { data: regions }] = await Promise.all([
-    supabase
-      .from("regional_inventory")
-      .select(
-        "*, region:regions(name), item:catalog_items(name, sku, category, image_url, b2b_price, sale_price, vendor_id, vendor:vendors(name))",
-      )
-      .order("region_id"),
-    supabase.from("vendors").select("id, name").order("name"),
-    supabase.from("regions").select("id, name").order("name"),
-  ]);
+  const [{ data: rows }, { data: vendors }, { data: regions }, { data: categories }] =
+    await Promise.all([
+      supabase
+        .from("regional_inventory")
+        .select(
+          "*, region:regions(name), item:catalog_items(name, sku, category, image_url, b2b_price, sale_price, vendor_id, vendor:vendors(name))",
+        )
+        .order("region_id"),
+      supabase.from("vendors").select("id, name").order("name"),
+      supabase.from("regions").select("id, name").order("name"),
+      supabase.from("vendor_categories").select("id, name").order("name"),
+    ]);
 
   return (
     <InventoryClient
@@ -36,6 +38,7 @@ export default async function InventoryPage() {
       profile={profile}
       vendors={(vendors ?? []).map((v) => ({ ...v, name: v.name ?? "Unnamed vendor" }))}
       regions={regions ?? []}
+      categories={categories ?? []}
     />
   );
 }

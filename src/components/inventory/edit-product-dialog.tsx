@@ -29,16 +29,19 @@ export function EditProductDialog({
   itemId,
   item,
   vendors,
+  categories,
   onSaved,
 }: {
   itemId: string;
   item: NonNullable<InventoryRow["item"]>;
   vendors: { id: string; name: string }[];
+  categories: { id: string; name: string }[];
   onSaved: () => void | Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [vendorId, setVendorId] = useState<string>(item.vendor_id ?? "");
+  const [category, setCategory] = useState<string>(item.category ?? "");
 
   async function handleSubmit(formData: FormData) {
     setSubmitting(true);
@@ -46,7 +49,6 @@ export function EditProductDialog({
 
     const sku = formData.get("sku") as string;
     const name = formData.get("name") as string;
-    const category = (formData.get("category") as string) || null;
     const imageFile = formData.get("imageFile") as File | null;
     const b2bPrice = Number(formData.get("b2bPrice"));
     const salePrice = Number(formData.get("salePrice"));
@@ -74,7 +76,7 @@ export function EditProductDialog({
       .update({
         sku,
         name,
-        category,
+        category: category || null,
         image_url: imageUrl,
         b2b_price: b2bPrice,
         sale_price: salePrice,
@@ -118,8 +120,19 @@ export function EditProductDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Input id="category" name="category" defaultValue={item.category ?? ""} />
+              <Label>Category</Label>
+              <Select value={category} onValueChange={(v) => setCategory(v ?? "")}>
+                <SelectTrigger>
+                  <SelectValue>{(value: string) => value || "Select category"}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((c) => (
+                    <SelectItem key={c.id} value={c.name}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label>Vendor</Label>

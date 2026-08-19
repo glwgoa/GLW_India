@@ -26,6 +26,7 @@ export function InventoryGrid({
   profile,
   aggregated,
   vendors,
+  categories,
   refresh,
 }: {
   rows: AggregatedRow[];
@@ -33,6 +34,7 @@ export function InventoryGrid({
   profile: Profile;
   aggregated: boolean;
   vendors: { id: string; name: string }[];
+  categories: { id: string; name: string }[];
   refresh: () => void | Promise<void>;
 }) {
   function canEditStock(row: InventoryRow) {
@@ -122,7 +124,13 @@ export function InventoryGrid({
               )}
               <div className="absolute top-2 right-2 flex gap-1.5">
                 {editableProduct && (
-                  <EditProductDialog itemId={row.item_id} item={row.item!} vendors={vendors} onSaved={refresh} />
+                  <EditProductDialog
+                    itemId={row.item_id}
+                    item={row.item!}
+                    vendors={vendors}
+                    categories={categories}
+                    onSaved={refresh}
+                  />
                 )}
                 {deletable && (
                   <Button
