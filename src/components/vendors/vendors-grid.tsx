@@ -2,9 +2,16 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Phone, Trash2, Tag } from "lucide-react";
+import { Phone, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { VendorFormDialog } from "./vendor-form-dialog";
@@ -80,67 +87,93 @@ export function VendorsGrid({
   }
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-      {vendors.map((vendor) => {
-        const vendorCategories = categorySelections[vendor.id] ?? [];
-        const categoryNames = vendorCategories.map((s) => s.categoryName).join(", ");
+    <>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Categories</TableHead>
+              <TableHead>Phone</TableHead>
+              <TableHead>Priority</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {vendors.map((vendor) => {
+              const vendorCategories = categorySelections[vendor.id] ?? [];
 
-        return (
-          <Card
-            key={vendor.id}
-            className="cursor-pointer transition-shadow hover:shadow-md"
-            onClick={() => setSelectedVendor(vendor)}
-          >
-            <CardHeader className="flex items-start justify-between gap-2">
-              <div>
-                <CardTitle className="text-base">{vendor.name ?? "Unnamed vendor"}</CardTitle>
-                {categoryNames && (
-                  <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
-                    <Tag className="size-3 shrink-0" />
-                    <span className="truncate">{categoryNames}</span>
-                  </p>
-                )}
-              </div>
-              {vendor.priority && (
-                <Badge variant={PRIORITY_VARIANT[vendor.priority] ?? "outline"} className="capitalize">
-                  {vendor.priority}
-                </Badge>
-              )}
-            </CardHeader>
-            {vendor.contact_phone && (
-              <CardContent className="text-sm text-muted-foreground">
-                <div className="flex items-center gap-2">
-                  <Phone className="size-3.5 shrink-0" />
-                  <span>{vendor.contact_phone}</span>
-                </div>
-              </CardContent>
-            )}
-            {(canEdit(vendor) || canDelete) && (
-              <CardFooter className="gap-2 border-t pt-3" onClick={(e) => e.stopPropagation()}>
-                {canEdit(vendor) && (
-                  <VendorFormDialog
-                    vendor={vendor}
-                    categories={categories}
-                    subCategories={subCategories}
-                    categorySelections={vendorCategories}
-                    onSaved={refresh}
-                  />
-                )}
-                {canDelete && (
-                  <Button
-                    variant="outline"
-                    size="icon-sm"
-                    aria-label="Delete vendor"
-                    onClick={() => deleteVendor(vendor)}
-                  >
-                    <Trash2 />
-                  </Button>
-                )}
-              </CardFooter>
-            )}
-          </Card>
-        );
-      })}
+              return (
+                <TableRow
+                  key={vendor.id}
+                  className="cursor-pointer"
+                  onClick={() => setSelectedVendor(vendor)}
+                >
+                  <TableCell className="font-medium">{vendor.name ?? "Unnamed vendor"}</TableCell>
+                  <TableCell className="max-w-64 whitespace-normal">
+                    {vendorCategories.length > 0 ? (
+                      <div className="flex flex-wrap gap-1">
+                        {vendorCategories.map((s) => (
+                          <Badge key={s.categoryId} variant="secondary" className="font-normal">
+                            {s.categoryName}
+                            {s.subCategoryName && ` · ${s.subCategoryName}`}
+                          </Badge>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">
+                    {vendor.contact_phone ? (
+                      <span className="flex items-center gap-1.5">
+                        <Phone className="size-3.5 shrink-0" />
+                        {vendor.contact_phone}
+                      </span>
+                    ) : (
+                      "—"
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {vendor.priority ? (
+                      <Badge variant={PRIORITY_VARIANT[vendor.priority] ?? "outline"} className="capitalize">
+                        {vendor.priority}
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    {(canEdit(vendor) || canDelete) && (
+                      <div className="flex justify-end gap-2">
+                        {canEdit(vendor) && (
+                          <VendorFormDialog
+                            vendor={vendor}
+                            categories={categories}
+                            subCategories={subCategories}
+                            categorySelections={vendorCategories}
+                            onSaved={refresh}
+                          />
+                        )}
+                        {canDelete && (
+                          <Button
+                            variant="outline"
+                            size="icon-sm"
+                            aria-label="Delete vendor"
+                            onClick={() => deleteVendor(vendor)}
+                          >
+                            <Trash2 />
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
 
       {selectedVendor && (
         <VendorDetailDialog
@@ -151,6 +184,6 @@ export function VendorsGrid({
           canSeePayment={canSeePayment(selectedVendor)}
         />
       )}
-    </div>
+    </>
   );
 }
