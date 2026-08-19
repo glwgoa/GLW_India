@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "framer-motion";
 import { Building2, Landmark, Mail, MapPin, Phone, Tag } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import type { VendorRow } from "@/types/vendor";
+import type { VendorCategorySelection, VendorRow } from "@/types/vendor";
 
 const PRIORITY_VARIANT: Record<string, "destructive" | "outline" | "secondary"> = {
   primary: "destructive",
@@ -27,11 +27,13 @@ export function VendorDetailDialog({
   open,
   onOpenChange,
   vendor,
+  categorySelections,
   canSeePayment,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   vendor: VendorRow;
+  categorySelections: VendorCategorySelection[];
   canSeePayment: boolean;
 }) {
   const shouldReduceMotion = useReducedMotion();
@@ -64,13 +66,18 @@ export function VendorDetailDialog({
             <DialogTitle className="text-xl leading-tight font-bold tracking-tight">
               {vendor.name ?? "Unnamed vendor"}
             </DialogTitle>
-            {vendor.category && (
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Tag className="size-4 shrink-0" />
-                <span>
-                  {vendor.category}
-                  {vendor.sub_category && ` · ${vendor.sub_category}`}
-                </span>
+            {categorySelections.length > 0 && (
+              <div className="flex flex-wrap items-center gap-1.5">
+                {categorySelections.map((s) => (
+                  <span
+                    key={s.categoryId}
+                    className="flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground"
+                  >
+                    <Tag className="size-3 shrink-0" />
+                    {s.categoryName}
+                    {s.subCategoryName && ` · ${s.subCategoryName}`}
+                  </span>
+                ))}
               </div>
             )}
           </motion.div>

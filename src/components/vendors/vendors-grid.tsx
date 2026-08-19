@@ -9,7 +9,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { VendorFormDialog } from "./vendor-form-dialog";
 import { VendorDetailDialog } from "./vendor-detail-dialog";
-import type { VendorCategoryRow, VendorRow, VendorSubCategoryRow } from "@/types/vendor";
+import type {
+  VendorCategoryRow,
+  VendorCategorySelection,
+  VendorRow,
+  VendorSubCategoryRow,
+} from "@/types/vendor";
 import type { Profile } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
 
@@ -26,6 +31,7 @@ export function VendorsGrid({
   refresh,
   categories,
   subCategories,
+  categorySelections,
 }: {
   vendors: VendorRow[];
   setVendors: React.Dispatch<React.SetStateAction<VendorRow[]>>;
@@ -33,6 +39,7 @@ export function VendorsGrid({
   refresh: () => void | Promise<void>;
   categories: VendorCategoryRow[];
   subCategories: VendorSubCategoryRow[];
+  categorySelections: Record<string, VendorCategorySelection[]>;
 }) {
   const [selectedVendor, setSelectedVendor] = useState<VendorRow | null>(null);
 
@@ -75,6 +82,9 @@ export function VendorsGrid({
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {vendors.map((vendor) => {
+        const vendorCategories = categorySelections[vendor.id] ?? [];
+        const categoryNames = vendorCategories.map((s) => s.categoryName).join(", ");
+
         return (
           <Card
             key={vendor.id}
@@ -84,11 +94,10 @@ export function VendorsGrid({
             <CardHeader className="flex items-start justify-between gap-2">
               <div>
                 <CardTitle className="text-base">{vendor.name ?? "Unnamed vendor"}</CardTitle>
-                {vendor.category && (
+                {categoryNames && (
                   <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
-                    <Tag className="size-3" />
-                    {vendor.category}
-                    {vendor.sub_category && ` · ${vendor.sub_category}`}
+                    <Tag className="size-3 shrink-0" />
+                    <span className="truncate">{categoryNames}</span>
                   </p>
                 )}
               </div>
@@ -113,6 +122,7 @@ export function VendorsGrid({
                     vendor={vendor}
                     categories={categories}
                     subCategories={subCategories}
+                    categorySelections={vendorCategories}
                     onSaved={refresh}
                   />
                 )}
@@ -137,6 +147,7 @@ export function VendorsGrid({
           open={!!selectedVendor}
           onOpenChange={(o) => !o && setSelectedVendor(null)}
           vendor={selectedVendor}
+          categorySelections={categorySelections[selectedVendor.id] ?? []}
           canSeePayment={canSeePayment(selectedVendor)}
         />
       )}

@@ -19,8 +19,6 @@ export type VendorRow = {
   contact_email: string | null;
   contact_phone: string | null;
   additional_contact_number: string | null;
-  category: string | null;
-  sub_category: string | null;
   priority: string | null;
   city: string | null;
   location: string | null;
@@ -30,4 +28,12 @@ export type VendorRow = {
   upi_id: string | null;
   payment_terms: string | null;
   created_at: string;
+};
+
+/** One (category, optional sub-category) pairing a vendor is tagged with. */
+export type VendorCategorySelection = {
+  categoryId: string;
+  categoryName: string;
+  subCategoryId: string | null;
+  subCategoryName: string | null;
 };

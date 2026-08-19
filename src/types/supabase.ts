@@ -469,6 +469,59 @@ export type Database = {
         }
         Relationships: []
       }
+      vendor_category_selections: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          sub_category_id: string | null
+          vendor_id: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          sub_category_id?: string | null
+          vendor_id: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          sub_category_id?: string | null
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_category_selections_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_category_selections_sub_category_id_fkey"
+            columns: ["sub_category_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_sub_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_category_selections_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_category_selections_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vw_vendor_response_efficiency"
+            referencedColumns: ["vendor_id"]
+          },
+        ]
+      }
       vendor_sub_categories: {
         Row: {
           category_id: string
@@ -503,7 +556,6 @@ export type Database = {
           additional_contact_number: string | null
           bank_account_name: string | null
           bank_account_number: string | null
-          category: string | null
           city: string | null
           contact_email: string | null
           contact_phone: string | null
@@ -514,14 +566,12 @@ export type Database = {
           name: string | null
           payment_terms: string | null
           priority: string | null
-          sub_category: string | null
           upi_id: string | null
         }
         Insert: {
           additional_contact_number?: string | null
           bank_account_name?: string | null
           bank_account_number?: string | null
-          category?: string | null
           city?: string | null
           contact_email?: string | null
           contact_phone?: string | null
@@ -532,14 +582,12 @@ export type Database = {
           name?: string | null
           payment_terms?: string | null
           priority?: string | null
-          sub_category?: string | null
           upi_id?: string | null
         }
         Update: {
           additional_contact_number?: string | null
           bank_account_name?: string | null
           bank_account_number?: string | null
-          category?: string | null
           city?: string | null
           contact_email?: string | null
           contact_phone?: string | null
@@ -550,7 +598,6 @@ export type Database = {
           name?: string | null
           payment_terms?: string | null
           priority?: string | null
-          sub_category?: string | null
           upi_id?: string | null
         }
         Relationships: []

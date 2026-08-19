@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Pencil } from "lucide-react";
+import { Plus, Pencil, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,32 +23,73 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { VendorCategoryRow, VendorRow, VendorSubCategoryRow } from "@/types/vendor";
+import type {
+  VendorCategoryRow,
+  VendorCategorySelection,
+  VendorRow,
+  VendorSubCategoryRow,
+} from "@/types/vendor";
 
 const PRIORITIES = ["primary", "secondary", "tertiary"] as const;
 const PAYMENT_TERMS = ["After Every Booking", "Weekly", "Fortnightly", "Monthly"] as const;
+
+type Selection = { categoryId: string; subCategoryId: string | null };
 
 export function VendorFormDialog({
   vendor,
   categories,
   subCategories,
+  categorySelections = [],
   onSaved,
 }: {
   /** Omit to render an "Add vendor" trigger; pass an existing vendor to edit it. */
   vendor?: VendorRow;
   categories: VendorCategoryRow[];
   subCategories: VendorSubCategoryRow[];
+  /** This vendor's current category selections; omit/empty when adding a new vendor. */
+  categorySelections?: VendorCategorySelection[];
   onSaved: () => void | Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [priority, setPriority] = useState<string>(vendor?.priority ?? "");
   const [paymentTerms, setPaymentTerms] = useState<string>(vendor?.payment_terms ?? "");
-  const [category, setCategory] = useState<string>(vendor?.category ?? "");
-  const [subCategory, setSubCategory] = useState<string>(vendor?.sub_category ?? "");
+  const [selections, setSelections] = useState<Selection[]>(() =>
+    categorySelections.map((s) => ({ categoryId: s.categoryId, subCategoryId: s.subCategoryId })),
+  );
+  const [addCategoryId, setAddCategoryId] = useState("");
   const isEdit = !!vendor;
-  const selectedCategoryId = categories.find((c) => c.name === category)?.id;
-  const subCategoryOptions = subCategories.filter((s) => s.category_id === selectedCategoryId);
+  const availableToAdd = categories.filter((c) => !selections.some((s) => s.categoryId === c.id));
+
+  function addSelection() {
+    if (!addCategoryId) return;
+    setSelections((prev) => [...prev, { categoryId: addCategoryId, subCategoryId: null }]);
+    setAddCategoryId("");
+  }
+
+  function removeSelection(categoryId: string) {
+    setSelections((prev) => prev.filter((s) => s.categoryId !== categoryId));
+  }
+
+  function setSubCategoryFor(categoryId: string, subCategoryId: string) {
+    setSelections((prev) =>
+      prev.map((s) => (s.categoryId === categoryId ? { ...s, subCategoryId: subCategoryId || null } : s)),
+    );
+  }
+
+  async function saveSelections(vendorId: string) {
+    const supabase = createClient();
+    await supabase.from("vendor_category_selections").delete().eq("vendor_id", vendorId);
+    if (selections.length === 0) return null;
+    const { error } = await supabase.from("vendor_category_selections").insert(
+      selections.map((s) => ({
+        vendor_id: vendorId,
+        category_id: s.categoryId,
+        sub_category_id: s.subCategoryId,
+      })),
+    );
+    return error;
+  }
 
   async function handleSubmit(formData: FormData) {
     setSubmitting(true);
@@ -61,8 +102,6 @@ export function VendorFormDialog({
       contact_email: str("contactEmail"),
       contact_phone: str("contactPhone"),
       additional_contact_number: str("additionalContactNumber"),
-      category: category || null,
-      sub_category: (subCategoryOptions.length > 0 ? subCategory : "") || null,
       priority: priority || null,
       city: str("city"),
       location: str("location"),
@@ -73,14 +112,29 @@ export function VendorFormDialog({
       payment_terms: paymentTerms || null,
     };
 
-    const { error } = isEdit
-      ? await supabase.from("vendors").update(payload).eq("id", vendor.id)
-      : await supabase.from("vendors").insert(payload);
+    let vendorId: string | null;
+    let error: { message: string } | null;
 
+    if (isEdit) {
+      vendorId = vendor.id;
+      ({ error } = await supabase.from("vendors").update(payload).eq("id", vendor.id));
+    } else {
+      const result = await supabase.from("vendors").insert(payload).select("id").single();
+      vendorId = result.data?.id ?? null;
+      error = result.error;
+    }
+
+    if (error || !vendorId) {
+      setSubmitting(false);
+      toast.error(`Could not save vendor: ${error?.message ?? "unknown error"}`);
+      return;
+    }
+
+    const selectionsError = await saveSelections(vendorId);
     setSubmitting(false);
 
-    if (error) {
-      toast.error(`Could not save vendor: ${error.message}`);
+    if (selectionsError) {
+      toast.error(`Vendor saved, but categories failed: ${selectionsError.message}`);
       return;
     }
 
@@ -118,53 +172,82 @@ export function VendorFormDialog({
         </DialogHeader>
         <form action={handleSubmit} className="space-y-5">
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input id="name" name="name" defaultValue={vendor?.name ?? ""} required />
-              </div>
-              <div className="space-y-2">
-                <Label>Category</Label>
-                <Select
-                  value={category}
-                  onValueChange={(v) => {
-                    const next = v ?? "";
-                    setCategory(next);
-                    const nextId = categories.find((c) => c.name === next)?.id;
-                    if (!subCategories.some((s) => s.category_id === nextId)) setSubCategory("");
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue>{(value: string) => value || "Select category"}</SelectValue>
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input id="name" name="name" defaultValue={vendor?.name ?? ""} required />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Categories</Label>
+              <div className="flex items-center gap-2">
+                <Select value={addCategoryId} onValueChange={(v) => setAddCategoryId(v ?? "")}>
+                  <SelectTrigger className="flex-1">
+                    <SelectValue>
+                      {(value: string) => categories.find((c) => c.id === value)?.name ?? "Select category"}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {categories.map((c) => (
-                      <SelectItem key={c.id} value={c.name}>
+                    {availableToAdd.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
                         {c.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon-sm"
+                  onClick={addSelection}
+                  disabled={!addCategoryId}
+                  aria-label="Add category"
+                >
+                  <Plus />
+                </Button>
               </div>
-            </div>
 
-            {subCategoryOptions.length > 0 && (
-              <div className="space-y-2">
-                <Label>Sub-category</Label>
-                <Select value={subCategory} onValueChange={(v) => setSubCategory(v ?? "")}>
-                  <SelectTrigger>
-                    <SelectValue>{(value: string) => value || "Select sub-category"}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {subCategoryOptions.map((s) => (
-                      <SelectItem key={s.id} value={s.name}>
-                        {s.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            )}
+              {selections.length > 0 && (
+                <div className="space-y-2">
+                  {selections.map((sel) => {
+                    const cat = categories.find((c) => c.id === sel.categoryId);
+                    const subs = subCategories.filter((s) => s.category_id === sel.categoryId);
+                    return (
+                      <div key={sel.categoryId} className="flex items-center gap-2 rounded-lg border p-2">
+                        <span className="flex-1 truncate text-sm font-medium">{cat?.name}</span>
+                        {subs.length > 0 && (
+                          <Select
+                            value={sel.subCategoryId ?? ""}
+                            onValueChange={(v) => setSubCategoryFor(sel.categoryId, v ?? "")}
+                          >
+                            <SelectTrigger className="h-7 w-36 text-xs">
+                              <SelectValue>
+                                {(value: string) => subs.find((s) => s.id === value)?.name ?? "Sub-category"}
+                              </SelectValue>
+                            </SelectTrigger>
+                            <SelectContent>
+                              {subs.map((s) => (
+                                <SelectItem key={s.id} value={s.id}>
+                                  {s.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon-sm"
+                          onClick={() => removeSelection(sel.categoryId)}
+                          aria-label={`Remove ${cat?.name}`}
+                        >
+                          <X />
+                        </Button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="contactEmail">Email ID</Label>

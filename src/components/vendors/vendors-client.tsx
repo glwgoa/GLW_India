@@ -15,7 +15,16 @@ import {
 } from "@/components/ui/select";
 import { VendorsGrid } from "./vendors-grid";
 import { VendorFormDialog } from "./vendor-form-dialog";
-import type { VendorCategoryRow, VendorRow, VendorSubCategoryRow } from "@/types/vendor";
+import {
+  VENDOR_CATEGORY_SELECTIONS_SELECT,
+  groupVendorCategorySelections,
+} from "@/lib/vendor-categories";
+import type {
+  VendorCategoryRow,
+  VendorCategorySelection,
+  VendorRow,
+  VendorSubCategoryRow,
+} from "@/types/vendor";
 import type { Profile } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
 
@@ -25,14 +34,18 @@ export function VendorsClient({
   initialVendors,
   categories,
   subCategories,
+  initialCategorySelections,
   profile,
 }: {
   initialVendors: VendorRow[];
   categories: VendorCategoryRow[];
   subCategories: VendorSubCategoryRow[];
+  initialCategorySelections: Record<string, VendorCategorySelection[]>;
   profile: Profile;
 }) {
   const [vendors, setVendors] = useState<VendorRow[]>(initialVendors);
+  const [categorySelections, setCategorySelections] =
+    useState<Record<string, VendorCategorySelection[]>>(initialCategorySelections);
   const [refreshing, setRefreshing] = useState(false);
   const [nameFilter, setNameFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -42,8 +55,18 @@ export function VendorsClient({
   const refresh = useCallback(async () => {
     setRefreshing(true);
     const supabase = createClient();
-    const { data } = await supabase.from("vendors").select("*").order("name");
-    if (data) setVendors(data as VendorRow[]);
+    const [{ data: vendorData }, { data: selectionData }] = await Promise.all([
+      supabase.from("vendors").select("*").order("name"),
+      supabase.from("vendor_category_selections").select(VENDOR_CATEGORY_SELECTIONS_SELECT),
+    ]);
+    if (vendorData) setVendors(vendorData as VendorRow[]);
+    if (selectionData) {
+      setCategorySelections(
+        groupVendorCategorySelections(
+          selectionData as unknown as Parameters<typeof groupVendorCategorySelections>[0],
+        ),
+      );
+    }
     setRefreshing(false);
   }, []);
 
@@ -52,11 +75,14 @@ export function VendorsClient({
       if (nameFilter && !vendor.name?.toLowerCase().includes(nameFilter.toLowerCase())) {
         return false;
       }
-      if (categoryFilter && vendor.category !== categoryFilter) return false;
+      if (categoryFilter) {
+        const vendorCategories = categorySelections[vendor.id] ?? [];
+        if (!vendorCategories.some((s) => s.categoryName === categoryFilter)) return false;
+      }
       if (priorityFilter && vendor.priority !== priorityFilter) return false;
       return true;
     });
-  }, [vendors, nameFilter, categoryFilter, priorityFilter]);
+  }, [vendors, nameFilter, categoryFilter, priorityFilter, categorySelections]);
 
   const hasFilters = nameFilter || categoryFilter || priorityFilter;
 
@@ -149,6 +175,7 @@ export function VendorsClient({
         refresh={refresh}
         categories={categories}
         subCategories={subCategories}
+        categorySelections={categorySelections}
       />
     </div>
   );
