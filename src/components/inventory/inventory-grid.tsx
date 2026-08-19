@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LOW_STOCK_THRESHOLD } from "@/lib/constants";
+import { EditProductDialog } from "./edit-product-dialog";
 import type { InventoryRow } from "@/hooks/use-realtime-inventory";
 import type { Profile } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
@@ -24,11 +25,15 @@ export function InventoryGrid({
   setRows,
   profile,
   aggregated,
+  vendors,
+  refresh,
 }: {
   rows: AggregatedRow[];
   setRows: React.Dispatch<React.SetStateAction<InventoryRow[]>>;
   profile: Profile;
   aggregated: boolean;
+  vendors: { id: string; name: string }[];
+  refresh: () => void | Promise<void>;
 }) {
   function canEditStock(row: InventoryRow) {
     if (aggregated) return false;
@@ -37,10 +42,14 @@ export function InventoryGrid({
     return false;
   }
 
+  // Editing/deleting the product itself (catalog_items) is admin/developer
+  // only by RLS — PMs can edit/remove regional stock but not the product
+  // record, so they never see these controls.
+  function canEditProduct() {
+    return isPrivileged(profile.role);
+  }
+
   function canDelete() {
-    // Deleting removes the product itself (catalog_items), which is
-    // admin-only by RLS — PMs can edit/remove regional stock but not the
-    // product record, so they never see this control.
     return isPrivileged(profile.role);
   }
 
@@ -93,6 +102,7 @@ export function InventoryGrid({
         const available = row.stock_quantity - row.reserved_quantity;
         const lowStock = available <= LOW_STOCK_THRESHOLD;
         const editableStock = canEditStock(row);
+        const editableProduct = canEditProduct() && row.item;
         const deletable = canDelete();
 
         return (
@@ -110,17 +120,21 @@ export function InventoryGrid({
                   <Package className="h-8 w-8 text-muted-foreground" />
                 </div>
               )}
-              {deletable && (
-                <Button
-                  variant="destructive"
-                  size="icon-sm"
-                  aria-label="Remove from inventory"
-                  className="absolute top-2 right-2"
-                  onClick={() => deleteRow(row)}
-                >
-                  <Trash2 />
-                </Button>
-              )}
+              <div className="absolute top-2 right-2 flex gap-1.5">
+                {editableProduct && (
+                  <EditProductDialog itemId={row.item_id} item={row.item!} vendors={vendors} onSaved={refresh} />
+                )}
+                {deletable && (
+                  <Button
+                    variant="destructive"
+                    size="icon-sm"
+                    aria-label="Remove from inventory"
+                    onClick={() => deleteRow(row)}
+                  >
+                    <Trash2 />
+                  </Button>
+                )}
+              </div>
             </div>
 
             <CardHeader className="gap-1 pt-3">

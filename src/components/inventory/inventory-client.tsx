@@ -58,7 +58,14 @@ export function InventoryClient({
           <AddInventoryDialog vendors={vendors} regions={regions} onAdded={refresh} />
         )}
       </div>
-      <InventoryGrid rows={visibleRows} setRows={setRows} profile={profile} aggregated={aggregated} />
+      <InventoryGrid
+        rows={visibleRows}
+        setRows={setRows}
+        profile={profile}
+        aggregated={aggregated}
+        vendors={vendors}
+        refresh={refresh}
+      />
     </div>
   );
 }

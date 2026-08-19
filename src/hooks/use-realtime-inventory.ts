@@ -17,12 +17,13 @@ export type InventoryRow = {
     image_url: string | null;
     b2b_price: number | null;
     sale_price: number | null;
+    vendor_id: string | null;
     vendor: { name: string } | null;
   } | null;
 };
 
 const SELECT =
-  "*, region:regions(name), item:catalog_items(name, sku, category, image_url, b2b_price, sale_price, vendor:vendors(name))";
+  "*, region:regions(name), item:catalog_items(name, sku, category, image_url, b2b_price, sale_price, vendor_id, vendor:vendors(name))";
 
 export function useRealtimeInventory(initial: InventoryRow[]) {
   const [rows, setRows] = useState<InventoryRow[]>(initial);
