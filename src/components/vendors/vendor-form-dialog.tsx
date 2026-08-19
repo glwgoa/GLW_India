@@ -28,6 +28,23 @@ import type { VendorRow } from "@/types/vendor";
 const PRIORITIES = ["primary", "secondary", "tertiary"] as const;
 const PAYMENT_TERMS = ["After Every Booking", "Weekly", "Fortnightly", "Monthly"] as const;
 
+const VENDOR_CATEGORIES = [
+  "Dinner Cruise",
+  "Private Yachts",
+  "Catering",
+  "Transportation",
+  "Decor",
+  "Dancers",
+  "Bar Setup",
+  "Music",
+  "Drone",
+] as const;
+
+const SUB_CATEGORIES: Record<string, readonly string[]> = {
+  Dancers: ["Russian", "Bollywood"],
+  Music: ["Singer", "Band", "Guitarist", "DJ", "Violinist"],
+};
+
 export function VendorFormDialog({
   vendor,
   onSaved,
@@ -40,7 +57,10 @@ export function VendorFormDialog({
   const [submitting, setSubmitting] = useState(false);
   const [priority, setPriority] = useState<string>(vendor?.priority ?? "");
   const [paymentTerms, setPaymentTerms] = useState<string>(vendor?.payment_terms ?? "");
+  const [category, setCategory] = useState<string>(vendor?.category ?? "");
+  const [subCategory, setSubCategory] = useState<string>(vendor?.sub_category ?? "");
   const isEdit = !!vendor;
+  const subCategoryOptions = SUB_CATEGORIES[category];
 
   async function handleSubmit(formData: FormData) {
     setSubmitting(true);
@@ -53,7 +73,8 @@ export function VendorFormDialog({
       contact_email: str("contactEmail"),
       contact_phone: str("contactPhone"),
       additional_contact_number: str("additionalContactNumber"),
-      category: str("category"),
+      category: category || null,
+      sub_category: (subCategoryOptions ? subCategory : "") || null,
       priority: priority || null,
       city: str("city"),
       location: str("location"),
@@ -115,10 +136,46 @@ export function VendorFormDialog({
                 <Input id="name" name="name" defaultValue={vendor?.name ?? ""} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="category">Category</Label>
-                <Input id="category" name="category" defaultValue={vendor?.category ?? ""} />
+                <Label>Category</Label>
+                <Select
+                  value={category}
+                  onValueChange={(v) => {
+                    const next = v ?? "";
+                    setCategory(next);
+                    if (!SUB_CATEGORIES[next]) setSubCategory("");
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue>{(value: string) => value || "Select category"}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {VENDOR_CATEGORIES.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
+
+            {subCategoryOptions && (
+              <div className="space-y-2">
+                <Label>Sub-category</Label>
+                <Select value={subCategory} onValueChange={(v) => setSubCategory(v ?? "")}>
+                  <SelectTrigger>
+                    <SelectValue>{(value: string) => value || "Select sub-category"}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {subCategoryOptions.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             <div className="space-y-2">
               <Label htmlFor="contactEmail">Email ID</Label>

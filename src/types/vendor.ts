@@ -7,6 +7,7 @@ export type VendorRow = {
   contact_phone: string | null;
   additional_contact_number: string | null;
   category: string | null;
+  sub_category: string | null;
   priority: string | null;
   city: string | null;
   location: string | null;

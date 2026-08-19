@@ -78,6 +78,7 @@ export function VendorsGrid({
                   <p className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
                     <Tag className="size-3" />
                     {vendor.category}
+                    {vendor.sub_category && ` · ${vendor.sub_category}`}
                   </p>
                 )}
               </div>
