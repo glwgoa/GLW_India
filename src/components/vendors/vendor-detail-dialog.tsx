@@ -46,7 +46,7 @@ export function VendorDetailDialog({
         <div className="relative flex h-28 w-full items-center justify-center bg-gradient-to-br from-primary/15 to-primary/5">
           <Building2 className="h-10 w-10 text-primary/40" />
           {vendor.priority && (
-            <div className="absolute top-4 right-4">
+            <div className="absolute top-4 right-12">
               <Badge variant={PRIORITY_VARIANT[vendor.priority] ?? "outline"} className="capitalize">
                 {vendor.priority}
               </Badge>
