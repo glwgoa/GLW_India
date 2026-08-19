@@ -113,7 +113,7 @@ export function InventoryClient({
         <div className="space-y-1.5">
           <Label className="text-xs text-muted-foreground">Category</Label>
           <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v ?? "")}>
-            <SelectTrigger className="w-44">
+            <SelectTrigger className="h-8 w-44">
               <SelectValue>{(value: string) => value || "All categories"}</SelectValue>
             </SelectTrigger>
             <SelectContent>
