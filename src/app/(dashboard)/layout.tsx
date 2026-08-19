@@ -5,6 +5,7 @@ import { RegionProvider } from "@/lib/region-context";
 import { AppSidebar } from "@/components/app-sidebar";
 import { RegionSwitcher } from "@/components/region-switcher";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
+import { UniversalSearch } from "@/components/universal-search";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import type { Profile } from "@/types/profile";
@@ -56,7 +57,8 @@ export default async function DashboardLayout({
                 GLW India Ops Dashboard
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              <UniversalSearch />
               <AnimatedThemeToggler />
               <RegionSwitcher regions={regions ?? []} canViewAll={canViewAllRegions} />
             </div>
