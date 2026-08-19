@@ -71,6 +71,7 @@ export function InventoryClient({
         profile={profile}
         aggregated={aggregated}
         vendors={vendors}
+        regions={regions}
         categories={categories}
         refresh={refresh}
       />

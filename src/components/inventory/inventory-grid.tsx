@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { toast } from "sonner";
 import { Package, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -10,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { LOW_STOCK_THRESHOLD } from "@/lib/constants";
 import { EditProductDialog } from "./edit-product-dialog";
+import { ProductDetailDialog } from "./product-detail-dialog";
 import type { InventoryRow } from "@/hooks/use-realtime-inventory";
 import type { Profile } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
@@ -26,6 +28,7 @@ export function InventoryGrid({
   profile,
   aggregated,
   vendors,
+  regions,
   categories,
   refresh,
 }: {
@@ -34,9 +37,11 @@ export function InventoryGrid({
   profile: Profile;
   aggregated: boolean;
   vendors: { id: string; name: string }[];
+  regions: { id: string; name: string }[];
   categories: { id: string; name: string }[];
   refresh: () => void | Promise<void>;
 }) {
+  const [selectedRow, setSelectedRow] = useState<AggregatedRow | null>(null);
   function canEditStock(row: InventoryRow) {
     if (aggregated) return false;
     if (isPrivileged(profile.role)) return true;
@@ -54,6 +59,8 @@ export function InventoryGrid({
   function canDelete() {
     return isPrivileged(profile.role);
   }
+
+  const canBook = isPrivileged(profile.role) || profile.role === "project_manager";
 
   async function updateStock(row: InventoryRow, value: number) {
     const supabase = createClient();
@@ -108,7 +115,11 @@ export function InventoryGrid({
         const deletable = canDelete();
 
         return (
-          <Card key={row.id} className="overflow-hidden py-0 gap-0">
+          <Card
+            key={row.id}
+            className="cursor-pointer overflow-hidden py-0 gap-0 transition-shadow hover:shadow-md"
+            onClick={() => row.item && setSelectedRow(row)}
+          >
             <div className="relative aspect-square w-full bg-muted">
               {row.item?.image_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -122,7 +133,7 @@ export function InventoryGrid({
                   <Package className="h-8 w-8 text-muted-foreground" />
                 </div>
               )}
-              <div className="absolute top-2 right-2 flex gap-1.5">
+              <div className="absolute top-2 right-2 flex gap-1.5" onClick={(e) => e.stopPropagation()}>
                 {editableProduct && (
                   <EditProductDialog
                     itemId={row.item_id}
@@ -161,7 +172,10 @@ export function InventoryGrid({
               </span>
             </CardContent>
 
-            <CardFooter className="flex items-center justify-between gap-2 border-t py-3">
+            <CardFooter
+              className="flex items-center justify-between gap-2 border-t py-3"
+              onClick={(e) => e.stopPropagation()}
+            >
               {editableStock ? (
                 <div className="flex items-center gap-1.5">
                   <Label htmlFor={`stock-${row.id}`} className="text-xs text-muted-foreground">
@@ -188,6 +202,18 @@ export function InventoryGrid({
           </Card>
         );
       })}
+
+      {selectedRow && (
+        <ProductDetailDialog
+          open={!!selectedRow}
+          onOpenChange={(o) => !o && setSelectedRow(null)}
+          row={selectedRow}
+          vendors={vendors}
+          regions={regions}
+          canBook={canBook}
+          onBooked={refresh}
+        />
+      )}
     </div>
   );
 }

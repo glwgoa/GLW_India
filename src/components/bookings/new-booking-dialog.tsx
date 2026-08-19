@@ -30,19 +30,35 @@ export function NewBookingDialog({
   vendors,
   regions,
   products,
+  initialProductId,
+  trigger = <Button size="sm" />,
+  triggerContent = (
+    <>
+      <Plus />
+      Add booking
+    </>
+  ),
   onAdded,
 }: {
   vendors: { id: string; name: string }[];
   regions: { id: string; name: string }[];
   products: Product[];
+  /** Pre-select a product (and its sale price) when the dialog opens. */
+  initialProductId?: string;
+  /** Custom trigger element; defaults to a small "Add booking" button. */
+  trigger?: React.ReactElement;
+  triggerContent?: React.ReactNode;
   onAdded: () => void | Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [vendorId, setVendorId] = useState<string>("");
   const [regionId, setRegionId] = useState<string>("");
-  const [productId, setProductId] = useState<string>("");
-  const [salePrice, setSalePrice] = useState<string>("");
+  const [productId, setProductId] = useState<string>(initialProductId ?? "");
+  const [salePrice, setSalePrice] = useState<string>(() => {
+    const product = products.find((p) => p.id === initialProductId);
+    return product?.sale_price != null ? String(product.sale_price) : "";
+  });
 
   function handleProductChange(id: string) {
     setProductId(id);
@@ -91,17 +107,15 @@ export function NewBookingDialog({
     setOpen(false);
     setVendorId("");
     setRegionId("");
-    setProductId("");
-    setSalePrice("");
+    setProductId(initialProductId ?? "");
+    const resetProduct = products.find((p) => p.id === initialProductId);
+    setSalePrice(resetProduct?.sale_price != null ? String(resetProduct.sale_price) : "");
     await onAdded();
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button size="sm" />}>
-        <Plus />
-        Add booking
-      </DialogTrigger>
+      <DialogTrigger render={trigger}>{triggerContent}</DialogTrigger>
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>New booking</DialogTitle>
