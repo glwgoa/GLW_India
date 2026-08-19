@@ -1,11 +1,11 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth/require-role";
-import { VendorsClient } from "@/components/vendors/vendors-client";
+import { VendorCategoriesClient } from "@/components/vendor-categories/vendor-categories-client";
 import type { Profile } from "@/types/profile";
-import type { VendorCategoryRow, VendorRow, VendorSubCategoryRow } from "@/types/vendor";
+import type { VendorCategoryRow, VendorSubCategoryRow } from "@/types/vendor";
 
-export default async function VendorsPage() {
+export default async function VendorCategoriesPage() {
   const supabase = await createClient();
 
   const {
@@ -20,20 +20,17 @@ export default async function VendorsPage() {
     .single<Profile>();
   if (!profile) redirect("/login");
 
-  requireRole(profile, ["admin", "developer", "project_manager", "vendor"]);
+  requireRole(profile, ["developer"]);
 
-  const [{ data: vendors }, { data: categories }, { data: subCategories }] = await Promise.all([
-    supabase.from("vendors").select("*").order("name"),
+  const [{ data: categories }, { data: subCategories }] = await Promise.all([
     supabase.from("vendor_categories").select("*").order("name"),
     supabase.from("vendor_sub_categories").select("*").order("name"),
   ]);
 
   return (
-    <VendorsClient
-      initialVendors={(vendors ?? []) as VendorRow[]}
-      categories={(categories ?? []) as VendorCategoryRow[]}
-      subCategories={(subCategories ?? []) as VendorSubCategoryRow[]}
-      profile={profile}
+    <VendorCategoriesClient
+      initialCategories={(categories ?? []) as VendorCategoryRow[]}
+      initialSubCategories={(subCategories ?? []) as VendorSubCategoryRow[]}
     />
   );
 }

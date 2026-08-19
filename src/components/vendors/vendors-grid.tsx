@@ -7,7 +7,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { VendorFormDialog } from "./vendor-form-dialog";
-import type { VendorRow } from "@/types/vendor";
+import type { VendorCategoryRow, VendorRow, VendorSubCategoryRow } from "@/types/vendor";
 import type { Profile } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
 
@@ -22,11 +22,15 @@ export function VendorsGrid({
   setVendors,
   profile,
   refresh,
+  categories,
+  subCategories,
 }: {
   vendors: VendorRow[];
   setVendors: React.Dispatch<React.SetStateAction<VendorRow[]>>;
   profile: Profile;
   refresh: () => void | Promise<void>;
+  categories: VendorCategoryRow[];
+  subCategories: VendorSubCategoryRow[];
 }) {
   function canEdit(vendor: VendorRow) {
     if (isPrivileged(profile.role)) return true;
@@ -130,7 +134,14 @@ export function VendorsGrid({
             </CardContent>
             {(canEdit(vendor) || canDelete) && (
               <CardFooter className="gap-2 border-t pt-3">
-                {canEdit(vendor) && <VendorFormDialog vendor={vendor} onSaved={refresh} />}
+                {canEdit(vendor) && (
+                  <VendorFormDialog
+                    vendor={vendor}
+                    categories={categories}
+                    subCategories={subCategories}
+                    onSaved={refresh}
+                  />
+                )}
                 {canDelete && (
                   <Button
                     variant="outline"

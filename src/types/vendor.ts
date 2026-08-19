@@ -1,5 +1,18 @@
 export type VendorPriority = "primary" | "secondary" | "tertiary";
 
+export type VendorCategoryRow = {
+  id: string;
+  name: string;
+  created_at: string;
+};
+
+export type VendorSubCategoryRow = {
+  id: string;
+  category_id: string;
+  name: string;
+  created_at: string;
+};
+
 export type VendorRow = {
   id: string;
   name: string | null;

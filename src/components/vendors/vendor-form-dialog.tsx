@@ -23,34 +23,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { VendorRow } from "@/types/vendor";
+import type { VendorCategoryRow, VendorRow, VendorSubCategoryRow } from "@/types/vendor";
 
 const PRIORITIES = ["primary", "secondary", "tertiary"] as const;
 const PAYMENT_TERMS = ["After Every Booking", "Weekly", "Fortnightly", "Monthly"] as const;
 
-const VENDOR_CATEGORIES = [
-  "Dinner Cruise",
-  "Private Yachts",
-  "Catering",
-  "Transportation",
-  "Decor",
-  "Dancers",
-  "Bar Setup",
-  "Music",
-  "Drone",
-] as const;
-
-const SUB_CATEGORIES: Record<string, readonly string[]> = {
-  Dancers: ["Russian", "Bollywood"],
-  Music: ["Singer", "Band", "Guitarist", "DJ", "Violinist"],
-};
-
 export function VendorFormDialog({
   vendor,
+  categories,
+  subCategories,
   onSaved,
 }: {
   /** Omit to render an "Add vendor" trigger; pass an existing vendor to edit it. */
   vendor?: VendorRow;
+  categories: VendorCategoryRow[];
+  subCategories: VendorSubCategoryRow[];
   onSaved: () => void | Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
@@ -60,7 +47,8 @@ export function VendorFormDialog({
   const [category, setCategory] = useState<string>(vendor?.category ?? "");
   const [subCategory, setSubCategory] = useState<string>(vendor?.sub_category ?? "");
   const isEdit = !!vendor;
-  const subCategoryOptions = SUB_CATEGORIES[category];
+  const selectedCategoryId = categories.find((c) => c.name === category)?.id;
+  const subCategoryOptions = subCategories.filter((s) => s.category_id === selectedCategoryId);
 
   async function handleSubmit(formData: FormData) {
     setSubmitting(true);
@@ -74,7 +62,7 @@ export function VendorFormDialog({
       contact_phone: str("contactPhone"),
       additional_contact_number: str("additionalContactNumber"),
       category: category || null,
-      sub_category: (subCategoryOptions ? subCategory : "") || null,
+      sub_category: (subCategoryOptions.length > 0 ? subCategory : "") || null,
       priority: priority || null,
       city: str("city"),
       location: str("location"),
@@ -142,16 +130,17 @@ export function VendorFormDialog({
                   onValueChange={(v) => {
                     const next = v ?? "";
                     setCategory(next);
-                    if (!SUB_CATEGORIES[next]) setSubCategory("");
+                    const nextId = categories.find((c) => c.name === next)?.id;
+                    if (!subCategories.some((s) => s.category_id === nextId)) setSubCategory("");
                   }}
                 >
                   <SelectTrigger>
                     <SelectValue>{(value: string) => value || "Select category"}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
-                    {VENDOR_CATEGORIES.map((c) => (
-                      <SelectItem key={c} value={c}>
-                        {c}
+                    {categories.map((c) => (
+                      <SelectItem key={c.id} value={c.name}>
+                        {c.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -159,7 +148,7 @@ export function VendorFormDialog({
               </div>
             </div>
 
-            {subCategoryOptions && (
+            {subCategoryOptions.length > 0 && (
               <div className="space-y-2">
                 <Label>Sub-category</Label>
                 <Select value={subCategory} onValueChange={(v) => setSubCategory(v ?? "")}>
@@ -168,8 +157,8 @@ export function VendorFormDialog({
                   </SelectTrigger>
                   <SelectContent>
                     {subCategoryOptions.map((s) => (
-                      <SelectItem key={s} value={s}>
-                        {s}
+                      <SelectItem key={s.id} value={s.name}>
+                        {s.name}
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -12,6 +12,7 @@ import {
   Building2,
   Users,
   LogOut,
+  Tags,
 } from "lucide-react";
 import {
   Sidebar,
@@ -47,6 +48,12 @@ const NAV_ITEMS = [
     label: "MIS Reports",
     icon: BarChart3,
     roles: ["admin", "developer", "project_manager"] as const,
+  },
+  {
+    href: "/vendor-categories",
+    label: "Vendor Categories",
+    icon: Tags,
+    roles: ["developer"] as const,
   },
 ];
 

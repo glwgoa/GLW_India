@@ -6,15 +6,19 @@ import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { VendorsGrid } from "./vendors-grid";
 import { VendorFormDialog } from "./vendor-form-dialog";
-import type { VendorRow } from "@/types/vendor";
+import type { VendorCategoryRow, VendorRow, VendorSubCategoryRow } from "@/types/vendor";
 import type { Profile } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
 
 export function VendorsClient({
   initialVendors,
+  categories,
+  subCategories,
   profile,
 }: {
   initialVendors: VendorRow[];
+  categories: VendorCategoryRow[];
+  subCategories: VendorSubCategoryRow[];
   profile: Profile;
 }) {
   const [vendors, setVendors] = useState<VendorRow[]>(initialVendors);
@@ -45,10 +49,19 @@ export function VendorsClient({
             <RefreshCw className={refreshing ? "animate-spin" : ""} />
             Refresh
           </Button>
-          {canAdd && <VendorFormDialog onSaved={refresh} />}
+          {canAdd && (
+            <VendorFormDialog categories={categories} subCategories={subCategories} onSaved={refresh} />
+          )}
         </div>
       </div>
-      <VendorsGrid vendors={vendors} setVendors={setVendors} profile={profile} refresh={refresh} />
+      <VendorsGrid
+        vendors={vendors}
+        setVendors={setVendors}
+        profile={profile}
+        refresh={refresh}
+        categories={categories}
+        subCategories={subCategories}
+      />
     </div>
   );
 }

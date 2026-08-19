@@ -451,6 +451,53 @@ export type Database = {
           },
         ]
       }
+      vendor_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      vendor_sub_categories: {
+        Row: {
+          category_id: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_sub_categories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vendors: {
         Row: {
           additional_contact_number: string | null
@@ -559,6 +606,7 @@ export type Database = {
         Returns: Database["public"]["Enums"]["user_role"]
       }
       get_user_vendor: { Args: never; Returns: string }
+      is_privileged: { Args: never; Returns: boolean }
     }
     Enums: {
       booking_status:
@@ -568,7 +616,13 @@ export type Database = {
         | "completed"
         | "cancelled"
       sla_status: "on_track" | "warning" | "breached" | "met"
-      user_role: "admin" | "vendor" | "project_manager" | "hr" | "employee" | "developer"
+      user_role:
+        | "admin"
+        | "vendor"
+        | "project_manager"
+        | "hr"
+        | "employee"
+        | "developer"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -704,7 +758,14 @@ export const Constants = {
         "cancelled",
       ],
       sla_status: ["on_track", "warning", "breached", "met"],
-      user_role: ["admin", "vendor", "project_manager", "hr", "employee", "developer"],
+      user_role: [
+        "admin",
+        "vendor",
+        "project_manager",
+        "hr",
+        "employee",
+        "developer",
+      ],
     },
   },
 } as const
