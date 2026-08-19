@@ -48,7 +48,7 @@ export default async function DashboardLayout({
     <RegionProvider initialRegionId={initialRegionId}>
       <div className="pointer-events-none fixed inset-0 z-0">
         <PixelBlast
-          color="#8b5cf6"
+          color="#8f8b93"
           pixelSize={4}
           patternScale={3}
           patternDensity={0.6}
