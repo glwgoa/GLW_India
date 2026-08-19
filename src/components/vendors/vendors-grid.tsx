@@ -1,12 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { toast } from "sonner";
-import { Mail, Phone, Trash2, MapPin, Landmark, Tag } from "lucide-react";
+import { Phone, Trash2, Tag } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { VendorFormDialog } from "./vendor-form-dialog";
+import { VendorDetailDialog } from "./vendor-detail-dialog";
 import type { VendorCategoryRow, VendorRow, VendorSubCategoryRow } from "@/types/vendor";
 import type { Profile } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
@@ -32,6 +34,8 @@ export function VendorsGrid({
   categories: VendorCategoryRow[];
   subCategories: VendorSubCategoryRow[];
 }) {
+  const [selectedVendor, setSelectedVendor] = useState<VendorRow | null>(null);
+
   function canEdit(vendor: VendorRow) {
     if (isPrivileged(profile.role)) return true;
     if (profile.role === "vendor") return vendor.id === profile.vendor_id;
@@ -71,10 +75,12 @@ export function VendorsGrid({
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
       {vendors.map((vendor) => {
-        const location = [vendor.city, vendor.location].filter(Boolean).join(", ");
-
         return (
-          <Card key={vendor.id}>
+          <Card
+            key={vendor.id}
+            className="cursor-pointer transition-shadow hover:shadow-md"
+            onClick={() => setSelectedVendor(vendor)}
+          >
             <CardHeader className="flex items-start justify-between gap-2">
               <div>
                 <CardTitle className="text-base">{vendor.name ?? "Unnamed vendor"}</CardTitle>
@@ -92,48 +98,16 @@ export function VendorsGrid({
                 </Badge>
               )}
             </CardHeader>
-            <CardContent className="space-y-1.5 text-sm text-muted-foreground">
-              {vendor.contact_email && (
-                <div className="flex items-center gap-2">
-                  <Mail className="size-3.5 shrink-0" />
-                  <span className="truncate">{vendor.contact_email}</span>
-                </div>
-              )}
-              {vendor.contact_phone && (
+            {vendor.contact_phone && (
+              <CardContent className="text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Phone className="size-3.5 shrink-0" />
                   <span>{vendor.contact_phone}</span>
                 </div>
-              )}
-              {vendor.additional_contact_number && (
-                <div className="flex items-center gap-2">
-                  <Phone className="size-3.5 shrink-0" />
-                  <span>{vendor.additional_contact_number} (alt)</span>
-                </div>
-              )}
-              {location && (
-                <div className="flex items-center gap-2">
-                  <MapPin className="size-3.5 shrink-0" />
-                  <span>{location}</span>
-                </div>
-              )}
-              {canSeePayment(vendor) &&
-                (vendor.bank_account_number || vendor.upi_id || vendor.payment_terms) && (
-                  <div className="space-y-1 border-t pt-2">
-                    <p className="flex items-center gap-1 text-xs font-medium text-foreground">
-                      <Landmark className="size-3" />
-                      Payment details
-                    </p>
-                    {vendor.bank_account_name && <p>Account: {vendor.bank_account_name}</p>}
-                    {vendor.bank_account_number && <p>A/C no: {vendor.bank_account_number}</p>}
-                    {vendor.ifsc_code && <p>IFSC: {vendor.ifsc_code}</p>}
-                    {vendor.upi_id && <p>UPI: {vendor.upi_id}</p>}
-                    {vendor.payment_terms && <p>Terms: {vendor.payment_terms}</p>}
-                  </div>
-                )}
-            </CardContent>
+              </CardContent>
+            )}
             {(canEdit(vendor) || canDelete) && (
-              <CardFooter className="gap-2 border-t pt-3">
+              <CardFooter className="gap-2 border-t pt-3" onClick={(e) => e.stopPropagation()}>
                 {canEdit(vendor) && (
                   <VendorFormDialog
                     vendor={vendor}
@@ -157,6 +131,15 @@ export function VendorsGrid({
           </Card>
         );
       })}
+
+      {selectedVendor && (
+        <VendorDetailDialog
+          open={!!selectedVendor}
+          onOpenChange={(o) => !o && setSelectedVendor(null)}
+          vendor={selectedVendor}
+          canSeePayment={canSeePayment(selectedVendor)}
+        />
+      )}
     </div>
   );
 }
