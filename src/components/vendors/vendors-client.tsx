@@ -132,10 +132,13 @@ export function VendorsClient({
           </Select>
         </div>
         {hasFilters && (
-          <Button variant="ghost" size="sm" onClick={clearFilters}>
-            <X />
-            Clear
-          </Button>
+          <div className="space-y-1.5">
+            <Label className="invisible text-xs">Clear</Label>
+            <Button variant="ghost" size="sm" onClick={clearFilters}>
+              <X />
+              Clear
+            </Button>
+          </div>
         )}
       </div>
 
