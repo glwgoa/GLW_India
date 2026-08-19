@@ -57,7 +57,7 @@ export default async function DashboardLayout({
                 GLW India Ops Dashboard
               </span>
             </div>
-            <div className="absolute left-1/2 -translate-x-1/2">
+            <div className="absolute inset-y-0 left-1/2 flex -translate-x-1/2 items-center">
               <UniversalSearch />
             </div>
             <div className="flex items-center gap-3">
