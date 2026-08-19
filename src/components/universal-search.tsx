@@ -177,7 +177,7 @@ const getResultItemVariants = (index: number, isUnsupported: boolean) => ({
     filter: isUnsupported ? "none" : "blur(10px)",
   },
   animate: {
-    y: (index + 1) * 46,
+    y: index * 46,
     scale: 1,
     filter: "blur(0px)",
   },
@@ -345,7 +345,7 @@ export const UniversalSearch = () => {
           {step === 2 && (
             <motion.div
               key="search-text-wrapper"
-              className="search-results absolute top-full left-0 z-40 mt-1 w-56"
+              className="search-results absolute top-full left-1/2 z-40 mt-1 w-56 -translate-x-1/2"
               role="listbox"
               aria-label="Search results"
               exit={{ scale: 0, opacity: 0 }}
