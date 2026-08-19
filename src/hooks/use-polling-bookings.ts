@@ -7,7 +7,7 @@ import type { BookingRow } from "@/types/booking";
 const BOOKINGS_SELECT =
   "*, region:regions(name), vendor:vendors(name), item:catalog_items(name, b2b_price)";
 
-export function usePollingBookings(initial: BookingRow[], intervalMs = 30000) {
+export function usePollingBookings(initial: BookingRow[]) {
   const [bookings, setBookings] = useState<BookingRow[]>(initial);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -23,9 +23,9 @@ export function usePollingBookings(initial: BookingRow[], intervalMs = 30000) {
   }, []);
 
   useEffect(() => {
-    const id = setInterval(refresh, intervalMs);
+    const id = setInterval(refresh, 30000);
     return () => clearInterval(id);
-  }, [refresh, intervalMs]);
+  }, [refresh]);
 
   return { bookings, setBookings, refresh, refreshing };
 }
