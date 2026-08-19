@@ -46,18 +46,19 @@ export default async function DashboardLayout({
 
   return (
     <RegionProvider initialRegionId={initialRegionId}>
-      <PixelBlast
-        className="pointer-events-none fixed inset-0"
-        color="#8b5cf6"
-        pixelSize={4}
-        patternScale={3}
-        patternDensity={0.6}
-        edgeFade={0.6}
-        speed={0.35}
-        enableRipples={false}
-        liquid={false}
-        transparent
-      />
+      <div className="pointer-events-none fixed inset-0 z-0">
+        <PixelBlast
+          color="#8b5cf6"
+          pixelSize={4}
+          patternScale={3}
+          patternDensity={0.6}
+          edgeFade={0.6}
+          speed={0.35}
+          enableRipples={false}
+          liquid={false}
+          transparent
+        />
+      </div>
       <SidebarProvider>
         <AppSidebar profile={profile} />
         <SidebarInset className="bg-transparent">
