@@ -1,14 +1,25 @@
 "use client";
 
-import { useCallback, useState } from "react";
-import { RefreshCw } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
+import { RefreshCw, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { VendorsGrid } from "./vendors-grid";
 import { VendorFormDialog } from "./vendor-form-dialog";
 import type { VendorCategoryRow, VendorRow, VendorSubCategoryRow } from "@/types/vendor";
 import type { Profile } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
+
+const PRIORITIES = ["primary", "secondary", "tertiary"] as const;
 
 export function VendorsClient({
   initialVendors,
@@ -23,6 +34,9 @@ export function VendorsClient({
 }) {
   const [vendors, setVendors] = useState<VendorRow[]>(initialVendors);
   const [refreshing, setRefreshing] = useState(false);
+  const [nameFilter, setNameFilter] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [priorityFilter, setPriorityFilter] = useState("");
   const canAdd = isPrivileged(profile.role);
 
   const refresh = useCallback(async () => {
@@ -32,6 +46,25 @@ export function VendorsClient({
     if (data) setVendors(data as VendorRow[]);
     setRefreshing(false);
   }, []);
+
+  const filteredVendors = useMemo(() => {
+    return vendors.filter((vendor) => {
+      if (nameFilter && !vendor.name?.toLowerCase().includes(nameFilter.toLowerCase())) {
+        return false;
+      }
+      if (categoryFilter && vendor.category !== categoryFilter) return false;
+      if (priorityFilter && vendor.priority !== priorityFilter) return false;
+      return true;
+    });
+  }, [vendors, nameFilter, categoryFilter, priorityFilter]);
+
+  const hasFilters = nameFilter || categoryFilter || priorityFilter;
+
+  function clearFilters() {
+    setNameFilter("");
+    setCategoryFilter("");
+    setPriorityFilter("");
+  }
 
   return (
     <div className="space-y-4">
@@ -54,8 +87,60 @@ export function VendorsClient({
           )}
         </div>
       </div>
+
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="vendor-name-filter" className="text-xs text-muted-foreground">
+            Name
+          </Label>
+          <Input
+            id="vendor-name-filter"
+            placeholder="Search vendors..."
+            value={nameFilter}
+            onChange={(e) => setNameFilter(e.target.value)}
+            className="w-44"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs text-muted-foreground">Category</Label>
+          <Select value={categoryFilter} onValueChange={(v) => setCategoryFilter(v ?? "")}>
+            <SelectTrigger className="w-44">
+              <SelectValue>{(value: string) => value || "All categories"}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {categories.map((c) => (
+                <SelectItem key={c.id} value={c.name}>
+                  {c.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs text-muted-foreground">Priority</Label>
+          <Select value={priorityFilter} onValueChange={(v) => setPriorityFilter(v ?? "")}>
+            <SelectTrigger className="w-36">
+              <SelectValue>{(value: string) => (value ? value : "All priorities")}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {PRIORITIES.map((p) => (
+                <SelectItem key={p} value={p} className="capitalize">
+                  {p}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        {hasFilters && (
+          <Button variant="ghost" size="sm" onClick={clearFilters}>
+            <X />
+            Clear
+          </Button>
+        )}
+      </div>
+
       <VendorsGrid
-        vendors={vendors}
+        vendors={filteredVendors}
         setVendors={setVendors}
         profile={profile}
         refresh={refresh}
