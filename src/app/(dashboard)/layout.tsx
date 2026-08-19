@@ -49,7 +49,7 @@ export default async function DashboardLayout({
       <SidebarProvider>
         <AppSidebar profile={profile} />
         <SidebarInset>
-          <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b px-4">
+          <header className="relative flex h-14 shrink-0 items-center justify-between gap-2 border-b px-4">
             <div className="flex items-center gap-2">
               <SidebarTrigger />
               <Separator orientation="vertical" className="h-4" />
@@ -57,8 +57,10 @@ export default async function DashboardLayout({
                 GLW India Ops Dashboard
               </span>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="absolute left-1/2 -translate-x-1/2">
               <UniversalSearch />
+            </div>
+            <div className="flex items-center gap-3">
               <AnimatedThemeToggler />
               <RegionSwitcher regions={regions ?? []} canViewAll={canViewAllRegions} />
             </div>
