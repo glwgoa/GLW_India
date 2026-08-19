@@ -22,8 +22,9 @@ export default async function AttendancePage() {
 
   const isAdminHr = isPrivileged(profile.role) || profile.role === "hr";
   const isAdmin = isPrivileged(profile.role);
+  const isDeveloper = profile.role === "developer";
 
-  const [{ data: ownRows }, { data: orgRows }] = await Promise.all([
+  const [{ data: ownRows }, { data: orgRows }, { data: employees }] = await Promise.all([
     supabase
       .from("attendance")
       .select("*")
@@ -36,6 +37,9 @@ export default async function AttendancePage() {
           .order("clock_in", { ascending: false })
           .limit(200)
       : Promise.resolve({ data: [] as AttendanceRow[] }),
+    isDeveloper
+      ? supabase.from("profiles").select("id, full_name").order("full_name")
+      : Promise.resolve({ data: [] as { id: string; full_name: string }[] }),
   ]);
 
   const own = (ownRows ?? []) as unknown as AttendanceRow[];
@@ -49,6 +53,8 @@ export default async function AttendancePage() {
       orgRows={(orgRows ?? []) as unknown as AttendanceRow[]}
       isAdminHr={isAdminHr}
       isAdmin={isAdmin}
+      isDeveloper={isDeveloper}
+      employees={employees ?? []}
     />
   );
 }

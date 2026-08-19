@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ClockWidget } from "./clock-widget";
 import { AttendanceTable } from "./attendance-table";
+import { ImportAttendanceDialog } from "./import-attendance-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { AttendanceRow } from "@/types/attendance";
 
@@ -10,9 +11,11 @@ export function AttendanceClient({
   userId,
   initialOpenRecord,
   initialOwnRows,
-  orgRows,
+  orgRows: initialOrgRows,
   isAdminHr,
   isAdmin,
+  isDeveloper,
+  employees,
 }: {
   userId: string;
   initialOpenRecord: AttendanceRow | null;
@@ -20,9 +23,12 @@ export function AttendanceClient({
   orgRows: AttendanceRow[];
   isAdminHr: boolean;
   isAdmin: boolean;
+  isDeveloper: boolean;
+  employees: { id: string; full_name: string }[];
 }) {
   const [openRecord, setOpenRecord] = useState<AttendanceRow | null>(initialOpenRecord);
   const [ownRows, setOwnRows] = useState<AttendanceRow[]>(initialOwnRows);
+  const [orgRows, setOrgRows] = useState<AttendanceRow[]>(initialOrgRows);
 
   function handleClockIn(record: AttendanceRow) {
     setOpenRecord(record);
@@ -32,6 +38,10 @@ export function AttendanceClient({
   function handleClockOut(record: AttendanceRow) {
     setOpenRecord(null);
     setOwnRows((prev) => prev.map((r) => (r.id === record.id ? record : r)));
+  }
+
+  function handleImported(records: AttendanceRow[]) {
+    setOrgRows((prev) => [...records, ...prev]);
   }
 
   const ownSection = (
@@ -66,7 +76,12 @@ export function AttendanceClient({
         <TabsContent value="mine" className="mt-4">
           {ownSection}
         </TabsContent>
-        <TabsContent value="team" className="mt-4">
+        <TabsContent value="team" className="mt-4 space-y-3">
+          {isDeveloper && (
+            <div className="flex justify-end">
+              <ImportAttendanceDialog employees={employees} onImported={handleImported} />
+            </div>
+          )}
           <AttendanceTable rows={orgRows} showEmployee showNote={isAdmin} />
         </TabsContent>
       </Tabs>
