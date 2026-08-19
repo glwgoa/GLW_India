@@ -76,13 +76,17 @@ export function AttendanceClient({
         <TabsContent value="mine" className="mt-4">
           {ownSection}
         </TabsContent>
-        <TabsContent value="team" className="mt-4 space-y-3">
-          {isDeveloper && (
-            <div className="flex justify-end">
-              <ImportAttendanceDialog employees={employees} onImported={handleImported} />
-            </div>
-          )}
-          <AttendanceTable rows={orgRows} showEmployee showNote={isAdmin} />
+        <TabsContent value="team" className="mt-4">
+          <AttendanceTable
+            rows={orgRows}
+            showEmployee
+            showNote={isAdmin}
+            actions={
+              isDeveloper && (
+                <ImportAttendanceDialog employees={employees} onImported={handleImported} />
+              )
+            }
+          />
         </TabsContent>
       </Tabs>
     </div>

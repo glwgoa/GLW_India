@@ -29,11 +29,14 @@ export function AttendanceTable({
   rows,
   showEmployee,
   showNote,
+  actions,
 }: {
   rows: AttendanceRow[];
   showEmployee: boolean;
   /** Notes are admin-only, even for HR or the employee's own history. */
   showNote: boolean;
+  /** Extra controls (e.g. Import CSV) rendered next to Download CSV. */
+  actions?: React.ReactNode;
 }) {
   const [nameFilter, setNameFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
@@ -136,10 +139,13 @@ export function AttendanceTable({
             </Button>
           )}
         </div>
-        <Button variant="outline" size="sm" onClick={handleDownload}>
-          <Download />
-          Download CSV
-        </Button>
+        <div className="flex items-center gap-2">
+          {actions}
+          <Button variant="outline" size="sm" onClick={handleDownload}>
+            <Download />
+            Download CSV
+          </Button>
+        </div>
       </div>
 
       {filteredRows.length === 0 ? (
