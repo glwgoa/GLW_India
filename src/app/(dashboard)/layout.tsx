@@ -5,6 +5,7 @@ import { RegionProvider } from "@/lib/region-context";
 import { AppSidebar } from "@/components/app-sidebar";
 import { RegionSwitcher } from "@/components/region-switcher";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
+import PixelBlast from "@/components/pixel-blast";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import type { Profile } from "@/types/profile";
@@ -45,10 +46,22 @@ export default async function DashboardLayout({
 
   return (
     <RegionProvider initialRegionId={initialRegionId}>
+      <PixelBlast
+        className="pointer-events-none fixed inset-0"
+        color="#8b5cf6"
+        pixelSize={4}
+        patternScale={3}
+        patternDensity={0.6}
+        edgeFade={0.6}
+        speed={0.35}
+        enableRipples={false}
+        liquid={false}
+        transparent
+      />
       <SidebarProvider>
         <AppSidebar profile={profile} />
-        <SidebarInset>
-          <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b px-4">
+        <SidebarInset className="bg-transparent">
+          <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b bg-background px-4">
             <div className="flex items-center gap-2">
               <SidebarTrigger />
               <Separator orientation="vertical" className="h-4" />
