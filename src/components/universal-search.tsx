@@ -177,7 +177,7 @@ export function UniversalSearch() {
       <AnimatePresence>
         {isFocused && trimmed && (
           <motion.div
-            className="absolute top-full left-0 z-40 mt-1.5 w-64 overflow-hidden rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10"
+            className="absolute top-full left-0 z-50 mt-1.5 w-full overflow-hidden rounded-lg bg-popover text-popover-foreground shadow-lg ring-1 ring-foreground/10"
             variants={listVariants}
             initial="hidden"
             animate="show"
