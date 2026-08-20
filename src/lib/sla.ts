@@ -9,7 +9,9 @@ const DUE_SOON_WINDOW_MS = 30 * 60 * 1000; // 30 minutes
  * the database. sla_status itself is set manually by staff.
  */
 export function computeSlaHint(deadlineIso: string, status: BookingStatus): SlaHint {
-  if (status === "completed" || status === "cancelled") return "on_track";
+  if (status === "completed" || status === "cancelled" || status === "cancelled_refunded") {
+    return "on_track";
+  }
 
   const msLeft = new Date(deadlineIso).getTime() - Date.now();
   if (msLeft <= 0) return "overdue";

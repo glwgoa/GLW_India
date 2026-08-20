@@ -1,4 +1,10 @@
-export type BookingStatus = "pending" | "assigned" | "in_progress" | "completed" | "cancelled";
+export type BookingStatus =
+  | "pending"
+  | "assigned"
+  | "in_progress"
+  | "completed"
+  | "cancelled"
+  | "cancelled_refunded";
 export type SlaStatus = "on_track" | "warning" | "breached" | "met";
 
 export type BookingRow = {

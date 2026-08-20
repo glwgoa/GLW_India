@@ -1,0 +1,246 @@
+"use client";
+
+import { useState } from "react";
+import { toast } from "sonner";
+import { Pencil } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import type { BookingRow, BookingStatus } from "@/types/booking";
+
+type Product = { id: string; name: string; sale_price: number | null };
+
+const BOOKING_STATUSES: BookingStatus[] = [
+  "pending",
+  "assigned",
+  "in_progress",
+  "completed",
+  "cancelled",
+  "cancelled_refunded",
+];
+const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
+  pending: "Pending",
+  assigned: "Assigned",
+  in_progress: "In progress",
+  completed: "Completed",
+  cancelled: "Cancelled",
+  cancelled_refunded: "Cancel/Refunded",
+};
+
+function toDatetimeLocal(iso: string) {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+export function EditBookingDialog({
+  booking,
+  vendors,
+  regions,
+  products,
+  onSaved,
+}: {
+  booking: BookingRow;
+  vendors: { id: string; name: string }[];
+  regions: { id: string; name: string }[];
+  products: Product[];
+  onSaved: () => void | Promise<void>;
+}) {
+  const [open, setOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [vendorId, setVendorId] = useState(booking.assigned_vendor_id ?? "");
+  const [regionId, setRegionId] = useState(booking.region_id ?? "");
+  const [productId, setProductId] = useState(booking.item_id ?? "");
+  const [salePrice, setSalePrice] = useState(booking.sale_price != null ? String(booking.sale_price) : "");
+  const [status, setStatus] = useState<BookingStatus>(booking.status);
+
+  function handleProductChange(id: string) {
+    setProductId(id);
+    const product = products.find((p) => p.id === id);
+    if (product?.sale_price != null) {
+      setSalePrice(String(product.sale_price));
+    }
+  }
+
+  async function handleSubmit(formData: FormData) {
+    if (!regionId) {
+      toast.error("Select a region");
+      return;
+    }
+    const deadline = formData.get("slaDeadline") as string;
+    if (!deadline) {
+      toast.error("Set an SLA deadline");
+      return;
+    }
+
+    setSubmitting(true);
+    const supabase = createClient();
+
+    const customerName = formData.get("customerName") as string;
+    const priceRaw = formData.get("salePrice") as string;
+
+    const { error } = await supabase
+      .from("bookings")
+      .update({
+        customer_name: customerName,
+        region_id: regionId,
+        assigned_vendor_id: vendorId || null,
+        item_id: productId || null,
+        sale_price: priceRaw ? Number(priceRaw) : null,
+        sla_deadline: new Date(deadline).toISOString(),
+        status,
+      })
+      .eq("id", booking.id);
+
+    setSubmitting(false);
+
+    if (error) {
+      toast.error(`Could not update booking: ${error.message}`);
+      return;
+    }
+
+    toast.success("Booking updated");
+    setOpen(false);
+    await onSaved();
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Edit booking" />}>
+        <Pencil />
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Edit booking</DialogTitle>
+          <DialogDescription>Update this booking&apos;s details.</DialogDescription>
+        </DialogHeader>
+        <form action={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="customerName">Customer name</Label>
+            <Input id="customerName" name="customerName" defaultValue={booking.customer_name} required />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Region</Label>
+              <Select value={regionId} onValueChange={(v) => setRegionId(v ?? "")}>
+                <SelectTrigger>
+                  <SelectValue>
+                    {(value: string) => regions.find((r) => r.id === value)?.name ?? "Select region"}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {regions.map((r) => (
+                    <SelectItem key={r.id} value={r.id}>
+                      {r.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Vendor</Label>
+              <Select value={vendorId} onValueChange={(v) => setVendorId(v ?? "")}>
+                <SelectTrigger>
+                  <SelectValue>
+                    {(value: string) => vendors.find((v) => v.id === value)?.name ?? "Optional"}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {vendors.map((v) => (
+                    <SelectItem key={v.id} value={v.id}>
+                      {v.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Product</Label>
+              <Select value={productId} onValueChange={(v) => handleProductChange(v ?? "")}>
+                <SelectTrigger>
+                  <SelectValue>
+                    {(value: string) => products.find((p) => p.id === value)?.name ?? "Optional"}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {products.map((p) => (
+                    <SelectItem key={p.id} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="salePrice">Sale price (₹)</Label>
+              <Input
+                id="salePrice"
+                name="salePrice"
+                type="number"
+                step="0.01"
+                value={salePrice}
+                onChange={(e) => setSalePrice(e.target.value)}
+                placeholder="Manually set or overridden"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="slaDeadline">SLA deadline</Label>
+              <Input
+                id="slaDeadline"
+                name="slaDeadline"
+                type="datetime-local"
+                defaultValue={toDatetimeLocal(booking.sla_deadline)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Status</Label>
+              <Select value={status} onValueChange={(v) => v && setStatus(v as BookingStatus)}>
+                <SelectTrigger>
+                  <SelectValue>{(value: string) => BOOKING_STATUS_LABEL[value as BookingStatus]}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {BOOKING_STATUSES.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {BOOKING_STATUS_LABEL[s]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button type="submit" disabled={submitting}>
+              {submitting ? "Saving..." : "Save changes"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

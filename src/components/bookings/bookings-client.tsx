@@ -54,6 +54,9 @@ export function BookingsClient({
         setBookings={setBookings}
         profile={profile}
         vendors={vendors}
+        regions={regions}
+        products={products}
+        refresh={refresh}
       />
     </div>
   );

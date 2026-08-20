@@ -662,6 +662,7 @@ export type Database = {
         | "in_progress"
         | "completed"
         | "cancelled"
+        | "cancelled_refunded"
       sla_status: "on_track" | "warning" | "breached" | "met"
       user_role:
         | "admin"
@@ -803,6 +804,7 @@ export const Constants = {
         "in_progress",
         "completed",
         "cancelled",
+        "cancelled_refunded",
       ],
       sla_status: ["on_track", "warning", "breached", "met"],
       user_role: [

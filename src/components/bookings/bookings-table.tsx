@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { SlaBadge } from "./sla-badge";
+import { EditBookingDialog } from "./edit-booking-dialog";
 import {
   Table,
   TableBody,
@@ -27,7 +28,16 @@ const BOOKING_STATUSES: BookingStatus[] = [
   "in_progress",
   "completed",
   "cancelled",
+  "cancelled_refunded",
 ];
+const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
+  pending: "Pending",
+  assigned: "Assigned",
+  in_progress: "In progress",
+  completed: "Completed",
+  cancelled: "Cancelled",
+  cancelled_refunded: "Cancel/Refunded",
+};
 const SLA_STATUSES: SlaStatus[] = ["on_track", "warning", "breached", "met"];
 
 export function BookingsTable({
@@ -35,14 +45,21 @@ export function BookingsTable({
   setBookings,
   profile,
   vendors,
+  regions,
+  products,
+  refresh,
 }: {
   bookings: BookingRow[];
   setBookings: React.Dispatch<React.SetStateAction<BookingRow[]>>;
   profile: Profile;
   vendors: { id: string; name: string }[];
+  regions: { id: string; name: string }[];
+  products: { id: string; name: string; sale_price: number | null }[];
+  refresh: () => void | Promise<void>;
 }) {
   const canAssignVendor = isPrivileged(profile.role) || profile.role === "project_manager";
   const canDelete = isPrivileged(profile.role);
+  const canEdit = canAssignVendor;
   // Margin over what we pay the vendor — admin/PM only, not shown to the
   // vendor themselves or other roles.
   const canSeeProfit = canAssignVendor;
@@ -96,7 +113,7 @@ export function BookingsTable({
             {canSeeProfit && <TableHead>Profit</TableHead>}
             <TableHead>Status</TableHead>
             <TableHead>SLA</TableHead>
-            {canDelete && <TableHead className="w-10" />}
+            {(canEdit || canDelete) && <TableHead className="w-20" />}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -160,14 +177,14 @@ export function BookingsTable({
                   }
                 >
                   <SelectTrigger className="w-36">
-                    <SelectValue className="capitalize">
-                      {(value: string) => value.replace("_", " ")}
+                    <SelectValue>
+                      {(value: string) => BOOKING_STATUS_LABEL[value as BookingStatus] ?? value}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {BOOKING_STATUSES.map((s) => (
-                      <SelectItem key={s} value={s} className="capitalize">
-                        {s.replace("_", " ")}
+                      <SelectItem key={s} value={s}>
+                        {BOOKING_STATUS_LABEL[s]}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -201,16 +218,29 @@ export function BookingsTable({
                   </Select>
                 </div>
               </TableCell>
-              {canDelete && (
+              {(canEdit || canDelete) && (
                 <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    aria-label="Delete booking"
-                    onClick={() => deleteBooking(booking)}
-                  >
-                    <Trash2 className="text-destructive" />
-                  </Button>
+                  <div className="flex items-center gap-1">
+                    {canEdit && (
+                      <EditBookingDialog
+                        booking={booking}
+                        vendors={vendors}
+                        regions={regions}
+                        products={products}
+                        onSaved={refresh}
+                      />
+                    )}
+                    {canDelete && (
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label="Delete booking"
+                        onClick={() => deleteBooking(booking)}
+                      >
+                        <Trash2 className="text-destructive" />
+                      </Button>
+                    )}
+                  </div>
                 </TableCell>
               )}
             </TableRow>
