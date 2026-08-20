@@ -52,7 +52,7 @@ export function BookingsTable({
   profile: Profile;
   vendors: { id: string; name: string }[];
   regions: { id: string; name: string }[];
-  products: { id: string; name: string; sale_price: number | null }[];
+  products: { id: string; name: string; sale_price: number | null; category: string | null }[];
   refresh: () => void | Promise<void>;
 }) {
   const canAssignVendor = isPrivileged(profile.role) || profile.role === "project_manager";
@@ -65,6 +65,27 @@ export function BookingsTable({
   function computeProfit(booking: BookingRow) {
     if (booking.sale_price == null || booking.item?.b2b_price == null) return null;
     return booking.sale_price - booking.item.b2b_price;
+  }
+
+  function formatTime(time: string) {
+    const [h, m] = time.split(":").map(Number);
+    const period = h >= 12 ? "PM" : "AM";
+    const hour12 = h % 12 || 12;
+    return `${hour12}:${String(m).padStart(2, "0")} ${period}`;
+  }
+
+  function yachtDetails(booking: BookingRow) {
+    const parts: string[] = [];
+    if (booking.start_time && booking.end_time) {
+      parts.push(`${formatTime(booking.start_time)}–${formatTime(booking.end_time)}`);
+    }
+    const duration: string[] = [];
+    if (booking.sailing_hours != null) duration.push(`${booking.sailing_hours}h sailing`);
+    if (booking.anchorage_hours != null) duration.push(`${booking.anchorage_hours}h anchorage`);
+    if (duration.length > 0) parts.push(duration.join(" + "));
+    if (booking.guest_count != null) parts.push(`${booking.guest_count} guests`);
+    if (booking.add_ons && booking.add_ons.length > 0) parts.push(booking.add_ons.join(", "));
+    return parts.length > 0 ? parts.join(" · ") : null;
   }
 
   async function updateBooking(id: string, patch: BookingUpdate) {
@@ -114,6 +135,7 @@ export function BookingsTable({
             {canSeeProfit && <TableHead>Profit</TableHead>}
             <TableHead>Status</TableHead>
             <TableHead>Booking date</TableHead>
+            <TableHead>Details</TableHead>
             {(canEdit || canDelete) && <TableHead className="w-20" />}
           </TableRow>
         </TableHeader>
@@ -215,6 +237,9 @@ export function BookingsTable({
                   dateStyle: "medium",
                   timeStyle: "short",
                 })}
+              </TableCell>
+              <TableCell className="max-w-64 whitespace-normal text-muted-foreground">
+                {yachtDetails(booking) ?? "—"}
               </TableCell>
               {(canEdit || canDelete) && (
                 <TableCell>

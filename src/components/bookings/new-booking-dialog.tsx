@@ -23,8 +23,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { YACHT_ADD_ONS, YACHT_CATEGORY_NAME } from "@/lib/booking-yacht";
 
-type Product = { id: string; name: string; sale_price: number | null };
+type Product = { id: string; name: string; sale_price: number | null; category: string | null };
 
 export function NewBookingDialog({
   vendors,
@@ -59,6 +60,10 @@ export function NewBookingDialog({
     const product = products.find((p) => p.id === initialProductId);
     return product?.sale_price != null ? String(product.sale_price) : "";
   });
+  const [addOns, setAddOns] = useState<string[]>([]);
+
+  const selectedProduct = products.find((p) => p.id === productId);
+  const isYacht = selectedProduct?.category === YACHT_CATEGORY_NAME;
 
   function handleProductChange(id: string) {
     setProductId(id);
@@ -66,6 +71,13 @@ export function NewBookingDialog({
     if (product?.sale_price != null) {
       setSalePrice(String(product.sale_price));
     }
+    if (product?.category !== YACHT_CATEGORY_NAME) {
+      setAddOns([]);
+    }
+  }
+
+  function toggleAddOn(addOn: string) {
+    setAddOns((prev) => (prev.includes(addOn) ? prev.filter((a) => a !== addOn) : [...prev, addOn]));
   }
 
   async function handleSubmit(formData: FormData) {
@@ -85,6 +97,11 @@ export function NewBookingDialog({
     const customerName = formData.get("customerName") as string;
     const priceRaw = formData.get("salePrice") as string;
     const advanceRaw = formData.get("advanceAmount") as string;
+    const startTime = (formData.get("startTime") as string) || null;
+    const endTime = (formData.get("endTime") as string) || null;
+    const sailingHoursRaw = formData.get("sailingHours") as string;
+    const anchorageHoursRaw = formData.get("anchorageHours") as string;
+    const guestCountRaw = formData.get("guestCount") as string;
 
     const { error } = await supabase.from("bookings").insert({
       customer_name: customerName,
@@ -95,6 +112,16 @@ export function NewBookingDialog({
       advance_amount: advanceRaw ? Number(advanceRaw) : null,
       booking_date: new Date(date).toISOString(),
       status: "pending",
+      ...(isYacht
+        ? {
+            start_time: startTime,
+            end_time: endTime,
+            sailing_hours: sailingHoursRaw ? Number(sailingHoursRaw) : null,
+            anchorage_hours: anchorageHoursRaw ? Number(anchorageHoursRaw) : null,
+            add_ons: addOns.length > 0 ? addOns : null,
+            guest_count: guestCountRaw ? Number(guestCountRaw) : null,
+          }
+        : {}),
     });
 
     setSubmitting(false);
@@ -111,6 +138,7 @@ export function NewBookingDialog({
     setProductId(initialProductId ?? "");
     const resetProduct = products.find((p) => p.id === initialProductId);
     setSalePrice(resetProduct?.sale_price != null ? String(resetProduct.sale_price) : "");
+    setAddOns([]);
     await onAdded();
   }
 
@@ -215,6 +243,52 @@ export function NewBookingDialog({
               />
             </div>
           </div>
+
+          {isYacht && (
+            <div className="space-y-4 border-t pt-4">
+              <p className="text-xs font-medium text-muted-foreground">Private yacht details</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="startTime">Start time</Label>
+                  <Input id="startTime" name="startTime" type="time" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="endTime">End time</Label>
+                  <Input id="endTime" name="endTime" type="time" />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="sailingHours">Sailing (hours)</Label>
+                  <Input id="sailingHours" name="sailingHours" type="number" step="0.5" min="0" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="anchorageHours">Anchorage (hours)</Label>
+                  <Input id="anchorageHours" name="anchorageHours" type="number" step="0.5" min="0" />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="guestCount">Number of guests</Label>
+                <Input id="guestCount" name="guestCount" type="number" min="0" className="max-w-40" />
+              </div>
+              <div className="space-y-2">
+                <Label>Add-ons</Label>
+                <div className="flex flex-wrap gap-2">
+                  {YACHT_ADD_ONS.map((addOn) => (
+                    <Button
+                      key={addOn}
+                      type="button"
+                      size="sm"
+                      variant={addOns.includes(addOn) ? "default" : "outline"}
+                      onClick={() => toggleAddOn(addOn)}
+                    >
+                      {addOn}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
           <DialogFooter>
             <Button type="submit" disabled={submitting}>

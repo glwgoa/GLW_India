@@ -48,7 +48,9 @@ export function ProductDetailDialog({
   const available = row.stock_quantity - row.reserved_quantity;
   const lowStock = available <= LOW_STOCK_THRESHOLD;
 
-  const products = item ? [{ id: row.item_id, name: item.name, sale_price: item.sale_price }] : [];
+  const products = item
+    ? [{ id: row.item_id, name: item.name, sale_price: item.sale_price, category: item.category }]
+    : [];
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

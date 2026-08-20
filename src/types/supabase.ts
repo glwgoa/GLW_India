@@ -64,39 +64,57 @@ export type Database = {
       }
       bookings: {
         Row: {
+          add_ons: string[] | null
           advance_amount: number | null
+          anchorage_hours: number | null
           assigned_vendor_id: string | null
           booking_date: string
           created_at: string | null
           customer_name: string
+          end_time: string | null
+          guest_count: number | null
           id: string
           item_id: string | null
           region_id: string | null
+          sailing_hours: number | null
           sale_price: number | null
+          start_time: string | null
           status: Database["public"]["Enums"]["booking_status"] | null
         }
         Insert: {
+          add_ons?: string[] | null
           advance_amount?: number | null
+          anchorage_hours?: number | null
           assigned_vendor_id?: string | null
           booking_date: string
           created_at?: string | null
           customer_name: string
+          end_time?: string | null
+          guest_count?: number | null
           id?: string
           item_id?: string | null
           region_id?: string | null
+          sailing_hours?: number | null
           sale_price?: number | null
+          start_time?: string | null
           status?: Database["public"]["Enums"]["booking_status"] | null
         }
         Update: {
+          add_ons?: string[] | null
           advance_amount?: number | null
+          anchorage_hours?: number | null
           assigned_vendor_id?: string | null
           booking_date?: string
           created_at?: string | null
           customer_name?: string
+          end_time?: string | null
+          guest_count?: number | null
           id?: string
           item_id?: string | null
           region_id?: string | null
+          sailing_hours?: number | null
           sale_price?: number | null
+          start_time?: string | null
           status?: Database["public"]["Enums"]["booking_status"] | null
         }
         Relationships: [

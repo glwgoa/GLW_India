@@ -30,7 +30,7 @@ export function BookingsClient({
   profile: Profile;
   vendors: { id: string; name: string }[];
   regions: { id: string; name: string }[];
-  products: { id: string; name: string; sale_price: number | null }[];
+  products: { id: string; name: string; sale_price: number | null; category: string | null }[];
 }) {
   const { bookings, setBookings, refresh, refreshing } = usePollingBookings(initialBookings);
   const canCreateBooking = isPrivileged(profile.role) || profile.role === "project_manager";

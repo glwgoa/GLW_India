@@ -26,7 +26,9 @@ export default async function BookingsPage() {
     await Promise.all([
       supabase
         .from("bookings")
-        .select("*, region:regions(name), vendor:vendors(name), item:catalog_items(name, b2b_price)")
+        .select(
+          "*, region:regions(name), vendor:vendors(name), item:catalog_items(name, b2b_price, category)",
+        )
         .order("created_at", { ascending: false }),
       canAssignVendor
         ? supabase.from("vendors").select("id, name").order("name")
@@ -35,8 +37,10 @@ export default async function BookingsPage() {
         ? supabase.from("regions").select("id, name").order("name")
         : Promise.resolve({ data: [] as { id: string; name: string }[] }),
       canAssignVendor
-        ? supabase.from("catalog_items").select("id, name, sale_price").order("name")
-        : Promise.resolve({ data: [] as { id: string; name: string; sale_price: number | null }[] }),
+        ? supabase.from("catalog_items").select("id, name, sale_price, category").order("name")
+        : Promise.resolve({
+            data: [] as { id: string; name: string; sale_price: number | null; category: string | null }[],
+          }),
     ]);
 
   return (
