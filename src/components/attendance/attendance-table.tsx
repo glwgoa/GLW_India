@@ -151,7 +151,7 @@ export function AttendanceTable({
       {filteredRows.length === 0 ? (
         <p className="text-sm text-muted-foreground">No attendance records match these filters.</p>
       ) : (
-        <div className="rounded-md border">
+        <div className="rounded-md border bg-background">
           <Table>
             <TableHeader>
               <TableRow>
