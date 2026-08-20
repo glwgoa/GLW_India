@@ -45,7 +45,7 @@ export function BookingsClient({
       "Price",
       ...(canSeeProfit ? ["B2B price", "Profit"] : []),
       "Status",
-      "SLA deadline",
+      "Booking date",
     ];
     const rows = bookings.map((b) => {
       const profit =
@@ -58,7 +58,7 @@ export function BookingsClient({
         b.sale_price ?? "",
         ...(canSeeProfit ? [b.item?.b2b_price ?? "", profit ?? ""] : []),
         BOOKING_STATUS_LABEL[b.status] ?? b.status,
-        new Date(b.sla_deadline).toLocaleString(),
+        new Date(b.booking_date).toLocaleString(),
       ];
     });
     const date = new Date().toISOString().slice(0, 10);
@@ -71,7 +71,7 @@ export function BookingsClient({
         <div>
           <h1 className="text-2xl font-semibold">Bookings</h1>
           <p className="text-sm text-muted-foreground">
-            Auto-refreshes every 30s. Status and SLA are set manually by staff.
+            Auto-refreshes every 30s. Status is set manually by staff.
           </p>
         </div>
         <div className="flex items-center gap-2">

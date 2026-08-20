@@ -13,12 +13,3 @@ export type AttendanceSummaryRow = {
   days_present: number;
   avg_hours_worked: number;
 };
-
-export type SlaComplianceRow = {
-  region_id: string;
-  region_name: string;
-  total_bookings: number;
-  met: number;
-  breached: number;
-  sla_compliance_pct: number;
-};

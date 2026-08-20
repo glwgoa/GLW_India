@@ -5,7 +5,6 @@ export type BookingStatus =
   | "completed"
   | "cancelled"
   | "cancelled_refunded";
-export type SlaStatus = "on_track" | "warning" | "breached" | "met";
 
 export type BookingRow = {
   id: string;
@@ -15,8 +14,7 @@ export type BookingRow = {
   item_id: string | null;
   sale_price: number | null;
   status: BookingStatus;
-  sla_status: SlaStatus;
-  sla_deadline: string;
+  booking_date: string;
   created_at: string;
   region: { name: string } | null;
   vendor: { name: string } | null;

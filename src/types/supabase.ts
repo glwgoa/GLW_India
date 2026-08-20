@@ -65,38 +65,35 @@ export type Database = {
       bookings: {
         Row: {
           assigned_vendor_id: string | null
+          booking_date: string
           created_at: string | null
           customer_name: string
           id: string
           item_id: string | null
           region_id: string | null
           sale_price: number | null
-          sla_deadline: string
-          sla_status: Database["public"]["Enums"]["sla_status"] | null
           status: Database["public"]["Enums"]["booking_status"] | null
         }
         Insert: {
           assigned_vendor_id?: string | null
+          booking_date: string
           created_at?: string | null
           customer_name: string
           id?: string
           item_id?: string | null
           region_id?: string | null
           sale_price?: number | null
-          sla_deadline: string
-          sla_status?: Database["public"]["Enums"]["sla_status"] | null
           status?: Database["public"]["Enums"]["booking_status"] | null
         }
         Update: {
           assigned_vendor_id?: string | null
+          booking_date?: string
           created_at?: string | null
           customer_name?: string
           id?: string
           item_id?: string | null
           region_id?: string | null
           sale_price?: number | null
-          sla_deadline?: string
-          sla_status?: Database["public"]["Enums"]["sla_status"] | null
           status?: Database["public"]["Enums"]["booking_status"] | null
         }
         Relationships: [
@@ -106,13 +103,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "vendors"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "bookings_assigned_vendor_id_fkey"
-            columns: ["assigned_vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vw_vendor_response_efficiency"
-            referencedColumns: ["vendor_id"]
           },
           {
             foreignKeyName: "bookings_item_id_fkey"
@@ -133,13 +123,6 @@ export type Database = {
             columns: ["region_id"]
             isOneToOne: false
             referencedRelation: "vw_region_revenue_orders"
-            referencedColumns: ["region_id"]
-          },
-          {
-            foreignKeyName: "bookings_region_id_fkey"
-            columns: ["region_id"]
-            isOneToOne: false
-            referencedRelation: "vw_sla_compliance_by_region"
             referencedColumns: ["region_id"]
           },
         ]
@@ -186,13 +169,6 @@ export type Database = {
             referencedRelation: "vendors"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "catalog_items_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vw_vendor_response_efficiency"
-            referencedColumns: ["vendor_id"]
-          },
         ]
       }
       profiles: {
@@ -236,25 +212,11 @@ export type Database = {
             referencedColumns: ["region_id"]
           },
           {
-            foreignKeyName: "profiles_region_id_fkey"
-            columns: ["region_id"]
-            isOneToOne: false
-            referencedRelation: "vw_sla_compliance_by_region"
-            referencedColumns: ["region_id"]
-          },
-          {
             foreignKeyName: "profiles_vendor_id_fkey"
             columns: ["vendor_id"]
             isOneToOne: false
             referencedRelation: "vendors"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "profiles_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vw_vendor_response_efficiency"
-            referencedColumns: ["vendor_id"]
           },
         ]
       }
@@ -312,13 +274,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "projects_assigned_vendor_id_fkey"
-            columns: ["assigned_vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vw_vendor_response_efficiency"
-            referencedColumns: ["vendor_id"]
-          },
-          {
             foreignKeyName: "projects_region_id_fkey"
             columns: ["region_id"]
             isOneToOne: false
@@ -330,13 +285,6 @@ export type Database = {
             columns: ["region_id"]
             isOneToOne: false
             referencedRelation: "vw_region_revenue_orders"
-            referencedColumns: ["region_id"]
-          },
-          {
-            foreignKeyName: "projects_region_id_fkey"
-            columns: ["region_id"]
-            isOneToOne: false
-            referencedRelation: "vw_sla_compliance_by_region"
             referencedColumns: ["region_id"]
           },
         ]
@@ -383,13 +331,6 @@ export type Database = {
             columns: ["region_id"]
             isOneToOne: false
             referencedRelation: "vw_region_revenue_orders"
-            referencedColumns: ["region_id"]
-          },
-          {
-            foreignKeyName: "regional_inventory_region_id_fkey"
-            columns: ["region_id"]
-            isOneToOne: false
-            referencedRelation: "vw_sla_compliance_by_region"
             referencedColumns: ["region_id"]
           },
         ]
@@ -441,13 +382,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "vendors"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "sla_guidelines_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vw_vendor_response_efficiency"
-            referencedColumns: ["vendor_id"]
           },
         ]
       }
@@ -512,13 +446,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "vendors"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vendor_category_selections_vendor_id_fkey"
-            columns: ["vendor_id"]
-            isOneToOne: false
-            referencedRelation: "vw_vendor_response_efficiency"
-            referencedColumns: ["vendor_id"]
           },
         ]
       }
@@ -624,27 +551,6 @@ export type Database = {
         }
         Relationships: []
       }
-      vw_sla_compliance_by_region: {
-        Row: {
-          breached: number | null
-          met: number | null
-          region_id: string | null
-          region_name: string | null
-          sla_compliance_pct: number | null
-          total_bookings: number | null
-        }
-        Relationships: []
-      }
-      vw_vendor_response_efficiency: {
-        Row: {
-          met_sla: number | null
-          response_efficiency_pct: number | null
-          total_completed: number | null
-          vendor_id: string | null
-          vendor_name: string | null
-        }
-        Relationships: []
-      }
     }
     Functions: {
       get_user_region: { Args: never; Returns: string }
@@ -663,7 +569,6 @@ export type Database = {
         | "completed"
         | "cancelled"
         | "cancelled_refunded"
-      sla_status: "on_track" | "warning" | "breached" | "met"
       user_role:
         | "admin"
         | "vendor"
@@ -806,7 +711,6 @@ export const Constants = {
         "cancelled",
         "cancelled_refunded",
       ],
-      sla_status: ["on_track", "warning", "breached", "met"],
       user_role: [
         "admin",
         "vendor",

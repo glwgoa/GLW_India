@@ -3,9 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { requireRole } from "@/lib/auth/require-role";
 import { RegionRevenueChart } from "@/components/mis/region-revenue-chart";
 import { AttendanceSummaryChart } from "@/components/mis/attendance-summary-chart";
-import { SlaComplianceChart } from "@/components/mis/sla-compliance-chart";
 import type { Profile } from "@/types/profile";
-import type { RegionRevenueRow, AttendanceSummaryRow, SlaComplianceRow } from "@/types/mis";
+import type { RegionRevenueRow, AttendanceSummaryRow } from "@/types/mis";
 
 export default async function MisReportsPage() {
   const supabase = await createClient();
@@ -23,12 +22,10 @@ export default async function MisReportsPage() {
 
   requireRole(profile, ["admin", "developer", "project_manager"]);
 
-  const [{ data: regionRevenue }, { data: attendanceSummary }, { data: slaCompliance }] =
-    await Promise.all([
-      supabase.from("vw_region_revenue_orders").select("*"),
-      supabase.from("vw_monthly_attendance_summary").select("*"),
-      supabase.from("vw_sla_compliance_by_region").select("*"),
-    ]);
+  const [{ data: regionRevenue }, { data: attendanceSummary }] = await Promise.all([
+    supabase.from("vw_region_revenue_orders").select("*"),
+    supabase.from("vw_monthly_attendance_summary").select("*"),
+  ]);
 
   return (
     <div className="space-y-4">
@@ -42,7 +39,6 @@ export default async function MisReportsPage() {
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <RegionRevenueChart data={(regionRevenue ?? []) as RegionRevenueRow[]} />
         <AttendanceSummaryChart data={(attendanceSummary ?? []) as AttendanceSummaryRow[]} />
-        <SlaComplianceChart data={(slaCompliance ?? []) as SlaComplianceRow[]} />
       </div>
     </div>
   );

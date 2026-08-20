@@ -3,7 +3,6 @@
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { SlaBadge } from "./sla-badge";
 import { EditBookingDialog } from "./edit-booking-dialog";
 import {
   Table,
@@ -15,7 +14,7 @@ import {
 } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import type { BookingRow, BookingStatus, SlaStatus } from "@/types/booking";
+import type { BookingRow, BookingStatus } from "@/types/booking";
 import type { Profile } from "@/types/profile";
 import type { TablesUpdate } from "@/types/supabase";
 import { isPrivileged } from "@/lib/auth/roles";
@@ -38,7 +37,6 @@ const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
   cancelled: "Cancelled",
   cancelled_refunded: "Cancel/Refunded",
 };
-const SLA_STATUSES: SlaStatus[] = ["on_track", "warning", "breached", "met"];
 
 export function BookingsTable({
   bookings,
@@ -113,7 +111,7 @@ export function BookingsTable({
             {canSeeProfit && <TableHead>B2B price</TableHead>}
             {canSeeProfit && <TableHead>Profit</TableHead>}
             <TableHead>Status</TableHead>
-            <TableHead>SLA</TableHead>
+            <TableHead>Booking date</TableHead>
             {(canEdit || canDelete) && <TableHead className="w-20" />}
           </TableRow>
         </TableHeader>
@@ -198,33 +196,11 @@ export function BookingsTable({
                   </SelectContent>
                 </Select>
               </TableCell>
-              <TableCell>
-                <div className="flex flex-col gap-2">
-                  <SlaBadge
-                    deadline={booking.sla_deadline}
-                    status={booking.status}
-                    slaStatus={booking.sla_status}
-                  />
-                  <Select
-                    value={booking.sla_status}
-                    onValueChange={(value) =>
-                      value && updateBooking(booking.id, { sla_status: value as SlaStatus })
-                    }
-                  >
-                    <SelectTrigger className="w-32">
-                      <SelectValue className="capitalize">
-                        {(value: string) => value.replace("_", " ")}
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      {SLA_STATUSES.map((s) => (
-                        <SelectItem key={s} value={s} className="capitalize">
-                          {s.replace("_", " ")}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+              <TableCell className="text-muted-foreground">
+                {new Date(booking.booking_date).toLocaleString("en-IN", {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })}
               </TableCell>
               {(canEdit || canDelete) && (
                 <TableCell>

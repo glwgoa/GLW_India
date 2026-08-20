@@ -84,9 +84,9 @@ export function EditBookingDialog({
       toast.error("Select a region");
       return;
     }
-    const deadline = formData.get("slaDeadline") as string;
-    if (!deadline) {
-      toast.error("Set an SLA deadline");
+    const date = formData.get("bookingDate") as string;
+    if (!date) {
+      toast.error("Set a booking date");
       return;
     }
 
@@ -104,7 +104,7 @@ export function EditBookingDialog({
         assigned_vendor_id: vendorId || null,
         item_id: productId || null,
         sale_price: priceRaw ? Number(priceRaw) : null,
-        sla_deadline: new Date(deadline).toISOString(),
+        booking_date: new Date(date).toISOString(),
         status,
       })
       .eq("id", booking.id);
@@ -208,12 +208,12 @@ export function EditBookingDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="slaDeadline">SLA deadline</Label>
+              <Label htmlFor="bookingDate">Booking date</Label>
               <Input
-                id="slaDeadline"
-                name="slaDeadline"
+                id="bookingDate"
+                name="bookingDate"
                 type="datetime-local"
-                defaultValue={toDatetimeLocal(booking.sla_deadline)}
+                defaultValue={toDatetimeLocal(booking.booking_date)}
                 required
               />
             </div>

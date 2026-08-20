@@ -3,23 +3,23 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const MODULES = [
-  { href: "/bookings", label: "Bookings", description: "Active bookings and SLA status" },
+  { href: "/bookings", label: "Bookings", description: "Active bookings and booking dates" },
   { href: "/inventory", label: "Inventory", description: "Regional stock levels" },
   { href: "/projects", label: "Projects", description: "Vendor and team project board" },
   { href: "/attendance", label: "Attendance", description: "Clock-in / clock-out log" },
-  { href: "/mis-reports", label: "MIS Reports", description: "Vendor, region, and SLA analytics" },
+  { href: "/mis-reports", label: "MIS Reports", description: "Region and attendance analytics" },
 ];
 
 export default async function DashboardOverviewPage() {
   const supabase = await createClient();
 
-  const [{ count: totalBookings }, { count: breachedBookings }, { count: activeProjects }] =
+  const [{ count: totalBookings }, { count: pendingBookings }, { count: activeProjects }] =
     await Promise.all([
       supabase.from("bookings").select("*", { count: "exact", head: true }),
       supabase
         .from("bookings")
         .select("*", { count: "exact", head: true })
-        .eq("sla_status", "breached"),
+        .eq("status", "pending"),
       supabase
         .from("projects")
         .select("*", { count: "exact", head: true })
@@ -44,8 +44,8 @@ export default async function DashboardOverviewPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardDescription>SLA breached</CardDescription>
-            <CardTitle className="text-3xl text-destructive">{breachedBookings ?? 0}</CardTitle>
+            <CardDescription>Pending bookings</CardDescription>
+            <CardTitle className="text-3xl">{pendingBookings ?? 0}</CardTitle>
           </CardHeader>
         </Card>
         <Card>

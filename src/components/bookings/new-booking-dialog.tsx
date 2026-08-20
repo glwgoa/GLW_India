@@ -73,9 +73,9 @@ export function NewBookingDialog({
       toast.error("Select a region");
       return;
     }
-    const deadline = formData.get("slaDeadline") as string;
-    if (!deadline) {
-      toast.error("Set an SLA deadline");
+    const date = formData.get("bookingDate") as string;
+    if (!date) {
+      toast.error("Set a booking date");
       return;
     }
 
@@ -91,9 +91,8 @@ export function NewBookingDialog({
       assigned_vendor_id: vendorId || null,
       item_id: productId || null,
       sale_price: priceRaw ? Number(priceRaw) : null,
-      sla_deadline: new Date(deadline).toISOString(),
+      booking_date: new Date(date).toISOString(),
       status: "pending",
-      sla_status: "on_track",
     });
 
     setSubmitting(false);
@@ -199,8 +198,8 @@ export function NewBookingDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="slaDeadline">SLA deadline</Label>
-            <Input id="slaDeadline" name="slaDeadline" type="datetime-local" required />
+            <Label htmlFor="bookingDate">Booking date</Label>
+            <Input id="bookingDate" name="bookingDate" type="datetime-local" required />
           </div>
 
           <DialogFooter>
