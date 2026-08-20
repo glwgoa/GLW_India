@@ -110,6 +110,7 @@ export function BookingsTable({
             <TableHead>Vendor</TableHead>
             <TableHead>Product</TableHead>
             <TableHead>Price</TableHead>
+            {canSeeProfit && <TableHead>B2B price</TableHead>}
             {canSeeProfit && <TableHead>Profit</TableHead>}
             <TableHead>Status</TableHead>
             <TableHead>SLA</TableHead>
@@ -155,6 +156,13 @@ export function BookingsTable({
               <TableCell>
                 {booking.sale_price != null ? `₹${booking.sale_price.toLocaleString("en-IN")}` : "—"}
               </TableCell>
+              {canSeeProfit && (
+                <TableCell className="text-muted-foreground">
+                  {booking.item?.b2b_price != null
+                    ? `₹${booking.item.b2b_price.toLocaleString("en-IN")}`
+                    : "—"}
+                </TableCell>
+              )}
               {canSeeProfit && (
                 <TableCell>
                   {(() => {
