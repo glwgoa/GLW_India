@@ -39,6 +39,7 @@ export function BookingsClient({
   function handleDownload() {
     const headers = [
       "Customer",
+      "Contact",
       "Region",
       "Vendor",
       "Product",
@@ -55,6 +56,7 @@ export function BookingsClient({
       const balance = b.sale_price != null ? b.sale_price - (b.advance_amount ?? 0) : "";
       return [
         b.customer_name,
+        b.customer_contact ?? "",
         b.region?.name ?? "",
         b.vendor?.name ?? "",
         b.item?.name ?? "",

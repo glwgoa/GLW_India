@@ -9,6 +9,7 @@ export type BookingStatus =
 export type BookingRow = {
   id: string;
   customer_name: string;
+  customer_contact: string | null;
   region_id: string | null;
   assigned_vendor_id: string | null;
   item_id: string | null;

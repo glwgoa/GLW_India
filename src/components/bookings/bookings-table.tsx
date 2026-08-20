@@ -142,7 +142,14 @@ export function BookingsTable({
         <TableBody>
           {bookings.map((booking) => (
             <TableRow key={booking.id}>
-              <TableCell className="font-medium">{booking.customer_name}</TableCell>
+              <TableCell className="font-medium">
+                <div>{booking.customer_name}</div>
+                {booking.customer_contact && (
+                  <div className="text-xs font-normal text-muted-foreground">
+                    {booking.customer_contact}
+                  </div>
+                )}
+              </TableCell>
               <TableCell>{booking.region?.name ?? "—"}</TableCell>
               <TableCell>
                 {canAssignVendor ? (

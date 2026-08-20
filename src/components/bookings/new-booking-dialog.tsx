@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { YACHT_ADD_ONS, YACHT_CATEGORY_NAME } from "@/lib/booking-yacht";
+import { YACHT_ADD_ONS, YACHT_CATEGORY_NAME, needsCustomerContact } from "@/lib/booking-yacht";
 
 type Product = { id: string; name: string; sale_price: number | null; category: string | null };
 
@@ -64,6 +64,7 @@ export function NewBookingDialog({
 
   const selectedProduct = products.find((p) => p.id === productId);
   const isYacht = selectedProduct?.category === YACHT_CATEGORY_NAME;
+  const showContactNumber = needsCustomerContact(selectedProduct?.category);
 
   function handleProductChange(id: string) {
     setProductId(id);
@@ -95,6 +96,7 @@ export function NewBookingDialog({
     const supabase = createClient();
 
     const customerName = formData.get("customerName") as string;
+    const customerContact = (formData.get("customerContact") as string) || null;
     const priceRaw = formData.get("salePrice") as string;
     const advanceRaw = formData.get("advanceAmount") as string;
     const startTime = (formData.get("startTime") as string) || null;
@@ -105,6 +107,7 @@ export function NewBookingDialog({
 
     const { error } = await supabase.from("bookings").insert({
       customer_name: customerName,
+      customer_contact: showContactNumber ? customerContact : null,
       region_id: regionId,
       assigned_vendor_id: vendorId || null,
       item_id: productId || null,
@@ -153,9 +156,17 @@ export function NewBookingDialog({
           </DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="customerName">Customer name</Label>
-            <Input id="customerName" name="customerName" required />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="customerName">Customer name</Label>
+              <Input id="customerName" name="customerName" required />
+            </div>
+            {showContactNumber && (
+              <div className="space-y-2">
+                <Label htmlFor="customerContact">Customer contact number</Label>
+                <Input id="customerContact" name="customerContact" type="tel" />
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">

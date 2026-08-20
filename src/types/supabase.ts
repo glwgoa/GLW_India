@@ -70,6 +70,7 @@ export type Database = {
           assigned_vendor_id: string | null
           booking_date: string
           created_at: string | null
+          customer_contact: string | null
           customer_name: string
           end_time: string | null
           guest_count: number | null
@@ -88,6 +89,7 @@ export type Database = {
           assigned_vendor_id?: string | null
           booking_date: string
           created_at?: string | null
+          customer_contact?: string | null
           customer_name: string
           end_time?: string | null
           guest_count?: number | null
@@ -106,6 +108,7 @@ export type Database = {
           assigned_vendor_id?: string | null
           booking_date?: string
           created_at?: string | null
+          customer_contact?: string | null
           customer_name?: string
           end_time?: string | null
           guest_count?: number | null
