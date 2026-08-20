@@ -95,6 +95,7 @@ export function EditBookingDialog({
 
     const customerName = formData.get("customerName") as string;
     const priceRaw = formData.get("salePrice") as string;
+    const advanceRaw = formData.get("advanceAmount") as string;
 
     const { error } = await supabase
       .from("bookings")
@@ -104,6 +105,7 @@ export function EditBookingDialog({
         assigned_vendor_id: vendorId || null,
         item_id: productId || null,
         sale_price: priceRaw ? Number(priceRaw) : null,
+        advance_amount: advanceRaw ? Number(advanceRaw) : null,
         booking_date: new Date(date).toISOString(),
         status,
       })
@@ -218,20 +220,32 @@ export function EditBookingDialog({
               />
             </div>
             <div className="space-y-2">
-              <Label>Status</Label>
-              <Select value={status} onValueChange={(v) => v && setStatus(v as BookingStatus)}>
-                <SelectTrigger>
-                  <SelectValue>{(value: string) => BOOKING_STATUS_LABEL[value as BookingStatus]}</SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {BOOKING_STATUSES.map((s) => (
-                    <SelectItem key={s} value={s}>
-                      {BOOKING_STATUS_LABEL[s]}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label htmlFor="advanceAmount">Advance (₹)</Label>
+              <Input
+                id="advanceAmount"
+                name="advanceAmount"
+                type="number"
+                step="0.01"
+                defaultValue={booking.advance_amount ?? ""}
+                placeholder="Optional"
+              />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Status</Label>
+            <Select value={status} onValueChange={(v) => v && setStatus(v as BookingStatus)}>
+              <SelectTrigger>
+                <SelectValue>{(value: string) => BOOKING_STATUS_LABEL[value as BookingStatus]}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {BOOKING_STATUSES.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {BOOKING_STATUS_LABEL[s]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <DialogFooter>

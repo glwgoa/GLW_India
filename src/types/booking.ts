@@ -13,6 +13,7 @@ export type BookingRow = {
   assigned_vendor_id: string | null;
   item_id: string | null;
   sale_price: number | null;
+  advance_amount: number | null;
   status: BookingStatus;
   booking_date: string;
   created_at: string;

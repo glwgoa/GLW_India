@@ -108,6 +108,8 @@ export function BookingsTable({
             <TableHead>Vendor</TableHead>
             <TableHead>Product</TableHead>
             <TableHead>Price</TableHead>
+            <TableHead>Advance</TableHead>
+            <TableHead>Balance due</TableHead>
             {canSeeProfit && <TableHead>B2B price</TableHead>}
             {canSeeProfit && <TableHead>Profit</TableHead>}
             <TableHead>Status</TableHead>
@@ -153,6 +155,18 @@ export function BookingsTable({
               <TableCell>{booking.item?.name ?? "—"}</TableCell>
               <TableCell>
                 {booking.sale_price != null ? `₹${booking.sale_price.toLocaleString("en-IN")}` : "—"}
+              </TableCell>
+              <TableCell>
+                {booking.advance_amount != null
+                  ? `₹${booking.advance_amount.toLocaleString("en-IN")}`
+                  : "—"}
+              </TableCell>
+              <TableCell className="text-muted-foreground">
+                {(() => {
+                  if (booking.sale_price == null) return "—";
+                  const balance = booking.sale_price - (booking.advance_amount ?? 0);
+                  return `₹${balance.toLocaleString("en-IN")}`;
+                })()}
               </TableCell>
               {canSeeProfit && (
                 <TableCell className="text-muted-foreground">

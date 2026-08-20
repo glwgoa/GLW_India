@@ -43,6 +43,8 @@ export function BookingsClient({
       "Vendor",
       "Product",
       "Price",
+      "Advance",
+      "Balance due",
       ...(canSeeProfit ? ["B2B price", "Profit"] : []),
       "Status",
       "Booking date",
@@ -50,12 +52,15 @@ export function BookingsClient({
     const rows = bookings.map((b) => {
       const profit =
         b.sale_price != null && b.item?.b2b_price != null ? b.sale_price - b.item.b2b_price : null;
+      const balance = b.sale_price != null ? b.sale_price - (b.advance_amount ?? 0) : "";
       return [
         b.customer_name,
         b.region?.name ?? "",
         b.vendor?.name ?? "",
         b.item?.name ?? "",
         b.sale_price ?? "",
+        b.advance_amount ?? "",
+        balance,
         ...(canSeeProfit ? [b.item?.b2b_price ?? "", profit ?? ""] : []),
         BOOKING_STATUS_LABEL[b.status] ?? b.status,
         new Date(b.booking_date).toLocaleString(),

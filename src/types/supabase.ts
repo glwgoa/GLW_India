@@ -64,6 +64,7 @@ export type Database = {
       }
       bookings: {
         Row: {
+          advance_amount: number | null
           assigned_vendor_id: string | null
           booking_date: string
           created_at: string | null
@@ -75,6 +76,7 @@ export type Database = {
           status: Database["public"]["Enums"]["booking_status"] | null
         }
         Insert: {
+          advance_amount?: number | null
           assigned_vendor_id?: string | null
           booking_date: string
           created_at?: string | null
@@ -86,6 +88,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["booking_status"] | null
         }
         Update: {
+          advance_amount?: number | null
           assigned_vendor_id?: string | null
           booking_date?: string
           created_at?: string | null

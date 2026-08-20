@@ -84,6 +84,7 @@ export function NewBookingDialog({
 
     const customerName = formData.get("customerName") as string;
     const priceRaw = formData.get("salePrice") as string;
+    const advanceRaw = formData.get("advanceAmount") as string;
 
     const { error } = await supabase.from("bookings").insert({
       customer_name: customerName,
@@ -91,6 +92,7 @@ export function NewBookingDialog({
       assigned_vendor_id: vendorId || null,
       item_id: productId || null,
       sale_price: priceRaw ? Number(priceRaw) : null,
+      advance_amount: advanceRaw ? Number(advanceRaw) : null,
       booking_date: new Date(date).toISOString(),
       status: "pending",
     });
@@ -197,9 +199,21 @@ export function NewBookingDialog({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="bookingDate">Booking date</Label>
-            <Input id="bookingDate" name="bookingDate" type="datetime-local" required />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="bookingDate">Booking date</Label>
+              <Input id="bookingDate" name="bookingDate" type="datetime-local" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="advanceAmount">Advance (₹)</Label>
+              <Input
+                id="advanceAmount"
+                name="advanceAmount"
+                type="number"
+                step="0.01"
+                placeholder="Optional"
+              />
+            </div>
           </div>
 
           <DialogFooter>
