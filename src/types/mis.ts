@@ -1,11 +1,3 @@
-export type VendorEfficiencyRow = {
-  vendor_id: string;
-  vendor_name: string;
-  total_completed: number;
-  met_sla: number;
-  response_efficiency_pct: number;
-};
-
 export type RegionRevenueRow = {
   region_id: string;
   region_name: string;
