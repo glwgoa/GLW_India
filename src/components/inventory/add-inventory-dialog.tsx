@@ -51,6 +51,8 @@ export function AddInventoryDialog({
     const b2bPrice = Number(formData.get("b2bPrice"));
     const salePrice = Number(formData.get("salePrice"));
     const stockQuantity = Number(formData.get("stockQuantity"));
+    const jettyName = (formData.get("jettyName") as string) || null;
+    const jettyLocationUrl = (formData.get("jettyLocationUrl") as string) || null;
 
     if (!vendorId || !regionId) {
       toast.error("Select a vendor and a region");
@@ -92,6 +94,8 @@ export function AddInventoryDialog({
         b2b_price: b2bPrice,
         sale_price: salePrice,
         vendor_id: vendorId,
+        jetty_name: jettyName,
+        jetty_location_url: jettyLocationUrl,
       })
       .select("id")
       .single();
@@ -187,6 +191,17 @@ export function AddInventoryDialog({
             <Label htmlFor="imageFile">Product image</Label>
             <Input id="imageFile" name="imageFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
             <p className="text-xs text-muted-foreground">Uploaded to Supabase Storage.</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="jettyName">Jetty name</Label>
+              <Input id="jettyName" name="jettyName" placeholder="Optional" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="jettyLocationUrl">Jetty location (Google Maps link)</Label>
+              <Input id="jettyLocationUrl" name="jettyLocationUrl" type="url" placeholder="Optional" />
+            </div>
           </div>
 
           <div className="grid grid-cols-3 gap-4">

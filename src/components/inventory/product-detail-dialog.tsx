@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { Building2, MapPin, Package, Tag } from "lucide-react";
+import { Anchor, Building2, MapPin, Package, Tag } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { NewBookingDialog } from "@/components/bookings/new-booking-dialog";
@@ -111,6 +111,23 @@ export function ProductDetailDialog({
                 </div>
               )}
             </div>
+            {(item?.jetty_name || item?.jetty_location_url) && (
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <Anchor className="h-4 w-4 shrink-0" />
+                {item.jetty_location_url ? (
+                  <a
+                    href={item.jetty_location_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline underline-offset-2 hover:text-foreground"
+                  >
+                    {item.jetty_name || "View jetty location"}
+                  </a>
+                ) : (
+                  <span>{item.jetty_name}</span>
+                )}
+              </div>
+            )}
           </motion.div>
 
           <motion.div

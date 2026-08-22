@@ -18,12 +18,14 @@ export type InventoryRow = {
     b2b_price: number | null;
     sale_price: number | null;
     vendor_id: string | null;
+    jetty_name: string | null;
+    jetty_location_url: string | null;
     vendor: { name: string } | null;
   } | null;
 };
 
 const SELECT =
-  "*, region:regions(name), item:catalog_items(name, sku, category, image_url, b2b_price, sale_price, vendor_id, vendor:vendors(name))";
+  "*, region:regions(name), item:catalog_items(name, sku, category, image_url, b2b_price, sale_price, vendor_id, jetty_name, jetty_location_url, vendor:vendors(name))";
 
 export function useRealtimeInventory(initial: InventoryRow[]) {
   const [rows, setRows] = useState<InventoryRow[]>(initial);

@@ -158,6 +158,8 @@ export type Database = {
           description: string | null
           id: string
           image_url: string | null
+          jetty_location_url: string | null
+          jetty_name: string | null
           name: string
           sale_price: number | null
           sku: string
@@ -169,6 +171,8 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          jetty_location_url?: string | null
+          jetty_name?: string | null
           name: string
           sale_price?: number | null
           sku: string
@@ -180,6 +184,8 @@ export type Database = {
           description?: string | null
           id?: string
           image_url?: string | null
+          jetty_location_url?: string | null
+          jetty_name?: string | null
           name?: string
           sale_price?: number | null
           sku?: string

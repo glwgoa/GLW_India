@@ -52,6 +52,8 @@ export function EditProductDialog({
     const imageFile = formData.get("imageFile") as File | null;
     const b2bPrice = Number(formData.get("b2bPrice"));
     const salePrice = Number(formData.get("salePrice"));
+    const jettyName = (formData.get("jettyName") as string) || null;
+    const jettyLocationUrl = (formData.get("jettyLocationUrl") as string) || null;
 
     let imageUrl = item.image_url;
     if (imageFile && imageFile.size > 0) {
@@ -81,6 +83,8 @@ export function EditProductDialog({
         b2b_price: b2bPrice,
         sale_price: salePrice,
         vendor_id: vendorId || null,
+        jetty_name: jettyName,
+        jetty_location_url: jettyLocationUrl,
       })
       .eq("id", itemId);
 
@@ -157,6 +161,23 @@ export function EditProductDialog({
             <Label htmlFor="imageFile">Product image</Label>
             <Input id="imageFile" name="imageFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif" />
             <p className="text-xs text-muted-foreground">Leave empty to keep the current image.</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="jettyName">Jetty name</Label>
+              <Input id="jettyName" name="jettyName" defaultValue={item.jetty_name ?? ""} placeholder="Optional" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="jettyLocationUrl">Jetty location (Google Maps link)</Label>
+              <Input
+                id="jettyLocationUrl"
+                name="jettyLocationUrl"
+                type="url"
+                defaultValue={item.jetty_location_url ?? ""}
+                placeholder="Optional"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
