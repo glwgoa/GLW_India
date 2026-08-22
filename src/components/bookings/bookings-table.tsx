@@ -88,7 +88,8 @@ export function BookingsTable({
     if (booking.transport_type) {
       const label = TRANSPORT_TYPE_LABEL[booking.transport_type];
       if (booking.transport_type === "pickup_drop" && booking.pickup_drop_price != null) {
-        parts.push(`${label} (+₹${booking.pickup_drop_price.toLocaleString("en-IN")})`);
+        const total = booking.pickup_drop_price * (booking.guest_count ?? 1);
+        parts.push(`${label} (+₹${total.toLocaleString("en-IN")})`);
       } else {
         parts.push(label);
       }

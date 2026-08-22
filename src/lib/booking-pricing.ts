@@ -20,16 +20,18 @@ export function effectiveSalePrice(
 }
 
 /**
- * Base B2B price (per guest for Dinner Cruise) times guests, plus the flat
- * Pickup/Drop transport fee if any — never written back to the shared
- * catalog_items.b2b_price.
+ * Base B2B price (per guest for Dinner Cruise) times guests, plus the
+ * Pickup/Drop transport fee (also per guest) if any — never written back
+ * to the shared catalog_items.b2b_price.
  */
 export function effectiveB2bPrice(
   booking: Pick<BookingRow, "item" | "guest_count" | "transport_type" | "pickup_drop_price">,
 ) {
   if (booking.item?.b2b_price == null) return null;
-  const base = booking.item.b2b_price * guestMultiplier(booking);
-  const extra = booking.transport_type === "pickup_drop" ? (booking.pickup_drop_price ?? 0) : 0;
+  const multiplier = guestMultiplier(booking);
+  const base = booking.item.b2b_price * multiplier;
+  const extra =
+    booking.transport_type === "pickup_drop" ? (booking.pickup_drop_price ?? 0) * multiplier : 0;
   return base + extra;
 }
 

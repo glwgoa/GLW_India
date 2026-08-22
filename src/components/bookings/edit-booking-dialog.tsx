@@ -406,7 +406,7 @@ export function EditBookingDialog({
                 </div>
                 {isPickupDrop && (
                   <div className="space-y-2">
-                    <Label htmlFor="pickupDropPrice">Pickup/Drop price (₹)</Label>
+                    <Label htmlFor="pickupDropPrice">Pickup/Drop price per guest (₹)</Label>
                     <Input
                       id="pickupDropPrice"
                       name="pickupDropPrice"
