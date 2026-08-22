@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import type { BookingRow, BookingStatus } from "@/types/booking";
+import type { BookingRow, BookingStatus, TransportType } from "@/types/booking";
 import type { Profile } from "@/types/profile";
 import type { TablesUpdate } from "@/types/supabase";
 import { isPrivileged } from "@/lib/auth/roles";
@@ -36,6 +36,10 @@ const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
   completed: "Completed",
   cancelled: "Cancelled",
   cancelled_refunded: "Cancel/Refunded",
+};
+const TRANSPORT_TYPE_LABEL: Record<TransportType, string> = {
+  pickup_drop: "Pickup/Drop",
+  direct_jetty: "Direct Jetty",
 };
 
 export function BookingsTable({
@@ -62,9 +66,19 @@ export function BookingsTable({
   // vendor themselves or other roles.
   const canSeeProfit = canAssignVendor;
 
+  // Pickup/Drop bookings add a per-booking transport cost on top of the
+  // product's own B2B price — reflected here, never written back to the
+  // shared catalog_items.b2b_price.
+  function effectiveB2bPrice(booking: BookingRow) {
+    if (booking.item?.b2b_price == null) return null;
+    const extra = booking.transport_type === "pickup_drop" ? (booking.pickup_drop_price ?? 0) : 0;
+    return booking.item.b2b_price + extra;
+  }
+
   function computeProfit(booking: BookingRow) {
-    if (booking.sale_price == null || booking.item?.b2b_price == null) return null;
-    return booking.sale_price - booking.item.b2b_price;
+    const b2bPrice = effectiveB2bPrice(booking);
+    if (booking.sale_price == null || b2bPrice == null) return null;
+    return booking.sale_price - b2bPrice;
   }
 
   function formatTime(time: string) {
@@ -85,6 +99,14 @@ export function BookingsTable({
     if (duration.length > 0) parts.push(duration.join(" + "));
     if (booking.guest_count != null) parts.push(`${booking.guest_count} guests`);
     if (booking.add_ons && booking.add_ons.length > 0) parts.push(booking.add_ons.join(", "));
+    if (booking.transport_type) {
+      const label = TRANSPORT_TYPE_LABEL[booking.transport_type];
+      if (booking.transport_type === "pickup_drop" && booking.pickup_drop_price != null) {
+        parts.push(`${label} (+₹${booking.pickup_drop_price.toLocaleString("en-IN")})`);
+      } else {
+        parts.push(label);
+      }
+    }
     return parts.length > 0 ? parts.join(" · ") : null;
   }
 
@@ -199,9 +221,10 @@ export function BookingsTable({
               </TableCell>
               {canSeeProfit && (
                 <TableCell className="text-muted-foreground">
-                  {booking.item?.b2b_price != null
-                    ? `₹${booking.item.b2b_price.toLocaleString("en-IN")}`
-                    : "—"}
+                  {(() => {
+                    const b2bPrice = effectiveB2bPrice(booking);
+                    return b2bPrice != null ? `₹${b2bPrice.toLocaleString("en-IN")}` : "—";
+                  })()}
                 </TableCell>
               )}
               {canSeeProfit && (

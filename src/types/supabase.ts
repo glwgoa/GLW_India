@@ -76,11 +76,13 @@ export type Database = {
           guest_count: number | null
           id: string
           item_id: string | null
+          pickup_drop_price: number | null
           region_id: string | null
           sailing_hours: number | null
           sale_price: number | null
           start_time: string | null
           status: Database["public"]["Enums"]["booking_status"] | null
+          transport_type: string | null
         }
         Insert: {
           add_ons?: string[] | null
@@ -95,11 +97,13 @@ export type Database = {
           guest_count?: number | null
           id?: string
           item_id?: string | null
+          pickup_drop_price?: number | null
           region_id?: string | null
           sailing_hours?: number | null
           sale_price?: number | null
           start_time?: string | null
           status?: Database["public"]["Enums"]["booking_status"] | null
+          transport_type?: string | null
         }
         Update: {
           add_ons?: string[] | null
@@ -114,11 +118,13 @@ export type Database = {
           guest_count?: number | null
           id?: string
           item_id?: string | null
+          pickup_drop_price?: number | null
           region_id?: string | null
           sailing_hours?: number | null
           sale_price?: number | null
           start_time?: string | null
           status?: Database["public"]["Enums"]["booking_status"] | null
+          transport_type?: string | null
         }
         Relationships: [
           {

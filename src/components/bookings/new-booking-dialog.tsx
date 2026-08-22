@@ -23,9 +23,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { YACHT_ADD_ONS, YACHT_CATEGORY_NAME, needsCustomerContact } from "@/lib/booking-yacht";
+import {
+  DINNER_CRUISE_CATEGORY_NAME,
+  YACHT_ADD_ONS,
+  YACHT_CATEGORY_NAME,
+  needsCustomerContact,
+} from "@/lib/booking-yacht";
+import type { TransportType } from "@/types/booking";
 
 type Product = { id: string; name: string; sale_price: number | null; category: string | null };
+
+const TRANSPORT_TYPE_LABEL: Record<TransportType, string> = {
+  pickup_drop: "Pickup/Drop",
+  direct_jetty: "Direct Jetty",
+};
 
 export function NewBookingDialog({
   vendors,
@@ -61,10 +72,13 @@ export function NewBookingDialog({
     return product?.sale_price != null ? String(product.sale_price) : "";
   });
   const [addOns, setAddOns] = useState<string[]>([]);
+  const [transportType, setTransportType] = useState<string>("");
 
   const selectedProduct = products.find((p) => p.id === productId);
   const isYacht = selectedProduct?.category === YACHT_CATEGORY_NAME;
+  const isDinnerCruise = selectedProduct?.category === DINNER_CRUISE_CATEGORY_NAME;
   const showContactNumber = needsCustomerContact(selectedProduct?.category);
+  const isPickupDrop = transportType === "pickup_drop";
 
   function handleProductChange(id: string) {
     setProductId(id);
@@ -74,6 +88,9 @@ export function NewBookingDialog({
     }
     if (product?.category !== YACHT_CATEGORY_NAME) {
       setAddOns([]);
+    }
+    if (product?.category !== DINNER_CRUISE_CATEGORY_NAME) {
+      setTransportType("");
     }
   }
 
@@ -104,6 +121,7 @@ export function NewBookingDialog({
     const sailingHoursRaw = formData.get("sailingHours") as string;
     const anchorageHoursRaw = formData.get("anchorageHours") as string;
     const guestCountRaw = formData.get("guestCount") as string;
+    const pickupDropPriceRaw = formData.get("pickupDropPrice") as string;
 
     const { error } = await supabase.from("bookings").insert({
       customer_name: customerName,
@@ -125,6 +143,12 @@ export function NewBookingDialog({
             guest_count: guestCountRaw ? Number(guestCountRaw) : null,
           }
         : {}),
+      ...(isDinnerCruise
+        ? {
+            transport_type: transportType || null,
+            pickup_drop_price: isPickupDrop && pickupDropPriceRaw ? Number(pickupDropPriceRaw) : null,
+          }
+        : {}),
     });
 
     setSubmitting(false);
@@ -142,6 +166,7 @@ export function NewBookingDialog({
     const resetProduct = products.find((p) => p.id === initialProductId);
     setSalePrice(resetProduct?.sale_price != null ? String(resetProduct.sale_price) : "");
     setAddOns([]);
+    setTransportType("");
     await onAdded();
   }
 
@@ -297,6 +322,37 @@ export function NewBookingDialog({
                     </Button>
                   ))}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {isDinnerCruise && (
+            <div className="space-y-4 border-t pt-4">
+              <p className="text-xs font-medium text-muted-foreground">Dinner cruise details</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Transport</Label>
+                  <Select value={transportType} onValueChange={(v) => setTransportType(v ?? "")}>
+                    <SelectTrigger>
+                      <SelectValue>
+                        {(value: string) => TRANSPORT_TYPE_LABEL[value as TransportType] ?? "Select transport"}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(Object.keys(TRANSPORT_TYPE_LABEL) as TransportType[]).map((t) => (
+                        <SelectItem key={t} value={t}>
+                          {TRANSPORT_TYPE_LABEL[t]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {isPickupDrop && (
+                  <div className="space-y-2">
+                    <Label htmlFor="pickupDropPrice">Pickup/Drop price (₹)</Label>
+                    <Input id="pickupDropPrice" name="pickupDropPrice" type="number" step="0.01" />
+                  </div>
+                )}
               </div>
             </div>
           )}

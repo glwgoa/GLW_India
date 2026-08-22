@@ -23,10 +23,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { YACHT_ADD_ONS, YACHT_CATEGORY_NAME, needsCustomerContact } from "@/lib/booking-yacht";
-import type { BookingRow, BookingStatus } from "@/types/booking";
+import {
+  DINNER_CRUISE_CATEGORY_NAME,
+  YACHT_ADD_ONS,
+  YACHT_CATEGORY_NAME,
+  needsCustomerContact,
+} from "@/lib/booking-yacht";
+import type { BookingRow, BookingStatus, TransportType } from "@/types/booking";
 
 type Product = { id: string; name: string; sale_price: number | null; category: string | null };
+
+const TRANSPORT_TYPE_LABEL: Record<TransportType, string> = {
+  pickup_drop: "Pickup/Drop",
+  direct_jetty: "Direct Jetty",
+};
 
 const BOOKING_STATUSES: BookingStatus[] = [
   "pending",
@@ -72,10 +82,13 @@ export function EditBookingDialog({
   const [salePrice, setSalePrice] = useState(booking.sale_price != null ? String(booking.sale_price) : "");
   const [status, setStatus] = useState<BookingStatus>(booking.status);
   const [addOns, setAddOns] = useState<string[]>(booking.add_ons ?? []);
+  const [transportType, setTransportType] = useState<string>(booking.transport_type ?? "");
 
   const selectedProduct = products.find((p) => p.id === productId);
   const isYacht = selectedProduct?.category === YACHT_CATEGORY_NAME;
+  const isDinnerCruise = selectedProduct?.category === DINNER_CRUISE_CATEGORY_NAME;
   const showContactNumber = needsCustomerContact(selectedProduct?.category);
+  const isPickupDrop = transportType === "pickup_drop";
 
   function handleProductChange(id: string) {
     setProductId(id);
@@ -85,6 +98,9 @@ export function EditBookingDialog({
     }
     if (product?.category !== YACHT_CATEGORY_NAME) {
       setAddOns([]);
+    }
+    if (product?.category !== DINNER_CRUISE_CATEGORY_NAME) {
+      setTransportType("");
     }
   }
 
@@ -115,6 +131,7 @@ export function EditBookingDialog({
     const sailingHoursRaw = formData.get("sailingHours") as string;
     const anchorageHoursRaw = formData.get("anchorageHours") as string;
     const guestCountRaw = formData.get("guestCount") as string;
+    const pickupDropPriceRaw = formData.get("pickupDropPrice") as string;
 
     const { error } = await supabase
       .from("bookings")
@@ -134,6 +151,9 @@ export function EditBookingDialog({
         anchorage_hours: isYacht && anchorageHoursRaw ? Number(anchorageHoursRaw) : null,
         add_ons: isYacht && addOns.length > 0 ? addOns : null,
         guest_count: isYacht && guestCountRaw ? Number(guestCountRaw) : null,
+        transport_type: isDinnerCruise ? transportType || null : null,
+        pickup_drop_price:
+          isDinnerCruise && isPickupDrop && pickupDropPriceRaw ? Number(pickupDropPriceRaw) : null,
       })
       .eq("id", booking.id);
 
@@ -355,6 +375,43 @@ export function EditBookingDialog({
                     </Button>
                   ))}
                 </div>
+              </div>
+            </div>
+          )}
+
+          {isDinnerCruise && (
+            <div className="space-y-4 border-t pt-4">
+              <p className="text-xs font-medium text-muted-foreground">Dinner cruise details</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>Transport</Label>
+                  <Select value={transportType} onValueChange={(v) => setTransportType(v ?? "")}>
+                    <SelectTrigger>
+                      <SelectValue>
+                        {(value: string) => TRANSPORT_TYPE_LABEL[value as TransportType] ?? "Select transport"}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {(Object.keys(TRANSPORT_TYPE_LABEL) as TransportType[]).map((t) => (
+                        <SelectItem key={t} value={t}>
+                          {TRANSPORT_TYPE_LABEL[t]}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                {isPickupDrop && (
+                  <div className="space-y-2">
+                    <Label htmlFor="pickupDropPrice">Pickup/Drop price (₹)</Label>
+                    <Input
+                      id="pickupDropPrice"
+                      name="pickupDropPrice"
+                      type="number"
+                      step="0.01"
+                      defaultValue={booking.pickup_drop_price ?? ""}
+                    />
+                  </div>
+                )}
               </div>
             </div>
           )}

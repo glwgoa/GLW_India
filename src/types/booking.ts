@@ -6,6 +6,8 @@ export type BookingStatus =
   | "cancelled"
   | "cancelled_refunded";
 
+export type TransportType = "pickup_drop" | "direct_jetty";
+
 export type BookingRow = {
   id: string;
   customer_name: string;
@@ -23,6 +25,8 @@ export type BookingRow = {
   anchorage_hours: number | null;
   add_ons: string[] | null;
   guest_count: number | null;
+  transport_type: TransportType | null;
+  pickup_drop_price: number | null;
   created_at: string;
   region: { name: string } | null;
   vendor: { name: string } | null;
