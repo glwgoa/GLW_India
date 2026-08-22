@@ -254,7 +254,7 @@ export function EditBookingDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="salePrice">Sale price (₹)</Label>
+              <Label htmlFor="salePrice">{isDinnerCruise ? "Sale price per guest (₹)" : "Sale price (₹)"}</Label>
               <Input
                 id="salePrice"
                 name="salePrice"
@@ -264,6 +264,9 @@ export function EditBookingDialog({
                 onChange={(e) => setSalePrice(e.target.value)}
                 placeholder="Manually set or overridden"
               />
+              {isDinnerCruise && (
+                <p className="text-xs text-muted-foreground">Multiplied by number of guests below.</p>
+              )}
             </div>
           </div>
 

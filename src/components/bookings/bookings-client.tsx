@@ -6,6 +6,7 @@ import { BookingsTable } from "./bookings-table";
 import { NewBookingDialog } from "./new-booking-dialog";
 import { Button } from "@/components/ui/button";
 import { downloadCsv } from "@/lib/csv";
+import { computeProfit, effectiveB2bPrice, effectiveSalePrice } from "@/lib/booking-pricing";
 import type { BookingRow } from "@/types/booking";
 import type { Profile } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
@@ -51,19 +52,20 @@ export function BookingsClient({
       "Booking date",
     ];
     const rows = bookings.map((b) => {
-      const profit =
-        b.sale_price != null && b.item?.b2b_price != null ? b.sale_price - b.item.b2b_price : null;
-      const balance = b.sale_price != null ? b.sale_price - (b.advance_amount ?? 0) : "";
+      const salePrice = effectiveSalePrice(b);
+      const b2bPrice = effectiveB2bPrice(b);
+      const profit = computeProfit(b);
+      const balance = salePrice != null ? salePrice - (b.advance_amount ?? 0) : "";
       return [
         b.customer_name,
         b.customer_contact ?? "",
         b.region?.name ?? "",
         b.vendor?.name ?? "",
         b.item?.name ?? "",
-        b.sale_price ?? "",
+        salePrice ?? "",
         b.advance_amount ?? "",
         balance,
-        ...(canSeeProfit ? [b.item?.b2b_price ?? "", profit ?? ""] : []),
+        ...(canSeeProfit ? [b2bPrice ?? "", profit ?? ""] : []),
         BOOKING_STATUS_LABEL[b.status] ?? b.status,
         new Date(b.booking_date).toLocaleString(),
       ];

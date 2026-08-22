@@ -18,6 +18,7 @@ import type { BookingRow, BookingStatus, TransportType } from "@/types/booking";
 import type { Profile } from "@/types/profile";
 import type { TablesUpdate } from "@/types/supabase";
 import { isPrivileged } from "@/lib/auth/roles";
+import { computeProfit, effectiveB2bPrice, effectiveSalePrice } from "@/lib/booking-pricing";
 
 type BookingUpdate = TablesUpdate<"bookings">;
 
@@ -65,21 +66,6 @@ export function BookingsTable({
   // Margin over what we pay the vendor — admin/PM only, not shown to the
   // vendor themselves or other roles.
   const canSeeProfit = canAssignVendor;
-
-  // Pickup/Drop bookings add a per-booking transport cost on top of the
-  // product's own B2B price — reflected here, never written back to the
-  // shared catalog_items.b2b_price.
-  function effectiveB2bPrice(booking: BookingRow) {
-    if (booking.item?.b2b_price == null) return null;
-    const extra = booking.transport_type === "pickup_drop" ? (booking.pickup_drop_price ?? 0) : 0;
-    return booking.item.b2b_price + extra;
-  }
-
-  function computeProfit(booking: BookingRow) {
-    const b2bPrice = effectiveB2bPrice(booking);
-    if (booking.sale_price == null || b2bPrice == null) return null;
-    return booking.sale_price - b2bPrice;
-  }
 
   function formatTime(time: string) {
     const [h, m] = time.split(":").map(Number);
@@ -205,7 +191,10 @@ export function BookingsTable({
               </TableCell>
               <TableCell>{booking.item?.name ?? "—"}</TableCell>
               <TableCell>
-                {booking.sale_price != null ? `₹${booking.sale_price.toLocaleString("en-IN")}` : "—"}
+                {(() => {
+                  const salePrice = effectiveSalePrice(booking);
+                  return salePrice != null ? `₹${salePrice.toLocaleString("en-IN")}` : "—";
+                })()}
               </TableCell>
               <TableCell>
                 {booking.advance_amount != null
@@ -214,8 +203,9 @@ export function BookingsTable({
               </TableCell>
               <TableCell className="text-muted-foreground">
                 {(() => {
-                  if (booking.sale_price == null) return "—";
-                  const balance = booking.sale_price - (booking.advance_amount ?? 0);
+                  const salePrice = effectiveSalePrice(booking);
+                  if (salePrice == null) return "—";
+                  const balance = salePrice - (booking.advance_amount ?? 0);
                   return `₹${balance.toLocaleString("en-IN")}`;
                 })()}
               </TableCell>
