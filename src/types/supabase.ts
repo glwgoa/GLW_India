@@ -77,6 +77,7 @@ export type Database = {
           id: string
           item_id: string | null
           region_id: string | null
+          reporting_time: string | null
           sailing_hours: number | null
           sale_price: number | null
           start_time: string | null
@@ -96,6 +97,7 @@ export type Database = {
           id?: string
           item_id?: string | null
           region_id?: string | null
+          reporting_time?: string | null
           sailing_hours?: number | null
           sale_price?: number | null
           start_time?: string | null
@@ -115,6 +117,7 @@ export type Database = {
           id?: string
           item_id?: string | null
           region_id?: string | null
+          reporting_time?: string | null
           sailing_hours?: number | null
           sale_price?: number | null
           start_time?: string | null
