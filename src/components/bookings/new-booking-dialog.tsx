@@ -133,6 +133,7 @@ export function NewBookingDialog({
       advance_amount: advanceRaw ? Number(advanceRaw) : null,
       booking_date: new Date(date).toISOString(),
       status: "pending",
+      guest_count: guestCountRaw ? Number(guestCountRaw) : null,
       ...(isYacht
         ? {
             start_time: startTime,
@@ -140,7 +141,6 @@ export function NewBookingDialog({
             sailing_hours: sailingHoursRaw ? Number(sailingHoursRaw) : null,
             anchorage_hours: anchorageHoursRaw ? Number(anchorageHoursRaw) : null,
             add_ons: addOns.length > 0 ? addOns : null,
-            guest_count: guestCountRaw ? Number(guestCountRaw) : null,
           }
         : {}),
       ...(isDinnerCruise
@@ -280,6 +280,11 @@ export function NewBookingDialog({
             </div>
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="guestCount">Number of guests</Label>
+            <Input id="guestCount" name="guestCount" type="number" min="0" className="max-w-40" />
+          </div>
+
           {isYacht && (
             <div className="space-y-4 border-t pt-4">
               <p className="text-xs font-medium text-muted-foreground">Private yacht details</p>
@@ -302,10 +307,6 @@ export function NewBookingDialog({
                   <Label htmlFor="anchorageHours">Anchorage (hours)</Label>
                   <Input id="anchorageHours" name="anchorageHours" type="number" step="0.5" min="0" />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="guestCount">Number of guests</Label>
-                <Input id="guestCount" name="guestCount" type="number" min="0" className="max-w-40" />
               </div>
               <div className="space-y-2">
                 <Label>Add-ons</Label>

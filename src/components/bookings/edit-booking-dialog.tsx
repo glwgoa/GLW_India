@@ -150,7 +150,7 @@ export function EditBookingDialog({
         sailing_hours: isYacht && sailingHoursRaw ? Number(sailingHoursRaw) : null,
         anchorage_hours: isYacht && anchorageHoursRaw ? Number(anchorageHoursRaw) : null,
         add_ons: isYacht && addOns.length > 0 ? addOns : null,
-        guest_count: isYacht && guestCountRaw ? Number(guestCountRaw) : null,
+        guest_count: guestCountRaw ? Number(guestCountRaw) : null,
         transport_type: isDinnerCruise ? transportType || null : null,
         pickup_drop_price:
           isDinnerCruise && isPickupDrop && pickupDropPriceRaw ? Number(pickupDropPriceRaw) : null,
@@ -307,6 +307,18 @@ export function EditBookingDialog({
             </Select>
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="guestCount">Number of guests</Label>
+            <Input
+              id="guestCount"
+              name="guestCount"
+              type="number"
+              min="0"
+              className="max-w-40"
+              defaultValue={booking.guest_count ?? ""}
+            />
+          </div>
+
           {isYacht && (
             <div className="space-y-4 border-t pt-4">
               <p className="text-xs font-medium text-muted-foreground">Private yacht details</p>
@@ -348,17 +360,6 @@ export function EditBookingDialog({
                     defaultValue={booking.anchorage_hours ?? ""}
                   />
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="guestCount">Number of guests</Label>
-                <Input
-                  id="guestCount"
-                  name="guestCount"
-                  type="number"
-                  min="0"
-                  className="max-w-40"
-                  defaultValue={booking.guest_count ?? ""}
-                />
               </div>
               <div className="space-y-2">
                 <Label>Add-ons</Label>
