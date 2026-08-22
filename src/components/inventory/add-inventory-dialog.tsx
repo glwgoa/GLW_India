@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { DINNER_CRUISE_CATEGORY_NAME } from "@/lib/booking-yacht";
 
 export function AddInventoryDialog({
   vendors,
@@ -40,6 +41,7 @@ export function AddInventoryDialog({
   const [vendorId, setVendorId] = useState<string>("");
   const [regionId, setRegionId] = useState<string>("");
   const [category, setCategory] = useState<string>("");
+  const isDinnerCruise = category === DINNER_CRUISE_CATEGORY_NAME;
 
   async function handleSubmit(formData: FormData) {
     setSubmitting(true);
@@ -53,6 +55,7 @@ export function AddInventoryDialog({
     const stockQuantity = Number(formData.get("stockQuantity"));
     const jettyName = (formData.get("jettyName") as string) || null;
     const jettyLocationUrl = (formData.get("jettyLocationUrl") as string) || null;
+    const reportingTime = (formData.get("reportingTime") as string) || null;
 
     if (!vendorId || !regionId) {
       toast.error("Select a vendor and a region");
@@ -96,6 +99,7 @@ export function AddInventoryDialog({
         vendor_id: vendorId,
         jetty_name: jettyName,
         jetty_location_url: jettyLocationUrl,
+        reporting_time: isDinnerCruise ? reportingTime : null,
       })
       .select("id")
       .single();
@@ -203,6 +207,13 @@ export function AddInventoryDialog({
               <Input id="jettyLocationUrl" name="jettyLocationUrl" type="url" placeholder="Optional" />
             </div>
           </div>
+
+          {isDinnerCruise && (
+            <div className="space-y-2">
+              <Label htmlFor="reportingTime">Reporting time</Label>
+              <Input id="reportingTime" name="reportingTime" type="time" className="max-w-40" />
+            </div>
+          )}
 
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">

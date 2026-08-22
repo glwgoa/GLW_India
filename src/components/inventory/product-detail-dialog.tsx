@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { Anchor, Building2, MapPin, Package, Tag } from "lucide-react";
+import { Anchor, Building2, Clock, MapPin, Package, Tag } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { NewBookingDialog } from "@/components/bookings/new-booking-dialog";
@@ -12,6 +12,13 @@ type AggregatedRow = InventoryRow & { regionCount?: number };
 
 function formatPrice(value: number | null) {
   return value == null ? "—" : `₹${value.toLocaleString("en-IN")}`;
+}
+
+function formatTime(time: string) {
+  const [h, m] = time.split(":").map(Number);
+  const period = h >= 12 ? "PM" : "AM";
+  const hour12 = h % 12 || 12;
+  return `${hour12}:${String(m).padStart(2, "0")} ${period}`;
 }
 
 const childVariants = {
@@ -126,6 +133,12 @@ export function ProductDetailDialog({
                 ) : (
                   <span>{item.jetty_name}</span>
                 )}
+              </div>
+            )}
+            {item?.reporting_time && (
+              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                <Clock className="h-4 w-4 shrink-0" />
+                <span>Report by {formatTime(item.reporting_time)}</span>
               </div>
             )}
           </motion.div>
