@@ -1,10 +1,13 @@
 "use client";
 
-import { Download, RefreshCw } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Download, RefreshCw, X } from "lucide-react";
 import { usePollingBookings } from "@/hooks/use-polling-bookings";
 import { BookingsTable } from "./bookings-table";
 import { NewBookingDialog } from "./new-booking-dialog";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { downloadCsv } from "@/lib/csv";
 import { computeProfit, effectiveB2bPrice, effectiveSalePrice } from "@/lib/booking-pricing";
 import type { BookingRow } from "@/types/booking";
@@ -36,6 +39,25 @@ export function BookingsClient({
   const { bookings, setBookings, refresh, refreshing } = usePollingBookings(initialBookings);
   const canCreateBooking = isPrivileged(profile.role) || profile.role === "project_manager";
   const canSeeProfit = canCreateBooking;
+  const [nameFilter, setNameFilter] = useState("");
+  const [dateFilter, setDateFilter] = useState("");
+
+  const visibleBookings = useMemo(() => {
+    return bookings.filter((b) => {
+      if (nameFilter && !b.customer_name.toLowerCase().includes(nameFilter.toLowerCase())) {
+        return false;
+      }
+      if (dateFilter && b.booking_date.slice(0, 10) !== dateFilter) return false;
+      return true;
+    });
+  }, [bookings, nameFilter, dateFilter]);
+
+  const hasFilters = nameFilter || dateFilter;
+
+  function clearFilters() {
+    setNameFilter("");
+    setDateFilter("");
+  }
 
   function handleDownload() {
     const headers = [
@@ -51,7 +73,7 @@ export function BookingsClient({
       "Status",
       "Booking date",
     ];
-    const rows = bookings.map((b) => {
+    const rows = visibleBookings.map((b) => {
       const salePrice = effectiveSalePrice(b);
       const b2bPrice = effectiveB2bPrice(b);
       const profit = computeProfit(b);
@@ -102,8 +124,45 @@ export function BookingsClient({
           )}
         </div>
       </div>
+
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="booking-name-filter" className="text-xs text-muted-foreground">
+            Name
+          </Label>
+          <Input
+            id="booking-name-filter"
+            placeholder="Search customers..."
+            value={nameFilter}
+            onChange={(e) => setNameFilter(e.target.value)}
+            className="w-44"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="booking-date-filter" className="text-xs text-muted-foreground">
+            Booking date
+          </Label>
+          <Input
+            id="booking-date-filter"
+            type="date"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+            className="h-8 w-44"
+          />
+        </div>
+        {hasFilters && (
+          <div className="space-y-1.5">
+            <Label className="invisible text-xs">Clear</Label>
+            <Button variant="ghost" size="sm" onClick={clearFilters}>
+              <X />
+              Clear
+            </Button>
+          </div>
+        )}
+      </div>
+
       <BookingsTable
-        bookings={bookings}
+        bookings={visibleBookings}
         setBookings={setBookings}
         profile={profile}
         vendors={vendors}
