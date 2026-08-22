@@ -23,7 +23,6 @@ export type BookingRow = {
   anchorage_hours: number | null;
   add_ons: string[] | null;
   guest_count: number | null;
-  reporting_time: string | null;
   created_at: string;
   region: { name: string } | null;
   vendor: { name: string } | null;

@@ -74,7 +74,7 @@ export function BookingsTable({
     return `${hour12}:${String(m).padStart(2, "0")} ${period}`;
   }
 
-  function bookingDetails(booking: BookingRow) {
+  function yachtDetails(booking: BookingRow) {
     const parts: string[] = [];
     if (booking.start_time && booking.end_time) {
       parts.push(`${formatTime(booking.start_time)}–${formatTime(booking.end_time)}`);
@@ -85,7 +85,6 @@ export function BookingsTable({
     if (duration.length > 0) parts.push(duration.join(" + "));
     if (booking.guest_count != null) parts.push(`${booking.guest_count} guests`);
     if (booking.add_ons && booking.add_ons.length > 0) parts.push(booking.add_ons.join(", "));
-    if (booking.reporting_time) parts.push(`Report at ${formatTime(booking.reporting_time)}`);
     return parts.length > 0 ? parts.join(" · ") : null;
   }
 
@@ -247,7 +246,7 @@ export function BookingsTable({
                 })}
               </TableCell>
               <TableCell className="max-w-64 whitespace-normal text-muted-foreground">
-                {bookingDetails(booking) ?? "—"}
+                {yachtDetails(booking) ?? "—"}
               </TableCell>
               {(canEdit || canDelete) && (
                 <TableCell>

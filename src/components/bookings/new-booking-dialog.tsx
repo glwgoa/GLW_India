@@ -23,12 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  DINNER_CRUISE_CATEGORY_NAME,
-  YACHT_ADD_ONS,
-  YACHT_CATEGORY_NAME,
-  needsCustomerContact,
-} from "@/lib/booking-yacht";
+import { YACHT_ADD_ONS, YACHT_CATEGORY_NAME, needsCustomerContact } from "@/lib/booking-yacht";
 
 type Product = { id: string; name: string; sale_price: number | null; category: string | null };
 
@@ -69,7 +64,6 @@ export function NewBookingDialog({
 
   const selectedProduct = products.find((p) => p.id === productId);
   const isYacht = selectedProduct?.category === YACHT_CATEGORY_NAME;
-  const isDinnerCruise = selectedProduct?.category === DINNER_CRUISE_CATEGORY_NAME;
   const showContactNumber = needsCustomerContact(selectedProduct?.category);
 
   function handleProductChange(id: string) {
@@ -110,7 +104,6 @@ export function NewBookingDialog({
     const sailingHoursRaw = formData.get("sailingHours") as string;
     const anchorageHoursRaw = formData.get("anchorageHours") as string;
     const guestCountRaw = formData.get("guestCount") as string;
-    const reportingTime = (formData.get("reportingTime") as string) || null;
 
     const { error } = await supabase.from("bookings").insert({
       customer_name: customerName,
@@ -132,7 +125,6 @@ export function NewBookingDialog({
             guest_count: guestCountRaw ? Number(guestCountRaw) : null,
           }
         : {}),
-      ...(isDinnerCruise ? { reporting_time: reportingTime } : {}),
     });
 
     setSubmitting(false);
@@ -305,16 +297,6 @@ export function NewBookingDialog({
                     </Button>
                   ))}
                 </div>
-              </div>
-            </div>
-          )}
-
-          {isDinnerCruise && (
-            <div className="space-y-4 border-t pt-4">
-              <p className="text-xs font-medium text-muted-foreground">Dinner cruise details</p>
-              <div className="space-y-2">
-                <Label htmlFor="reportingTime">Reporting time</Label>
-                <Input id="reportingTime" name="reportingTime" type="time" className="max-w-40" />
               </div>
             </div>
           )}
