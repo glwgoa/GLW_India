@@ -1,6 +1,6 @@
-import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { RegionProvider } from "@/lib/region-context";
 import { AppSidebar } from "@/components/app-sidebar";
 import { RegionSwitcher } from "@/components/region-switcher";
@@ -9,7 +9,6 @@ import PixelBlast from "@/components/pixel-blast";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { PageTransition } from "@/components/motion/page-transition";
-import type { Profile } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
 
 export default async function DashboardLayout({
@@ -18,24 +17,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }) {
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single<Profile>();
-
-  if (!profile) {
-    redirect("/login");
-  }
+  const profile = await getCurrentProfile();
 
   const cookieStore = await cookies();
   const cookieRegion = cookieStore.get("selected_region_id")?.value;

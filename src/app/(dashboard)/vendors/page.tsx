@@ -1,28 +1,16 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { requireRole } from "@/lib/auth/require-role";
 import { VendorsClient } from "@/components/vendors/vendors-client";
 import {
   VENDOR_CATEGORY_SELECTIONS_SELECT,
   groupVendorCategorySelections,
 } from "@/lib/vendor-categories";
-import type { Profile } from "@/types/profile";
 import type { VendorCategoryRow, VendorRow, VendorSubCategoryRow } from "@/types/vendor";
 
 export default async function VendorsPage() {
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single<Profile>();
-  if (!profile) redirect("/login");
+  const profile = await getCurrentProfile();
 
   requireRole(profile, ["admin", "developer", "project_manager", "vendor"]);
 

@@ -1,27 +1,16 @@
-import { redirect } from "next/navigation";
 import { BarChart3 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { requireRole } from "@/lib/auth/require-role";
 import { RegionRevenueChart } from "@/components/mis/region-revenue-chart";
 import { AttendanceSummaryChart } from "@/components/mis/attendance-summary-chart";
 import { PageHeaderIcon } from "@/components/page-header-icon";
 import { Reveal, RevealItem } from "@/components/motion/reveal";
-import type { Profile } from "@/types/profile";
 import type { RegionRevenueRow, AttendanceSummaryRow } from "@/types/mis";
 
 export default async function MisReportsPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single<Profile>();
-  if (!profile) redirect("/login");
+  const profile = await getCurrentProfile();
 
   requireRole(profile, ["admin", "developer", "project_manager"]);
 

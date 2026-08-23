@@ -1,23 +1,11 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { InventoryClient } from "@/components/inventory/inventory-client";
-import type { Profile } from "@/types/profile";
 import type { InventoryRow } from "@/hooks/use-realtime-inventory";
 
 export default async function InventoryPage() {
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single<Profile>();
-  if (!profile) redirect("/login");
+  const profile = await getCurrentProfile();
 
   const [{ data: rows }, { data: vendors }, { data: regions }, { data: categories }] =
     await Promise.all([

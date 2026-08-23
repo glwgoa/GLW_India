@@ -1,24 +1,12 @@
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { ProjectsClient } from "@/components/projects/projects-client";
-import type { Profile } from "@/types/profile";
 import type { ProjectRow } from "@/types/project";
 import { isPrivileged } from "@/lib/auth/roles";
 
 export default async function ProjectsPage() {
   const supabase = await createClient();
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("*")
-    .eq("id", user.id)
-    .single<Profile>();
-  if (!profile) redirect("/login");
+  const profile = await getCurrentProfile();
 
   const canCreateProject = isPrivileged(profile.role) || profile.role === "project_manager";
 
