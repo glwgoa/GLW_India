@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { Clock } from "lucide-react";
 import { ClockWidget } from "./clock-widget";
 import { AttendanceTable } from "./attendance-table";
 import { ImportAttendanceDialog } from "./import-attendance-dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { PageHeaderIcon } from "@/components/page-header-icon";
 import type { AttendanceRow } from "@/types/attendance";
 
 export function AttendanceClient({
@@ -56,10 +58,17 @@ export function AttendanceClient({
     </div>
   );
 
+  const heading = (
+    <div className="flex items-center gap-3">
+      <PageHeaderIcon icon={Clock} color="var(--chart-1)" />
+      <h1 className="text-2xl font-semibold">Attendance</h1>
+    </div>
+  );
+
   if (!isAdminHr) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-semibold">Attendance</h1>
+        {heading}
         {ownSection}
       </div>
     );
@@ -67,7 +76,7 @@ export function AttendanceClient({
 
   return (
     <div className="space-y-4">
-      <h1 className="text-2xl font-semibold">Attendance</h1>
+      {heading}
       <Tabs defaultValue="mine">
         <TabsList>
           <TabsTrigger value="mine">My attendance</TabsTrigger>

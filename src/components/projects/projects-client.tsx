@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { RefreshCw } from "lucide-react";
+import { FolderKanban, RefreshCw } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { KanbanBoard } from "./kanban-board";
 import { NewProjectDialog } from "./new-project-dialog";
+import { PageHeaderIcon } from "@/components/page-header-icon";
 import type { ProjectRow } from "@/types/project";
 import type { Profile } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
@@ -41,11 +42,14 @@ export function ProjectsClient({
   return (
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold">Projects</h1>
-          <p className="text-sm text-muted-foreground">
-            Drag isn&apos;t wired up — move a card by changing its status.
-          </p>
+        <div className="flex items-center gap-3">
+          <PageHeaderIcon icon={FolderKanban} color="var(--chart-4)" />
+          <div>
+            <h1 className="text-2xl font-semibold">Projects</h1>
+            <p className="text-sm text-muted-foreground">
+              Drag isn&apos;t wired up — move a card by changing its status.
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={refresh} disabled={refreshing}>

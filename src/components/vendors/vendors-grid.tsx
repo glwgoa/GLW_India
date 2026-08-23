@@ -25,10 +25,10 @@ import type {
 import type { Profile } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
 
-const PRIORITY_VARIANT: Record<string, "destructive" | "outline" | "secondary"> = {
-  primary: "destructive",
-  secondary: "outline",
-  tertiary: "secondary",
+const PRIORITY_CLASS: Record<string, string> = {
+  primary: "bg-destructive/10 text-destructive",
+  secondary: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
+  tertiary: "bg-blue-500/15 text-blue-700 dark:text-blue-400",
 };
 
 export function VendorsGrid({
@@ -136,7 +136,10 @@ export function VendorsGrid({
                   </TableCell>
                   <TableCell>
                     {vendor.priority ? (
-                      <Badge variant={PRIORITY_VARIANT[vendor.priority] ?? "outline"} className="capitalize">
+                      <Badge
+                        variant="secondary"
+                        className={`capitalize ${PRIORITY_CLASS[vendor.priority] ?? ""}`}
+                      >
                         {vendor.priority}
                       </Badge>
                     ) : (

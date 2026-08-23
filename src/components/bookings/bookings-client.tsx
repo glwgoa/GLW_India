@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Download, RefreshCw, X } from "lucide-react";
+import { CalendarClock, Download, RefreshCw, X } from "lucide-react";
 import { usePollingBookings } from "@/hooks/use-polling-bookings";
 import { BookingsTable } from "./bookings-table";
 import { NewBookingDialog } from "./new-booking-dialog";
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { downloadCsv } from "@/lib/csv";
+import { PageHeaderIcon } from "@/components/page-header-icon";
 import { computeProfit, effectiveB2bPrice, effectiveSalePrice } from "@/lib/booking-pricing";
 import type { BookingRow } from "@/types/booking";
 import type { Profile } from "@/types/profile";
@@ -99,11 +100,14 @@ export function BookingsClient({
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold">Bookings</h1>
-          <p className="text-sm text-muted-foreground">
-            Auto-refreshes every 30s. Status is set manually by staff.
-          </p>
+        <div className="flex items-center gap-3">
+          <PageHeaderIcon icon={CalendarClock} color="var(--chart-1)" />
+          <div>
+            <h1 className="text-2xl font-semibold">Bookings</h1>
+            <p className="text-sm text-muted-foreground">
+              Auto-refreshes every 30s. Status is set manually by staff.
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={refresh} disabled={refreshing}>

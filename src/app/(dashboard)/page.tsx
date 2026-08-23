@@ -5,11 +5,13 @@ import {
   Clock3,
   Hourglass,
   KanbanSquare,
+  LayoutDashboard,
   Layers,
   Package,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeaderIcon } from "@/components/page-header-icon";
 
 const MODULES = [
   {
@@ -78,11 +80,14 @@ export default async function DashboardOverviewPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold">Overview</h1>
-        <p className="text-sm text-muted-foreground">
-          Scoped to what your role can see — RLS handles the filtering.
-        </p>
+      <div className="flex items-center gap-3">
+        <PageHeaderIcon icon={LayoutDashboard} color="var(--chart-1)" />
+        <div>
+          <h1 className="text-2xl font-semibold">Overview</h1>
+          <p className="text-sm text-muted-foreground">
+            Scoped to what your role can see — RLS handles the filtering.
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

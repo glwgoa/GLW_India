@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Users } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { EmployeesGrid } from "./employees-grid";
 import { AddEmployeeDialog } from "./add-employee-dialog";
+import { PageHeaderIcon } from "@/components/page-header-icon";
 import type { EmployeeRow } from "@/types/employee";
 import type { Profile } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
@@ -36,11 +37,14 @@ export function EmployeesClient({
   return (
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold">Employees</h1>
-          <p className="text-sm text-muted-foreground">
-            Everyone can view — only admins can add or edit.
-          </p>
+        <div className="flex items-center gap-3">
+          <PageHeaderIcon icon={Users} color="var(--chart-5)" />
+          <div>
+            <h1 className="text-2xl font-semibold">Employees</h1>
+            <p className="text-sm text-muted-foreground">
+              Everyone can view — only admins can add or edit.
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={refresh} disabled={refreshing}>

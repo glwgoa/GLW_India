@@ -1,11 +1,12 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { X } from "lucide-react";
+import { Boxes, X } from "lucide-react";
 import { useRegion } from "@/lib/region-context";
 import { useRealtimeInventory, type InventoryRow } from "@/hooks/use-realtime-inventory";
 import { InventoryGrid } from "./inventory-grid";
 import { AddInventoryDialog } from "./add-inventory-dialog";
+import { PageHeaderIcon } from "@/components/page-header-icon";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,13 +80,16 @@ export function InventoryClient({
   return (
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold">Inventory</h1>
-          <p className="text-sm text-muted-foreground">
-            {aggregated
-              ? "Aggregated stock across all regions — live updates, read-only."
-              : "Live stock levels for the selected region."}
-          </p>
+        <div className="flex items-center gap-3">
+          <PageHeaderIcon icon={Boxes} color="var(--chart-2)" />
+          <div>
+            <h1 className="text-2xl font-semibold">Inventory</h1>
+            <p className="text-sm text-muted-foreground">
+              {aggregated
+                ? "Aggregated stock across all regions — live updates, read-only."
+                : "Live stock levels for the selected region."}
+            </p>
+          </div>
         </div>
         {canAddProduct && (
           <AddInventoryDialog

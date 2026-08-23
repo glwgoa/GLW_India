@@ -197,7 +197,12 @@ export function InventoryGrid({
               ) : (
                 <span className="text-xs text-muted-foreground">Stock {row.stock_quantity}</span>
               )}
-              <Badge variant={lowStock ? "destructive" : "secondary"}>{available} left</Badge>
+              <Badge
+                variant={lowStock ? "destructive" : "secondary"}
+                className={lowStock ? "" : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"}
+              >
+                {available} left
+              </Badge>
             </CardFooter>
           </Card>
         );

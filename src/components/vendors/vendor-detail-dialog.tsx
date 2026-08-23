@@ -6,10 +6,10 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import type { VendorCategorySelection, VendorRow } from "@/types/vendor";
 
-const PRIORITY_VARIANT: Record<string, "destructive" | "outline" | "secondary"> = {
-  primary: "destructive",
-  secondary: "outline",
-  tertiary: "secondary",
+const PRIORITY_CLASS: Record<string, string> = {
+  primary: "bg-destructive/10 text-destructive",
+  secondary: "bg-amber-500/15 text-amber-700 dark:text-amber-400",
+  tertiary: "bg-blue-500/15 text-blue-700 dark:text-blue-400",
 };
 
 const childVariants = {
@@ -49,7 +49,10 @@ export function VendorDetailDialog({
           <Building2 className="h-10 w-10 text-primary/40" />
           {vendor.priority && (
             <div className="absolute top-4 right-12">
-              <Badge variant={PRIORITY_VARIANT[vendor.priority] ?? "outline"} className="capitalize">
+              <Badge
+                variant="secondary"
+                className={`capitalize ${PRIORITY_CLASS[vendor.priority] ?? ""}`}
+              >
                 {vendor.priority}
               </Badge>
             </div>

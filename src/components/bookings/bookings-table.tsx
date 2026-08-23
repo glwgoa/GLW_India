@@ -42,6 +42,14 @@ const TRANSPORT_TYPE_LABEL: Record<TransportType, string> = {
   pickup_drop: "Pickup/Drop",
   direct_jetty: "Direct Jetty",
 };
+const BOOKING_STATUS_DOT: Record<BookingStatus, string> = {
+  pending: "bg-amber-500",
+  assigned: "bg-blue-500",
+  in_progress: "bg-violet-500",
+  completed: "bg-emerald-500",
+  cancelled: "bg-rose-500",
+  cancelled_refunded: "bg-rose-500",
+};
 
 export function BookingsTable({
   bookings,
@@ -241,13 +249,23 @@ export function BookingsTable({
                 >
                   <SelectTrigger className="w-36">
                     <SelectValue>
-                      {(value: string) => BOOKING_STATUS_LABEL[value as BookingStatus] ?? value}
+                      {(value: string) => (
+                        <span className="flex items-center gap-1.5">
+                          <span
+                            className={`size-1.5 shrink-0 rounded-full ${BOOKING_STATUS_DOT[value as BookingStatus] ?? "bg-muted-foreground"}`}
+                          />
+                          {BOOKING_STATUS_LABEL[value as BookingStatus] ?? value}
+                        </span>
+                      )}
                     </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     {BOOKING_STATUSES.map((s) => (
                       <SelectItem key={s} value={s}>
-                        {BOOKING_STATUS_LABEL[s]}
+                        <span className="flex items-center gap-1.5">
+                          <span className={`size-1.5 shrink-0 rounded-full ${BOOKING_STATUS_DOT[s]}`} />
+                          {BOOKING_STATUS_LABEL[s]}
+                        </span>
                       </SelectItem>
                     ))}
                   </SelectContent>

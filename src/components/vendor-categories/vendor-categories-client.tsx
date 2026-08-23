@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus, Trash2, X } from "lucide-react";
+import { Plus, Tags, Trash2, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { PageHeaderIcon } from "@/components/page-header-icon";
 import type { VendorCategoryRow, VendorSubCategoryRow } from "@/types/vendor";
 
 export function VendorCategoriesClient({
@@ -84,11 +85,14 @@ export function VendorCategoriesClient({
 
   return (
     <div className="space-y-4">
-      <div>
-        <h1 className="text-2xl font-semibold">Vendor categories</h1>
-        <p className="text-sm text-muted-foreground">
-          Manage the category and sub-category options shown in the vendor form. Developer only.
-        </p>
+      <div className="flex items-center gap-3">
+        <PageHeaderIcon icon={Tags} color="var(--chart-3)" />
+        <div>
+          <h1 className="text-2xl font-semibold">Vendor categories</h1>
+          <p className="text-sm text-muted-foreground">
+            Manage the category and sub-category options shown in the vendor form. Developer only.
+          </p>
+        </div>
       </div>
 
       <div className="flex items-center gap-2">

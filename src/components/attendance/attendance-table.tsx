@@ -174,7 +174,16 @@ export function AttendanceTable({
                   </TableCell>
                   <TableCell>{formatDuration(row.clock_in, row.clock_out)}</TableCell>
                   <TableCell>
-                    <Badge variant={row.clock_out ? "secondary" : "default"} className="capitalize">
+                    <Badge
+                      variant="secondary"
+                      className={`capitalize ${
+                        !row.clock_out
+                          ? "bg-blue-500/15 text-blue-700 dark:text-blue-400"
+                          : row.status === "present"
+                            ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400"
+                            : "bg-amber-500/15 text-amber-700 dark:text-amber-400"
+                      }`}
+                    >
                       {row.clock_out ? row.status : "active"}
                     </Badge>
                   </TableCell>

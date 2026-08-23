@@ -32,29 +32,44 @@ import { signOut } from "@/lib/actions/auth";
 import type { Profile } from "@/types/profile";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Overview", icon: LayoutDashboard, roles: null },
-  { href: "/bookings", label: "Bookings", icon: CalendarClock, roles: null },
-  { href: "/inventory", label: "Inventory", icon: Boxes, roles: null },
+  { href: "/", label: "Overview", icon: LayoutDashboard, roles: null, color: "var(--chart-1)" },
+  {
+    href: "/bookings",
+    label: "Bookings",
+    icon: CalendarClock,
+    roles: null,
+    color: "var(--chart-1)",
+  },
+  { href: "/inventory", label: "Inventory", icon: Boxes, roles: null, color: "var(--chart-2)" },
   {
     href: "/vendors",
     label: "Vendors",
     icon: Building2,
     roles: ["admin", "developer", "project_manager", "vendor"] as const,
+    color: "var(--chart-3)",
   },
-  { href: "/projects", label: "Projects", icon: FolderKanban, roles: null },
-  { href: "/employees", label: "Employees", icon: Users, roles: null },
-  { href: "/attendance", label: "Attendance", icon: Clock, roles: null },
+  {
+    href: "/projects",
+    label: "Projects",
+    icon: FolderKanban,
+    roles: null,
+    color: "var(--chart-4)",
+  },
+  { href: "/employees", label: "Employees", icon: Users, roles: null, color: "var(--chart-5)" },
+  { href: "/attendance", label: "Attendance", icon: Clock, roles: null, color: "var(--chart-1)" },
   {
     href: "/mis-reports",
     label: "MIS Reports",
     icon: BarChart3,
     roles: ["admin", "developer", "project_manager"] as const,
+    color: "var(--chart-2)",
   },
   {
     href: "/vendor-categories",
     label: "Vendor Categories",
     icon: Tags,
     roles: ["developer"] as const,
+    color: "var(--chart-3)",
   },
 ];
 
@@ -91,17 +106,27 @@ export function AppSidebar({ profile }: { profile: Profile }) {
           <SidebarGroupLabel>Modules</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    render={<Link href={item.href} />}
-                    isActive={pathname === item.href}
-                  >
-                    <item.icon />
-                    <span>{item.label}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
+              {items.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      render={<Link href={item.href} />}
+                      isActive={isActive}
+                      style={
+                        isActive
+                          ? {
+                              backgroundColor: `color-mix(in srgb, ${item.color} 22%, transparent)`,
+                            }
+                          : undefined
+                      }
+                    >
+                      <item.icon style={{ color: item.color }} />
+                      <span>{item.label}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

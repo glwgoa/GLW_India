@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { RefreshCw, X } from "lucide-react";
+import { Building2, RefreshCw, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { VendorsGrid } from "./vendors-grid";
+import { PageHeaderIcon } from "@/components/page-header-icon";
 import { VendorFormDialog } from "./vendor-form-dialog";
 import {
   VENDOR_CATEGORY_SELECTIONS_SELECT,
@@ -95,13 +96,16 @@ export function VendorsClient({
   return (
     <div className="space-y-4">
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold">Vendors</h1>
-          <p className="text-sm text-muted-foreground">
-            {profile.role === "vendor"
-              ? "Your vendor profile."
-              : "Vendor directory used across bookings, projects, and inventory."}
-          </p>
+        <div className="flex items-center gap-3">
+          <PageHeaderIcon icon={Building2} color="var(--chart-3)" />
+          <div>
+            <h1 className="text-2xl font-semibold">Vendors</h1>
+            <p className="text-sm text-muted-foreground">
+              {profile.role === "vendor"
+                ? "Your vendor profile."
+                : "Vendor directory used across bookings, projects, and inventory."}
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={refresh} disabled={refreshing}>
