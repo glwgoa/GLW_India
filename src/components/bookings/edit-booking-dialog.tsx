@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Pencil } from "lucide-react";
+import { Loader2, Pencil } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -422,6 +422,7 @@ export function EditBookingDialog({
 
           <DialogFooter>
             <Button type="submit" disabled={submitting}>
+              {submitting && <Loader2 className="animate-spin" />}
               {submitting ? "Saving..." : "Save changes"}
             </Button>
           </DialogFooter>

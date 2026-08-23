@@ -100,13 +100,14 @@ export function VendorsGrid({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {vendors.map((vendor) => {
+            {vendors.map((vendor, index) => {
               const vendorCategories = categorySelections[vendor.id] ?? [];
 
               return (
                 <TableRow
                   key={vendor.id}
-                  className="cursor-pointer"
+                  className="cursor-pointer animate-in fade-in-0 slide-in-from-bottom-1 fill-mode-both duration-300"
+                  style={{ animationDelay: `${Math.min(index, 12) * 30}ms` }}
                   onClick={() => setSelectedVendor(vendor)}
                 >
                   <TableCell className="font-medium">{vendor.name ?? "Unnamed vendor"}</TableCell>

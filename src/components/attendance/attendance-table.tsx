@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Download, X } from "lucide-react";
+import { X } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { downloadCsv } from "@/lib/csv";
+import { DownloadButton } from "@/components/motion/download-button";
 import type { AttendanceRow } from "@/types/attendance";
 
 function formatDuration(clockIn: string, clockOut: string | null) {
@@ -141,10 +142,7 @@ export function AttendanceTable({
         </div>
         <div className="flex items-center gap-2">
           {actions}
-          <Button variant="outline" size="sm" onClick={handleDownload}>
-            <Download />
-            Download CSV
-          </Button>
+          <DownloadButton onDownload={handleDownload} />
         </div>
       </div>
 

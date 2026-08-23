@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -163,6 +163,7 @@ export function NewProjectDialog({
 
           <DialogFooter>
             <Button type="submit" disabled={submitting}>
+              {submitting && <Loader2 className="animate-spin" />}
               {submitting ? "Creating..." : "Create project"}
             </Button>
           </DialogFooter>

@@ -19,6 +19,7 @@ import type { Profile } from "@/types/profile";
 import type { TablesUpdate } from "@/types/supabase";
 import { isPrivileged } from "@/lib/auth/roles";
 import { computeProfit, effectiveB2bPrice, effectiveSalePrice } from "@/lib/booking-pricing";
+import { useRowFlash } from "@/hooks/use-row-flash";
 
 type BookingUpdate = TablesUpdate<"bookings">;
 
@@ -74,6 +75,7 @@ export function BookingsTable({
   // Margin over what we pay the vendor — admin/PM only, not shown to the
   // vendor themselves or other roles.
   const canSeeProfit = canAssignVendor;
+  const { flashId, flash } = useRowFlash();
 
   function formatTime(time: string) {
     const [h, m] = time.split(":").map(Number);
@@ -115,6 +117,7 @@ export function BookingsTable({
     setBookings((prev) =>
       prev.map((b) => (b.id === id ? { ...b, ...patch } as BookingRow : b)),
     );
+    flash(id);
     toast.success("Booking updated");
   }
 
@@ -157,8 +160,14 @@ export function BookingsTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {bookings.map((booking) => (
-            <TableRow key={booking.id}>
+          {bookings.map((booking, index) => (
+            <TableRow
+              key={booking.id}
+              className={`animate-in fade-in-0 slide-in-from-bottom-1 fill-mode-both duration-300 transition-colors ${
+                flashId === booking.id ? "bg-emerald-500/10" : ""
+              }`}
+              style={{ animationDelay: `${Math.min(index, 12) * 30}ms` }}
+            >
               <TableCell className="font-medium">
                 <div>{booking.customer_name}</div>
                 {booking.customer_contact && (

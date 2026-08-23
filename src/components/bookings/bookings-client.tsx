@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CalendarClock, Download, RefreshCw, X } from "lucide-react";
+import { CalendarClock, RefreshCw, X } from "lucide-react";
 import { usePollingBookings } from "@/hooks/use-polling-bookings";
 import { BookingsTable } from "./bookings-table";
 import { NewBookingDialog } from "./new-booking-dialog";
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { downloadCsv } from "@/lib/csv";
 import { PageHeaderIcon } from "@/components/page-header-icon";
+import { DownloadButton } from "@/components/motion/download-button";
 import { computeProfit, effectiveB2bPrice, effectiveSalePrice } from "@/lib/booking-pricing";
 import type { BookingRow } from "@/types/booking";
 import type { Profile } from "@/types/profile";
@@ -114,10 +115,7 @@ export function BookingsClient({
             <RefreshCw className={refreshing ? "animate-spin" : ""} />
             Refresh
           </Button>
-          <Button variant="outline" size="sm" onClick={handleDownload}>
-            <Download />
-            Download CSV
-          </Button>
+          <DownloadButton onDownload={handleDownload} />
           {canCreateBooking && (
             <NewBookingDialog
               vendors={vendors}

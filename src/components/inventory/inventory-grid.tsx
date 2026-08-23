@@ -15,6 +15,7 @@ import { ProductDetailDialog } from "./product-detail-dialog";
 import type { InventoryRow } from "@/hooks/use-realtime-inventory";
 import type { Profile } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
+import { useRowFlash } from "@/hooks/use-row-flash";
 
 type AggregatedRow = InventoryRow & { regionCount?: number };
 
@@ -42,6 +43,7 @@ export function InventoryGrid({
   refresh: () => void | Promise<void>;
 }) {
   const [selectedRow, setSelectedRow] = useState<AggregatedRow | null>(null);
+  const { flashId, flash } = useRowFlash();
   function canEditStock(row: InventoryRow) {
     if (aggregated) return false;
     if (isPrivileged(profile.role)) return true;
@@ -73,6 +75,7 @@ export function InventoryGrid({
       return;
     }
     setRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, stock_quantity: value } : r)));
+    flash(row.id);
     toast.success("Stock updated");
   }
 
@@ -107,7 +110,7 @@ export function InventoryGrid({
 
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-      {rows.map((row) => {
+      {rows.map((row, index) => {
         const available = row.stock_quantity - row.reserved_quantity;
         const lowStock = available <= LOW_STOCK_THRESHOLD;
         const editableStock = canEditStock(row);
@@ -117,7 +120,10 @@ export function InventoryGrid({
         return (
           <Card
             key={row.id}
-            className="cursor-pointer overflow-hidden py-0 gap-0 transition-shadow hover:shadow-md"
+            className={`animate-in fade-in-0 zoom-in-95 fill-mode-both cursor-pointer overflow-hidden py-0 gap-0 duration-300 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:scale-[0.98] ${
+              flashId === row.id ? "ring-2 ring-emerald-500/60" : ""
+            }`}
+            style={{ animationDelay: `${Math.min(index, 16) * 25}ms` }}
             onClick={() => row.item && setSelectedRow(row)}
           >
             <div className="relative aspect-square w-full bg-muted">

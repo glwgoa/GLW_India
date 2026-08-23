@@ -92,10 +92,14 @@ export function KanbanBoard({
               <span className="text-xs text-muted-foreground">{columnProjects.length}</span>
             </div>
             <div className="space-y-3">
-              {columnProjects.map((project) => {
+              {columnProjects.map((project, index) => {
                 const editable = canModify(project);
                 return (
-                  <Card key={project.id}>
+                  <Card
+                    key={project.id}
+                    className="animate-in fade-in-0 slide-in-from-bottom-1 fill-mode-both duration-300 transition-shadow hover:shadow-md"
+                    style={{ animationDelay: `${Math.min(index, 10) * 40}ms` }}
+                  >
                     <CardHeader className="flex items-start justify-between gap-2">
                       <CardTitle className="text-sm">{project.title}</CardTitle>
                       {canDelete && (

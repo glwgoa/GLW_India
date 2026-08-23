@@ -8,6 +8,7 @@ import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 import PixelBlast from "@/components/pixel-blast";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
+import { PageTransition } from "@/components/motion/page-transition";
 import type { Profile } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
 
@@ -75,7 +76,9 @@ export default async function DashboardLayout({
               <RegionSwitcher regions={regions ?? []} canViewAll={canViewAllRegions} />
             </div>
           </header>
-          <div className="flex-1 p-4 md:p-6">{children}</div>
+          <div className="flex-1 overflow-y-auto p-4 md:p-6">
+            <PageTransition>{children}</PageTransition>
+          </div>
         </SidebarInset>
       </SidebarProvider>
     </RegionProvider>

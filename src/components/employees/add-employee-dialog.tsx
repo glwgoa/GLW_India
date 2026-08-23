@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -139,6 +139,7 @@ export function AddEmployeeDialog({
           </div>
           <DialogFooter>
             <Button type="submit" disabled={submitting}>
+              {submitting && <Loader2 className="animate-spin" />}
               {submitting ? "Adding..." : "Add employee"}
             </Button>
           </DialogFooter>

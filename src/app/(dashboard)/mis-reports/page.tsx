@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/auth/require-role";
 import { RegionRevenueChart } from "@/components/mis/region-revenue-chart";
 import { AttendanceSummaryChart } from "@/components/mis/attendance-summary-chart";
 import { PageHeaderIcon } from "@/components/page-header-icon";
+import { Reveal, RevealItem } from "@/components/motion/reveal";
 import type { Profile } from "@/types/profile";
 import type { RegionRevenueRow, AttendanceSummaryRow } from "@/types/mis";
 
@@ -41,10 +42,14 @@ export default async function MisReportsPage() {
           </p>
         </div>
       </div>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <RegionRevenueChart data={(regionRevenue ?? []) as RegionRevenueRow[]} />
-        <AttendanceSummaryChart data={(attendanceSummary ?? []) as AttendanceSummaryRow[]} />
-      </div>
+      <Reveal className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <RevealItem>
+          <RegionRevenueChart data={(regionRevenue ?? []) as RegionRevenueRow[]} />
+        </RevealItem>
+        <RevealItem>
+          <AttendanceSummaryChart data={(attendanceSummary ?? []) as AttendanceSummaryRow[]} />
+        </RevealItem>
+      </Reveal>
     </div>
   );
 }

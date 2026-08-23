@@ -12,6 +12,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeaderIcon } from "@/components/page-header-icon";
+import { Reveal, RevealItem } from "@/components/motion/reveal";
 
 const MODULES = [
   {
@@ -90,60 +91,59 @@ export default async function DashboardOverviewPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <Card
-          className="border-t-2"
-          style={{ borderTopColor: "var(--chart-1)" }}
-        >
-          <CardHeader className="flex-row items-center gap-3 pb-2">
-            <IconBadge icon={CalendarCheck} color="var(--chart-1)" />
-            <div>
-              <CardDescription>Bookings visible to you</CardDescription>
-              <CardTitle className="text-3xl">{totalBookings ?? 0}</CardTitle>
-            </div>
-          </CardHeader>
-        </Card>
-        <Card
-          className="border-t-2"
-          style={{ borderTopColor: "var(--chart-5)" }}
-        >
-          <CardHeader className="flex-row items-center gap-3 pb-2">
-            <IconBadge icon={Hourglass} color="var(--chart-5)" />
-            <div>
-              <CardDescription>Pending bookings</CardDescription>
-              <CardTitle className="text-3xl">{pendingBookings ?? 0}</CardTitle>
-            </div>
-          </CardHeader>
-        </Card>
-        <Card
-          className="border-t-2"
-          style={{ borderTopColor: "var(--chart-2)" }}
-        >
-          <CardHeader className="flex-row items-center gap-3 pb-2">
-            <IconBadge icon={Layers} color="var(--chart-2)" />
-            <div>
-              <CardDescription>Active projects</CardDescription>
-              <CardTitle className="text-3xl">{activeProjects ?? 0}</CardTitle>
-            </div>
-          </CardHeader>
-        </Card>
-      </div>
+      <Reveal className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <RevealItem>
+          <Card className="border-t-2" style={{ borderTopColor: "var(--chart-1)" }}>
+            <CardHeader className="flex-row items-center gap-3 pb-2">
+              <IconBadge icon={CalendarCheck} color="var(--chart-1)" />
+              <div>
+                <CardDescription>Bookings visible to you</CardDescription>
+                <CardTitle className="text-3xl">{totalBookings ?? 0}</CardTitle>
+              </div>
+            </CardHeader>
+          </Card>
+        </RevealItem>
+        <RevealItem>
+          <Card className="border-t-2" style={{ borderTopColor: "var(--chart-5)" }}>
+            <CardHeader className="flex-row items-center gap-3 pb-2">
+              <IconBadge icon={Hourglass} color="var(--chart-5)" />
+              <div>
+                <CardDescription>Pending bookings</CardDescription>
+                <CardTitle className="text-3xl">{pendingBookings ?? 0}</CardTitle>
+              </div>
+            </CardHeader>
+          </Card>
+        </RevealItem>
+        <RevealItem>
+          <Card className="border-t-2" style={{ borderTopColor: "var(--chart-2)" }}>
+            <CardHeader className="flex-row items-center gap-3 pb-2">
+              <IconBadge icon={Layers} color="var(--chart-2)" />
+              <div>
+                <CardDescription>Active projects</CardDescription>
+                <CardTitle className="text-3xl">{activeProjects ?? 0}</CardTitle>
+              </div>
+            </CardHeader>
+          </Card>
+        </RevealItem>
+      </Reveal>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <Reveal className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {MODULES.map((mod) => (
-          <Link key={mod.href} href={mod.href}>
-            <Card className="h-full transition-colors hover:bg-muted/50">
-              <CardHeader className="flex-row items-center gap-3">
-                <IconBadge icon={mod.icon} color={mod.color} />
-                <div>
-                  <CardTitle className="text-base">{mod.label}</CardTitle>
-                  <CardDescription>{mod.description}</CardDescription>
-                </div>
-              </CardHeader>
-            </Card>
-          </Link>
+          <RevealItem key={mod.href}>
+            <Link href={mod.href}>
+              <Card className="h-full transition-colors hover:-translate-y-0.5 hover:bg-muted/50 hover:shadow-md active:translate-y-0 active:scale-[0.99]">
+                <CardHeader className="flex-row items-center gap-3">
+                  <IconBadge icon={mod.icon} color={mod.color} />
+                  <div>
+                    <CardTitle className="text-base">{mod.label}</CardTitle>
+                    <CardDescription>{mod.description}</CardDescription>
+                  </div>
+                </CardHeader>
+              </Card>
+            </Link>
+          </RevealItem>
         ))}
-      </div>
+      </Reveal>
     </div>
   );
 }
