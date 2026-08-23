@@ -57,6 +57,7 @@ export default async function DashboardLayout({
           speed={0.35}
           enableRipples={false}
           liquid={false}
+          antialias={false}
           transparent
         />
       </div>

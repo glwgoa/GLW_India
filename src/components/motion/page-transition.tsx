@@ -10,13 +10,12 @@ export function PageTransition({ children }: { children: React.ReactNode }) {
   if (reduceMotion) return <>{children}</>;
 
   return (
-    <AnimatePresence mode="wait" initial={false}>
+    <AnimatePresence initial={false}>
       <motion.div
         key={pathname}
-        initial={{ opacity: 0, y: 8 }}
+        initial={{ opacity: 0, y: 4 }}
         animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -8 }}
-        transition={{ duration: 0.18, ease: "easeOut" }}
+        transition={{ duration: 0.12, ease: "easeOut" }}
       >
         {children}
       </motion.div>
