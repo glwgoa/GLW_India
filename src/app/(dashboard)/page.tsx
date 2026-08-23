@@ -130,7 +130,7 @@ export default async function DashboardOverviewPage() {
       <Reveal className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {MODULES.map((mod) => (
           <RevealItem key={mod.href}>
-            <Link href={mod.href} prefetch>
+            <Link href={mod.href}>
               <Card className="h-full transition-colors hover:-translate-y-0.5 hover:bg-muted/50 hover:shadow-md active:translate-y-0 active:scale-[0.99]">
                 <CardHeader className="flex-row items-center gap-3">
                   <IconBadge icon={mod.icon} color={mod.color} />

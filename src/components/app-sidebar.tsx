@@ -1,8 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   CalendarClock,
@@ -85,17 +84,7 @@ function initials(name: string) {
 
 export function AppSidebar({ profile }: { profile: Profile }) {
   const pathname = usePathname();
-  const router = useRouter();
   const items = NAV_ITEMS.filter((item) => !item.roles || item.roles.includes(profile.role as never));
-
-  // Eagerly warm every reachable route's data + JS the moment the sidebar
-  // mounts, so clicking a nav item is an instant swap instead of a fetch.
-  useEffect(() => {
-    for (const item of items) {
-      router.prefetch(item.href);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <Sidebar collapsible="icon">
@@ -122,7 +111,7 @@ export function AppSidebar({ profile }: { profile: Profile }) {
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
-                      render={<Link href={item.href} prefetch />}
+                      render={<Link href={item.href} />}
                       isActive={isActive}
                       style={
                         isActive
