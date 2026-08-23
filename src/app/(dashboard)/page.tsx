@@ -131,7 +131,7 @@ export default async function DashboardOverviewPage() {
         {MODULES.map((mod) => (
           <RevealItem key={mod.href}>
             <Link href={mod.href} prefetch={mod.href === "/inventory" ? false : true}>
-              <Card className="h-full transition-colors hover:-translate-y-0.5 hover:bg-muted/50 hover:shadow-md active:translate-y-0 active:scale-[0.99]">
+              <Card className="h-full transition-colors hover:-translate-y-1 hover:bg-muted/50 hover:shadow-md active:translate-y-0 active:scale-[0.99]">
                 <CardHeader className="flex-row items-center gap-3">
                   <IconBadge icon={mod.icon} color={mod.color} />
                   <div>

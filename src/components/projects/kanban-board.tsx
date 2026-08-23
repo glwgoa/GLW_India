@@ -97,8 +97,8 @@ export function KanbanBoard({
                 return (
                   <Card
                     key={project.id}
-                    className="animate-in fade-in-0 slide-in-from-bottom-1 fill-mode-both duration-300 transition-shadow hover:shadow-md"
-                    style={{ animationDelay: `${Math.min(index, 10) * 40}ms` }}
+                    className="animate-in fade-in-0 slide-in-from-bottom-3 fill-mode-both duration-500 transition-shadow hover:shadow-md"
+                    style={{ animationDelay: `${Math.min(index, 10) * 60}ms` }}
                   >
                     <CardHeader className="flex items-start justify-between gap-2">
                       <CardTitle className="text-sm">{project.title}</CardTitle>

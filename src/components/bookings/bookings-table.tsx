@@ -163,10 +163,10 @@ export function BookingsTable({
           {bookings.map((booking, index) => (
             <TableRow
               key={booking.id}
-              className={`animate-in fade-in-0 slide-in-from-bottom-1 fill-mode-both duration-300 transition-colors ${
+              className={`animate-in fade-in-0 slide-in-from-bottom-3 fill-mode-both duration-500 transition-colors ${
                 flashId === booking.id ? "bg-emerald-500/10" : ""
               }`}
-              style={{ animationDelay: `${Math.min(index, 12) * 30}ms` }}
+              style={{ animationDelay: `${Math.min(index, 12) * 50}ms` }}
             >
               <TableCell className="font-medium">
                 <div>{booking.customer_name}</div>

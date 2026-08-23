@@ -120,10 +120,10 @@ export function InventoryGrid({
         return (
           <Card
             key={row.id}
-            className={`animate-in fade-in-0 zoom-in-95 fill-mode-both cursor-pointer overflow-hidden py-0 gap-0 duration-300 hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:scale-[0.98] ${
+            className={`animate-in fade-in-0 zoom-in-95 fill-mode-both cursor-pointer overflow-hidden py-0 gap-0 duration-500 hover:-translate-y-1 hover:shadow-md active:translate-y-0 active:scale-[0.98] ${
               flashId === row.id ? "ring-2 ring-emerald-500/60" : ""
             }`}
-            style={{ animationDelay: `${Math.min(index, 16) * 25}ms` }}
+            style={{ animationDelay: `${Math.min(index, 16) * 45}ms` }}
             onClick={() => row.item && setSelectedRow(row)}
           >
             <div className="relative aspect-square w-full bg-muted">

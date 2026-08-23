@@ -54,8 +54,8 @@ export function EmployeesGrid({
       {employees.map((employee, index) => (
         <Card
           key={employee.id}
-          className="animate-in fade-in-0 zoom-in-95 fill-mode-both duration-300 transition-shadow hover:shadow-md"
-          style={{ animationDelay: `${Math.min(index, 16) * 25}ms` }}
+          className="animate-in fade-in-0 zoom-in-95 fill-mode-both duration-500 transition-shadow hover:shadow-md"
+          style={{ animationDelay: `${Math.min(index, 16) * 45}ms` }}
         >
           <CardHeader className="flex items-start justify-between gap-2">
             <div className="flex items-center gap-3">

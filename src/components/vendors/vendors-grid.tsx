@@ -106,8 +106,8 @@ export function VendorsGrid({
               return (
                 <TableRow
                   key={vendor.id}
-                  className="cursor-pointer animate-in fade-in-0 slide-in-from-bottom-1 fill-mode-both duration-300"
-                  style={{ animationDelay: `${Math.min(index, 12) * 30}ms` }}
+                  className="cursor-pointer animate-in fade-in-0 slide-in-from-bottom-3 fill-mode-both duration-500"
+                  style={{ animationDelay: `${Math.min(index, 12) * 50}ms` }}
                   onClick={() => setSelectedVendor(vendor)}
                 >
                   <TableCell className="font-medium">{vendor.name ?? "Unnamed vendor"}</TableCell>
