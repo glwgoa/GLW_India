@@ -5,6 +5,13 @@ export type RegionRevenueRow = {
   total_revenue: number;
 };
 
+export type BrandPerformanceRow = {
+  brand: string;
+  total_bookings: number;
+  total_revenue: number;
+  total_profit: number;
+};
+
 export type AttendanceSummaryRow = {
   user_id: string;
   full_name: string;

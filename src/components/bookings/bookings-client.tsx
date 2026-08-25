@@ -65,6 +65,7 @@ export function BookingsClient({
     const headers = [
       "Customer",
       "Contact",
+      "Brand",
       "Region",
       "Vendor",
       "Product",
@@ -83,6 +84,7 @@ export function BookingsClient({
       return [
         b.customer_name,
         b.customer_contact ?? "",
+        b.brand ?? "",
         b.region?.name ?? "",
         b.vendor?.name ?? "",
         b.item?.name ?? "",

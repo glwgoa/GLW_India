@@ -30,6 +30,7 @@ import {
   YACHT_CATEGORY_NAME,
   needsCustomerContact,
 } from "@/lib/booking-yacht";
+import { BRAND_NAMES } from "@/lib/brands";
 import type { TransportType } from "@/types/booking";
 
 type Product = { id: string; name: string; sale_price: number | null; category: string | null };
@@ -67,6 +68,7 @@ export function NewBookingDialog({
   const [submitting, setSubmitting] = useState(false);
   const [vendorId, setVendorId] = useState<string>("");
   const [regionId, setRegionId] = useState<string>("");
+  const [brand, setBrand] = useState<string>("");
   const [category, setCategory] = useState<string>(() => {
     const product = products.find((p) => p.id === initialProductId);
     return product?.category ?? "";
@@ -134,6 +136,7 @@ export function NewBookingDialog({
       customer_name: customerName,
       customer_contact: showContactNumber ? customerContact : null,
       region_id: regionId,
+      brand: brand || null,
       assigned_vendor_id: vendorId || null,
       item_id: productId || null,
       sale_price: priceRaw ? Number(priceRaw) : null,
@@ -169,6 +172,7 @@ export function NewBookingDialog({
     setOpen(false);
     setVendorId("");
     setRegionId("");
+    setBrand("");
     setProductId(initialProductId ?? "");
     const resetProduct = products.find((p) => p.id === initialProductId);
     setCategory(resetProduct?.category ?? "");
@@ -248,6 +252,21 @@ export function NewBookingDialog({
                   {vendors.map((v) => (
                     <SelectItem key={v.id} value={v.id}>
                       {v.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Brand</Label>
+              <Select value={brand} onValueChange={(v) => setBrand(v ?? "")}>
+                <SelectTrigger>
+                  <SelectValue>{(value: string) => value || "Select brand"}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {BRAND_NAMES.map((b) => (
+                    <SelectItem key={b} value={b}>
+                      {b}
                     </SelectItem>
                   ))}
                 </SelectContent>

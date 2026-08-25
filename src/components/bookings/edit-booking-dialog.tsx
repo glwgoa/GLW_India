@@ -29,6 +29,7 @@ import {
   YACHT_CATEGORY_NAME,
   needsCustomerContact,
 } from "@/lib/booking-yacht";
+import { BRAND_NAMES } from "@/lib/brands";
 import type { BookingRow, BookingStatus, TransportType } from "@/types/booking";
 
 type Product = { id: string; name: string; sale_price: number | null; category: string | null };
@@ -78,6 +79,7 @@ export function EditBookingDialog({
   const [submitting, setSubmitting] = useState(false);
   const [vendorId, setVendorId] = useState(booking.assigned_vendor_id ?? "");
   const [regionId, setRegionId] = useState(booking.region_id ?? "");
+  const [brand, setBrand] = useState(booking.brand ?? "");
   const [productId, setProductId] = useState(booking.item_id ?? "");
   const [salePrice, setSalePrice] = useState(booking.sale_price != null ? String(booking.sale_price) : "");
   const [status, setStatus] = useState<BookingStatus>(booking.status);
@@ -139,6 +141,7 @@ export function EditBookingDialog({
         customer_name: customerName,
         customer_contact: showContactNumber ? customerContact : null,
         region_id: regionId,
+        brand: brand || null,
         assigned_vendor_id: vendorId || null,
         item_id: productId || null,
         sale_price: priceRaw ? Number(priceRaw) : null,
@@ -228,6 +231,21 @@ export function EditBookingDialog({
                   {vendors.map((v) => (
                     <SelectItem key={v.id} value={v.id}>
                       {v.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Brand</Label>
+              <Select value={brand} onValueChange={(v) => setBrand(v ?? "")}>
+                <SelectTrigger>
+                  <SelectValue>{(value: string) => value || "Select brand"}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {BRAND_NAMES.map((b) => (
+                    <SelectItem key={b} value={b}>
+                      {b}
                     </SelectItem>
                   ))}
                 </SelectContent>

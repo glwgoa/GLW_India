@@ -27,6 +27,7 @@ export type BookingRow = {
   guest_count: number | null;
   transport_type: TransportType | null;
   pickup_drop_price: number | null;
+  brand: string | null;
   created_at: string;
   region: { name: string } | null;
   vendor: { name: string } | null;

@@ -69,6 +69,7 @@ export type Database = {
           anchorage_hours: number | null
           assigned_vendor_id: string | null
           booking_date: string
+          brand: string | null
           created_at: string | null
           customer_contact: string | null
           customer_name: string
@@ -90,6 +91,7 @@ export type Database = {
           anchorage_hours?: number | null
           assigned_vendor_id?: string | null
           booking_date: string
+          brand?: string | null
           created_at?: string | null
           customer_contact?: string | null
           customer_name: string
@@ -111,6 +113,7 @@ export type Database = {
           anchorage_hours?: number | null
           assigned_vendor_id?: string | null
           booking_date?: string
+          brand?: string | null
           created_at?: string | null
           customer_contact?: string | null
           customer_name?: string
@@ -570,6 +573,15 @@ export type Database = {
       }
     }
     Views: {
+      vw_brand_performance: {
+        Row: {
+          brand: string | null
+          total_bookings: number | null
+          total_profit: number | null
+          total_revenue: number | null
+        }
+        Relationships: []
+      }
       vw_monthly_attendance_summary: {
         Row: {
           avg_hours_worked: number | null

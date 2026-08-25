@@ -145,6 +145,7 @@ export function BookingsTable({
         <TableHeader>
           <TableRow>
             <TableHead>Customer</TableHead>
+            <TableHead>Brand</TableHead>
             <TableHead>Region</TableHead>
             <TableHead>Vendor</TableHead>
             <TableHead>Product</TableHead>
@@ -176,6 +177,7 @@ export function BookingsTable({
                   </div>
                 )}
               </TableCell>
+              <TableCell className="text-muted-foreground">{booking.brand ?? "—"}</TableCell>
               <TableCell>{booking.region?.name ?? "—"}</TableCell>
               <TableCell>
                 {canAssignVendor ? (
