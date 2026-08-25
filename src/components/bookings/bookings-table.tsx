@@ -16,43 +16,20 @@ import {
 } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import type { BookingRow, BookingStatus, TransportType } from "@/types/booking";
+import type { BookingRow, BookingStatus } from "@/types/booking";
 import type { Profile } from "@/types/profile";
 import type { TablesUpdate } from "@/types/supabase";
 import { isPrivileged } from "@/lib/auth/roles";
 import { computeProfit, effectiveB2bPrice, effectiveSalePrice } from "@/lib/booking-pricing";
+import {
+  BOOKING_STATUSES,
+  BOOKING_STATUS_DOT,
+  BOOKING_STATUS_LABEL,
+  bookingCategoryDetails,
+} from "@/lib/booking-display";
 import { useRowFlash } from "@/hooks/use-row-flash";
 
 type BookingUpdate = TablesUpdate<"bookings">;
-
-const BOOKING_STATUSES: BookingStatus[] = [
-  "pending",
-  "assigned",
-  "in_progress",
-  "completed",
-  "cancelled",
-  "cancelled_refunded",
-];
-const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
-  pending: "Pending",
-  assigned: "Assigned",
-  in_progress: "In progress",
-  completed: "Completed",
-  cancelled: "Cancelled",
-  cancelled_refunded: "Cancel/Refunded",
-};
-const TRANSPORT_TYPE_LABEL: Record<TransportType, string> = {
-  pickup_drop: "Pickup/Drop",
-  direct_jetty: "Direct Jetty",
-};
-const BOOKING_STATUS_DOT: Record<BookingStatus, string> = {
-  pending: "bg-amber-500",
-  assigned: "bg-blue-500",
-  in_progress: "bg-violet-500",
-  completed: "bg-emerald-500",
-  cancelled: "bg-rose-500",
-  cancelled_refunded: "bg-rose-500",
-};
 
 export function BookingsTable({
   bookings,
@@ -79,36 +56,6 @@ export function BookingsTable({
   const canSeeProfit = canAssignVendor;
   const { flashId, flash } = useRowFlash();
   const [selectedBooking, setSelectedBooking] = useState<BookingRow | null>(null);
-
-  function formatTime(time: string) {
-    const [h, m] = time.split(":").map(Number);
-    const period = h >= 12 ? "PM" : "AM";
-    const hour12 = h % 12 || 12;
-    return `${hour12}:${String(m).padStart(2, "0")} ${period}`;
-  }
-
-  function yachtDetails(booking: BookingRow) {
-    const parts: string[] = [];
-    if (booking.start_time && booking.end_time) {
-      parts.push(`${formatTime(booking.start_time)}–${formatTime(booking.end_time)}`);
-    }
-    const duration: string[] = [];
-    if (booking.sailing_hours != null) duration.push(`${booking.sailing_hours}h sailing`);
-    if (booking.anchorage_hours != null) duration.push(`${booking.anchorage_hours}h anchorage`);
-    if (duration.length > 0) parts.push(duration.join(" + "));
-    if (booking.guest_count != null) parts.push(`${booking.guest_count} guests`);
-    if (booking.add_ons && booking.add_ons.length > 0) parts.push(booking.add_ons.join(", "));
-    if (booking.transport_type) {
-      const label = TRANSPORT_TYPE_LABEL[booking.transport_type];
-      if (booking.transport_type === "pickup_drop" && booking.pickup_drop_price != null) {
-        const total = booking.pickup_drop_price * (booking.guest_count ?? 1);
-        parts.push(`${label} (+₹${total.toLocaleString("en-IN")})`);
-      } else {
-        parts.push(label);
-      }
-    }
-    return parts.length > 0 ? parts.join(" · ") : null;
-  }
 
   async function updateBooking(id: string, patch: BookingUpdate) {
     const supabase = createClient();
@@ -260,7 +207,7 @@ export function BookingsTable({
                 })}
               </TableCell>
               <TableCell className="max-w-64 whitespace-normal text-muted-foreground">
-                {yachtDetails(booking) ?? "—"}
+                {bookingCategoryDetails(booking) ?? "—"}
               </TableCell>
               {(canEdit || canDelete) && (
                 <TableCell onClick={(e) => e.stopPropagation()}>
@@ -296,6 +243,7 @@ export function BookingsTable({
           open={!!selectedBooking}
           onOpenChange={(o) => !o && setSelectedBooking(null)}
           booking={selectedBooking}
+          canSeeProfit={canSeeProfit}
         />
       )}
     </div>
