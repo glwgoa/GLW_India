@@ -111,21 +111,48 @@ export function BookingDetailDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="gap-0 overflow-hidden p-0 sm:max-w-md">
-        <div
-          className="relative flex h-24 w-full items-center justify-center"
-          style={{
-            background: `linear-gradient(135deg, color-mix(in srgb, ${visual.color} 20%, transparent), color-mix(in srgb, ${visual.color} 6%, transparent))`,
-          }}
-        >
-          <CategoryIcon className="size-10" style={{ color: `color-mix(in srgb, ${visual.color} 55%, transparent)` }} />
+        <div className="relative flex h-32 w-full items-center justify-center overflow-hidden">
+          {booking.item?.image_url ? (
+            <>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={booking.item.image_url}
+                alt={booking.item.name}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/0 to-black/20" />
+            </>
+          ) : (
+            <>
+              <div
+                className="absolute inset-0"
+                style={{
+                  background: `linear-gradient(135deg, color-mix(in srgb, ${visual.color} 20%, transparent), color-mix(in srgb, ${visual.color} 6%, transparent))`,
+                }}
+              />
+              <CategoryIcon
+                className="relative size-10"
+                style={{ color: `color-mix(in srgb, ${visual.color} 55%, transparent)` }}
+              />
+            </>
+          )}
           <div className="absolute top-3 right-3">
             <Badge variant="secondary" className={STATUS_BADGE_CLASS[booking.status]}>
               {BOOKING_STATUS_LABEL[booking.status]}
             </Badge>
           </div>
           {booking.item?.category && (
-            <div className="absolute top-3 left-3 text-xs font-medium text-muted-foreground">
+            <div
+              className={`absolute top-3 left-3 text-xs font-medium ${
+                booking.item.image_url ? "text-white drop-shadow" : "text-muted-foreground"
+              }`}
+            >
               {booking.item.category}
+            </div>
+          )}
+          {booking.item?.image_url && (
+            <div className="absolute bottom-2 left-3 text-xs font-medium text-white drop-shadow">
+              {booking.item.name}
             </div>
           )}
         </div>

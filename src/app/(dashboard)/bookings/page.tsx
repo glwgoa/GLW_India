@@ -15,7 +15,7 @@ export default async function BookingsPage() {
       supabase
         .from("bookings")
         .select(
-          "*, region:regions(name), vendor:vendors(name), item:catalog_items(name, b2b_price, category)",
+          "*, region:regions(name), vendor:vendors(name), item:catalog_items(name, b2b_price, category, image_url)",
         )
         .order("created_at", { ascending: false }),
       canAssignVendor
