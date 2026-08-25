@@ -1,9 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { EditBookingDialog } from "./edit-booking-dialog";
+import { BookingDetailDialog } from "./booking-detail-dialog";
 import {
   Table,
   TableBody,
@@ -76,6 +78,7 @@ export function BookingsTable({
   // vendor themselves or other roles.
   const canSeeProfit = canAssignVendor;
   const { flashId, flash } = useRowFlash();
+  const [selectedBooking, setSelectedBooking] = useState<BookingRow | null>(null);
 
   function formatTime(time: string) {
     const [h, m] = time.split(":").map(Number);
@@ -146,8 +149,6 @@ export function BookingsTable({
           <TableRow>
             <TableHead>Customer</TableHead>
             <TableHead>Brand</TableHead>
-            <TableHead>Region</TableHead>
-            <TableHead>Vendor</TableHead>
             <TableHead>Product</TableHead>
             <TableHead>Price</TableHead>
             <TableHead>Advance</TableHead>
@@ -164,10 +165,11 @@ export function BookingsTable({
           {bookings.map((booking, index) => (
             <TableRow
               key={booking.id}
-              className={`animate-in fade-in-0 slide-in-from-bottom-3 fill-mode-both duration-500 transition-colors ${
+              className={`cursor-pointer animate-in fade-in-0 slide-in-from-bottom-3 fill-mode-both duration-500 transition-colors ${
                 flashId === booking.id ? "bg-emerald-500/10" : ""
               }`}
               style={{ animationDelay: `${Math.min(index, 12) * 50}ms` }}
+              onClick={() => setSelectedBooking(booking)}
             >
               <TableCell className="font-medium">
                 <div>{booking.customer_name}</div>
@@ -178,37 +180,6 @@ export function BookingsTable({
                 )}
               </TableCell>
               <TableCell className="text-muted-foreground">{booking.brand ?? "—"}</TableCell>
-              <TableCell>{booking.region?.name ?? "—"}</TableCell>
-              <TableCell>
-                {canAssignVendor ? (
-                  <Select
-                    value={booking.assigned_vendor_id ?? "unassigned"}
-                    onValueChange={(value) =>
-                      updateBooking(booking.id, {
-                        assigned_vendor_id: value === "unassigned" ? null : value,
-                      })
-                    }
-                  >
-                    <SelectTrigger className="w-40">
-                      <SelectValue>
-                        {(value: string) =>
-                          value === "unassigned" ? "Unassigned" : (vendors.find((v) => v.id === value)?.name ?? "Unassigned")
-                        }
-                      </SelectValue>
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="unassigned">Unassigned</SelectItem>
-                      {vendors.map((v) => (
-                        <SelectItem key={v.id} value={v.id}>
-                          {v.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                ) : (
-                  (booking.vendor?.name ?? "Unassigned")
-                )}
-              </TableCell>
               <TableCell>{booking.item?.name ?? "—"}</TableCell>
               <TableCell>
                 {(() => {
@@ -251,7 +222,7 @@ export function BookingsTable({
                   })()}
                 </TableCell>
               )}
-              <TableCell>
+              <TableCell onClick={(e) => e.stopPropagation()}>
                 <Select
                   value={booking.status}
                   onValueChange={(value) =>
@@ -292,7 +263,7 @@ export function BookingsTable({
                 {yachtDetails(booking) ?? "—"}
               </TableCell>
               {(canEdit || canDelete) && (
-                <TableCell>
+                <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-1">
                     {canEdit && (
                       <EditBookingDialog
@@ -320,6 +291,13 @@ export function BookingsTable({
           ))}
         </TableBody>
       </Table>
+      {selectedBooking && (
+        <BookingDetailDialog
+          open={!!selectedBooking}
+          onOpenChange={(o) => !o && setSelectedBooking(null)}
+          booking={selectedBooking}
+        />
+      )}
     </div>
   );
 }
