@@ -31,10 +31,5 @@ export type BookingRow = {
   created_at: string;
   region: { name: string } | null;
   vendor: { name: string } | null;
-  item: {
-    name: string;
-    b2b_price: number | null;
-    category: string | null;
-    image_url: string | null;
-  } | null;
+  item: { name: string; b2b_price: number | null; category: string | null } | null;
 };

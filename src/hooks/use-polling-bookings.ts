@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { BookingRow } from "@/types/booking";
 
 const BOOKINGS_SELECT =
-  "*, region:regions(name), vendor:vendors(name), item:catalog_items(name, b2b_price, category, image_url)";
+  "*, region:regions(name), vendor:vendors(name), item:catalog_items(name, b2b_price, category)";
 
 export function usePollingBookings(initial: BookingRow[]) {
   const [bookings, setBookings] = useState<BookingRow[]>(initial);
