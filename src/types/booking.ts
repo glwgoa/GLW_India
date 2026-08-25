@@ -36,6 +36,7 @@ export type BookingRow = {
   transport_type: TransportType | null;
   pickup_drop_price: number | null;
   brand: string | null;
+  transaction_id: string | null;
   created_at: string;
   region: { name: string } | null;
   vendor: { name: string; contact_phone: string | null } | null;

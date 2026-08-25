@@ -9,6 +9,7 @@ import {
   MapPin,
   Package,
   Phone,
+  Receipt,
   Sailboat,
   Sunset,
   UtensilsCrossed,
@@ -211,6 +212,9 @@ export function BookingDetailDialog({
             className="space-y-2 rounded-xl border border-border/30 bg-muted/30 p-3"
           >
             {booking.brand && <InfoRow icon={Building2} label="Brand" value={booking.brand} />}
+            {booking.transaction_id && (
+              <InfoRow icon={Receipt} label="Transaction ID" value={booking.transaction_id} />
+            )}
             <InfoRow icon={MapPin} label="Region" value={booking.region?.name ?? "—"} />
             <InfoRow icon={Building2} label="Vendor" value={booking.vendor?.name ?? "Unassigned"} />
             <InfoRow icon={Package} label="Product" value={booking.item?.name ?? "—"} />

@@ -132,6 +132,7 @@ export function EditBookingDialog({
     const customerContact = (formData.get("customerContact") as string) || null;
     const priceRaw = formData.get("salePrice") as string;
     const advanceRaw = formData.get("advanceAmount") as string;
+    const transactionId = (formData.get("transactionId") as string) || null;
     const startTime = (formData.get("startTime") as string) || null;
     const endTime = (formData.get("endTime") as string) || null;
     const sailingHoursRaw = formData.get("sailingHours") as string;
@@ -150,6 +151,7 @@ export function EditBookingDialog({
         item_id: productId || null,
         sale_price: priceRaw ? Number(priceRaw) : null,
         advance_amount: advanceRaw ? Number(advanceRaw) : null,
+        transaction_id: transactionId,
         booking_date: new Date(date).toISOString(),
         status,
         start_time: isYacht ? startTime : null,
@@ -314,6 +316,16 @@ export function EditBookingDialog({
                 placeholder="Optional"
               />
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="transactionId">Transaction ID</Label>
+            <Input
+              id="transactionId"
+              name="transactionId"
+              defaultValue={booking.transaction_id ?? ""}
+              placeholder="Optional"
+            />
           </div>
 
           <div className="space-y-2">
