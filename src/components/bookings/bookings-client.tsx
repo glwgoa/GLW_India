@@ -12,7 +12,7 @@ import { downloadCsv } from "@/lib/csv";
 import { PageHeaderIcon } from "@/components/page-header-icon";
 import { DownloadButton } from "@/components/motion/download-button";
 import { computeProfit, effectiveB2bPrice, effectiveSalePrice } from "@/lib/booking-pricing";
-import type { BookingRow } from "@/types/booking";
+import type { BookingProduct, BookingRow } from "@/types/booking";
 import type { Profile } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
 
@@ -36,7 +36,7 @@ export function BookingsClient({
   profile: Profile;
   vendors: { id: string; name: string }[];
   regions: { id: string; name: string }[];
-  products: { id: string; name: string; sale_price: number | null; category: string | null }[];
+  products: BookingProduct[];
 }) {
   const { bookings, setBookings, refresh, refreshing } = usePollingBookings(initialBookings);
   const canCreateBooking = isPrivileged(profile.role) || profile.role === "project_manager";

@@ -56,7 +56,15 @@ export function ProductDetailDialog({
   const lowStock = available <= LOW_STOCK_THRESHOLD;
 
   const products = item
-    ? [{ id: row.item_id, name: item.name, sale_price: item.sale_price, category: item.category }]
+    ? [
+        {
+          id: row.item_id,
+          name: item.name,
+          sale_price: item.sale_price,
+          category: item.category,
+          vendor_id: item.vendor_id,
+        },
+      ]
     : [];
 
   return (

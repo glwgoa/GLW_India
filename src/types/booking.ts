@@ -8,6 +8,14 @@ export type BookingStatus =
 
 export type TransportType = "pickup_drop" | "direct_jetty";
 
+export type BookingProduct = {
+  id: string;
+  name: string;
+  sale_price: number | null;
+  category: string | null;
+  vendor_id: string | null;
+};
+
 export type BookingRow = {
   id: string;
   customer_name: string;

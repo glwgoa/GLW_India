@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import type { BookingRow, BookingStatus } from "@/types/booking";
+import type { BookingProduct, BookingRow, BookingStatus } from "@/types/booking";
 import type { Profile } from "@/types/profile";
 import type { TablesUpdate } from "@/types/supabase";
 import { isPrivileged } from "@/lib/auth/roles";
@@ -45,7 +45,7 @@ export function BookingsTable({
   profile: Profile;
   vendors: { id: string; name: string }[];
   regions: { id: string; name: string }[];
-  products: { id: string; name: string; sale_price: number | null; category: string | null }[];
+  products: BookingProduct[];
   refresh: () => void | Promise<void>;
 }) {
   const canAssignVendor = isPrivileged(profile.role) || profile.role === "project_manager";

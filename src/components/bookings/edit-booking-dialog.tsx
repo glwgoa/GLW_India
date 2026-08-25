@@ -31,9 +31,7 @@ import {
   needsCustomerContact,
 } from "@/lib/booking-yacht";
 import { BRAND_NAMES } from "@/lib/brands";
-import type { BookingRow, BookingStatus, TransportType } from "@/types/booking";
-
-type Product = { id: string; name: string; sale_price: number | null; category: string | null };
+import type { BookingProduct, BookingRow, BookingStatus, TransportType } from "@/types/booking";
 
 const TRANSPORT_TYPE_LABEL: Record<TransportType, string> = {
   pickup_drop: "Pickup/Drop",
@@ -73,7 +71,7 @@ export function EditBookingDialog({
   booking: BookingRow;
   vendors: { id: string; name: string }[];
   regions: { id: string; name: string }[];
-  products: Product[];
+  products: BookingProduct[];
   onSaved: () => void | Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
@@ -100,6 +98,9 @@ export function EditBookingDialog({
     const product = products.find((p) => p.id === id);
     if (product?.sale_price != null) {
       setSalePrice(String(product.sale_price));
+    }
+    if (product?.vendor_id) {
+      setVendorId(product.vendor_id);
     }
     if (product?.category !== YACHT_CATEGORY_NAME) {
       setAddOns([]);

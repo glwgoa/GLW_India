@@ -32,9 +32,7 @@ import {
   needsCustomerContact,
 } from "@/lib/booking-yacht";
 import { BRAND_NAMES } from "@/lib/brands";
-import type { TransportType } from "@/types/booking";
-
-type Product = { id: string; name: string; sale_price: number | null; category: string | null };
+import type { BookingProduct, TransportType } from "@/types/booking";
 
 const TRANSPORT_TYPE_LABEL: Record<TransportType, string> = {
   pickup_drop: "Pickup/Drop",
@@ -57,7 +55,7 @@ export function NewBookingDialog({
 }: {
   vendors: { id: string; name: string }[];
   regions: { id: string; name: string }[];
-  products: Product[];
+  products: BookingProduct[];
   /** Pre-select a product (and its sale price) when the dialog opens. */
   initialProductId?: string;
   /** Custom trigger element; defaults to a small "Add booking" button. */
@@ -103,6 +101,9 @@ export function NewBookingDialog({
     const product = products.find((p) => p.id === id);
     if (product?.sale_price != null) {
       setSalePrice(String(product.sale_price));
+    }
+    if (product?.vendor_id) {
+      setVendorId(product.vendor_id);
     }
   }
 
