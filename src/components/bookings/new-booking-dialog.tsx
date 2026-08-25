@@ -24,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  BOOKING_CATEGORIES,
   DINNER_CRUISE_CATEGORY_NAME,
   YACHT_ADD_ONS,
   YACHT_CATEGORY_NAME,
@@ -66,6 +67,10 @@ export function NewBookingDialog({
   const [submitting, setSubmitting] = useState(false);
   const [vendorId, setVendorId] = useState<string>("");
   const [regionId, setRegionId] = useState<string>("");
+  const [category, setCategory] = useState<string>(() => {
+    const product = products.find((p) => p.id === initialProductId);
+    return product?.category ?? "";
+  });
   const [productId, setProductId] = useState<string>(initialProductId ?? "");
   const [salePrice, setSalePrice] = useState<string>(() => {
     const product = products.find((p) => p.id === initialProductId);
@@ -74,23 +79,25 @@ export function NewBookingDialog({
   const [addOns, setAddOns] = useState<string[]>([]);
   const [transportType, setTransportType] = useState<string>("");
 
-  const selectedProduct = products.find((p) => p.id === productId);
-  const isYacht = selectedProduct?.category === YACHT_CATEGORY_NAME;
-  const isDinnerCruise = selectedProduct?.category === DINNER_CRUISE_CATEGORY_NAME;
-  const showContactNumber = needsCustomerContact(selectedProduct?.category);
+  const filteredProducts = category ? products.filter((p) => p.category === category) : products;
+  const isYacht = category === YACHT_CATEGORY_NAME;
+  const isDinnerCruise = category === DINNER_CRUISE_CATEGORY_NAME;
+  const showContactNumber = needsCustomerContact(category);
   const isPickupDrop = transportType === "pickup_drop";
+
+  function handleCategoryChange(value: string) {
+    setCategory(value);
+    setProductId("");
+    setSalePrice("");
+    setAddOns([]);
+    setTransportType("");
+  }
 
   function handleProductChange(id: string) {
     setProductId(id);
     const product = products.find((p) => p.id === id);
     if (product?.sale_price != null) {
       setSalePrice(String(product.sale_price));
-    }
-    if (product?.category !== YACHT_CATEGORY_NAME) {
-      setAddOns([]);
-    }
-    if (product?.category !== DINNER_CRUISE_CATEGORY_NAME) {
-      setTransportType("");
     }
   }
 
@@ -164,6 +171,7 @@ export function NewBookingDialog({
     setRegionId("");
     setProductId(initialProductId ?? "");
     const resetProduct = products.find((p) => p.id === initialProductId);
+    setCategory(resetProduct?.category ?? "");
     setSalePrice(resetProduct?.sale_price != null ? String(resetProduct.sale_price) : "");
     setAddOns([]);
     setTransportType("");
@@ -192,6 +200,22 @@ export function NewBookingDialog({
                 <Input id="customerContact" name="customerContact" type="tel" />
               </div>
             )}
+          </div>
+
+          <div className="space-y-2">
+            <Label>Category</Label>
+            <Select value={category} onValueChange={(v) => handleCategoryChange(v ?? "")}>
+              <SelectTrigger>
+                <SelectValue>{(value: string) => value || "Select category"}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {BOOKING_CATEGORIES.map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -237,11 +261,11 @@ export function NewBookingDialog({
               <Select value={productId} onValueChange={(v) => handleProductChange(v ?? "")}>
                 <SelectTrigger>
                   <SelectValue>
-                    {(value: string) => products.find((p) => p.id === value)?.name ?? "Optional"}
+                    {(value: string) => filteredProducts.find((p) => p.id === value)?.name ?? "Optional"}
                   </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {products.map((p) => (
+                  {filteredProducts.map((p) => (
                     <SelectItem key={p.id} value={p.id}>
                       {p.name}
                     </SelectItem>
