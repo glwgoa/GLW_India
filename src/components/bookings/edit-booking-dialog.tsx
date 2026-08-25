@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import {
   DINNER_CRUISE_CATEGORY_NAME,
+  SUNSET_CRUISE_CATEGORY_NAME,
   YACHT_ADD_ONS,
   YACHT_CATEGORY_NAME,
   needsCustomerContact,
@@ -89,6 +90,8 @@ export function EditBookingDialog({
   const selectedProduct = products.find((p) => p.id === productId);
   const isYacht = selectedProduct?.category === YACHT_CATEGORY_NAME;
   const isDinnerCruise = selectedProduct?.category === DINNER_CRUISE_CATEGORY_NAME;
+  const isSunsetCruise = selectedProduct?.category === SUNSET_CRUISE_CATEGORY_NAME;
+  const isPerGuestPricing = isDinnerCruise || isSunsetCruise;
   const showContactNumber = needsCustomerContact(selectedProduct?.category);
   const isPickupDrop = transportType === "pickup_drop";
 
@@ -272,7 +275,7 @@ export function EditBookingDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="salePrice">{isDinnerCruise ? "Sale price per guest (₹)" : "Sale price (₹)"}</Label>
+              <Label htmlFor="salePrice">{isPerGuestPricing ? "Sale price per guest (₹)" : "Sale price (₹)"}</Label>
               <Input
                 id="salePrice"
                 name="salePrice"
@@ -282,7 +285,7 @@ export function EditBookingDialog({
                 onChange={(e) => setSalePrice(e.target.value)}
                 placeholder="Manually set or overridden"
               />
-              {isDinnerCruise && (
+              {isPerGuestPricing && (
                 <p className="text-xs text-muted-foreground">Multiplied by number of guests below.</p>
               )}
             </div>

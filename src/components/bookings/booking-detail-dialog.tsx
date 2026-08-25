@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
+import { toast } from "sonner";
 import {
   Building2,
   CalendarClock,
@@ -17,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { computeProfit, effectiveB2bPrice, effectiveSalePrice } from "@/lib/booking-pricing";
 import { BOOKING_STATUS_LABEL, bookingCategoryDetails } from "@/lib/booking-display";
+import { generateBookingConfirmation } from "@/lib/booking-confirmation";
 import {
   DINNER_CRUISE_CATEGORY_NAME,
   SUNSET_CRUISE_CATEGORY_NAME,
@@ -107,6 +109,20 @@ export function BookingDetailDialog({
     color: "var(--chart-3)",
   };
   const CategoryIcon = visual.icon;
+
+  async function handleCopyConfirmation() {
+    const text = generateBookingConfirmation(booking);
+    if (!text) {
+      toast.error("No confirmation template for this booking's category yet");
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success("Confirmation copied to clipboard");
+    } catch {
+      toast.error("Could not copy to clipboard");
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -217,7 +233,7 @@ export function BookingDetailDialog({
             animate="visible"
             variants={shouldAnimate ? childVariants : undefined}
           >
-            <Button type="button" className="w-full">
+            <Button type="button" className="w-full" onClick={handleCopyConfirmation}>
               <Copy />
               Copy confirmation
             </Button>

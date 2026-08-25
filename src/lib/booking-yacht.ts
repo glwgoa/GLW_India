@@ -19,3 +19,8 @@ export function needsCustomerContact(category: string | null | undefined) {
     category === SUNSET_CRUISE_CATEGORY_NAME
   );
 }
+
+/** Dinner Cruise and Sunset Cruise products have a fixed guest reporting time. */
+export function needsReportingTime(category: string | null | undefined) {
+  return category === DINNER_CRUISE_CATEGORY_NAME || category === SUNSET_CRUISE_CATEGORY_NAME;
+}

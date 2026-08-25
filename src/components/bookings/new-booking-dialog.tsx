@@ -26,6 +26,7 @@ import {
 import {
   BOOKING_CATEGORIES,
   DINNER_CRUISE_CATEGORY_NAME,
+  SUNSET_CRUISE_CATEGORY_NAME,
   YACHT_ADD_ONS,
   YACHT_CATEGORY_NAME,
   needsCustomerContact,
@@ -84,6 +85,8 @@ export function NewBookingDialog({
   const filteredProducts = category ? products.filter((p) => p.category === category) : products;
   const isYacht = category === YACHT_CATEGORY_NAME;
   const isDinnerCruise = category === DINNER_CRUISE_CATEGORY_NAME;
+  const isSunsetCruise = category === SUNSET_CRUISE_CATEGORY_NAME;
+  const isPerGuestPricing = isDinnerCruise || isSunsetCruise;
   const showContactNumber = needsCustomerContact(category);
   const isPickupDrop = transportType === "pickup_drop";
 
@@ -293,7 +296,7 @@ export function NewBookingDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="salePrice">{isDinnerCruise ? "Sale price per guest (₹)" : "Sale price (₹)"}</Label>
+              <Label htmlFor="salePrice">{isPerGuestPricing ? "Sale price per guest (₹)" : "Sale price (₹)"}</Label>
               <Input
                 id="salePrice"
                 name="salePrice"
@@ -303,7 +306,7 @@ export function NewBookingDialog({
                 onChange={(e) => setSalePrice(e.target.value)}
                 placeholder="Manually set or overridden"
               />
-              {isDinnerCruise && (
+              {isPerGuestPricing && (
                 <p className="text-xs text-muted-foreground">Multiplied by number of guests below.</p>
               )}
             </div>

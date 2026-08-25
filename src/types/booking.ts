@@ -30,6 +30,13 @@ export type BookingRow = {
   brand: string | null;
   created_at: string;
   region: { name: string } | null;
-  vendor: { name: string } | null;
-  item: { name: string; b2b_price: number | null; category: string | null } | null;
+  vendor: { name: string; contact_phone: string | null } | null;
+  item: {
+    name: string;
+    b2b_price: number | null;
+    category: string | null;
+    reporting_time: string | null;
+    jetty_name: string | null;
+    jetty_location_url: string | null;
+  } | null;
 };

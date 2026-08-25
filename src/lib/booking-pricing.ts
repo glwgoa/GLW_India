@@ -1,15 +1,17 @@
-import { DINNER_CRUISE_CATEGORY_NAME } from "@/lib/booking-yacht";
+import { DINNER_CRUISE_CATEGORY_NAME, SUNSET_CRUISE_CATEGORY_NAME } from "@/lib/booking-yacht";
 import type { BookingRow } from "@/types/booking";
 
 /**
- * For Dinner Cruise bookings, sale price and B2B price are entered per
- * guest — multiply by guest_count to get the booking's actual totals.
- * Other categories treat sale_price/b2b_price as flat, already-total
- * amounts (guest_count multiplier of 1).
+ * For Dinner Cruise and Sunset Cruise bookings, sale price and B2B price
+ * are entered per guest — multiply by guest_count to get the booking's
+ * actual totals. Private Yachts treat sale_price/b2b_price as flat,
+ * already-total amounts (guest_count multiplier of 1).
  */
 function guestMultiplier(booking: Pick<BookingRow, "item" | "guest_count">) {
-  const isDinnerCruise = booking.item?.category === DINNER_CRUISE_CATEGORY_NAME;
-  return isDinnerCruise && booking.guest_count ? booking.guest_count : 1;
+  const isPerGuest =
+    booking.item?.category === DINNER_CRUISE_CATEGORY_NAME ||
+    booking.item?.category === SUNSET_CRUISE_CATEGORY_NAME;
+  return isPerGuest && booking.guest_count ? booking.guest_count : 1;
 }
 
 export function effectiveSalePrice(

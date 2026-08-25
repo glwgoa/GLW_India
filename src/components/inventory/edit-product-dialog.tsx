@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DINNER_CRUISE_CATEGORY_NAME } from "@/lib/booking-yacht";
+import { needsReportingTime } from "@/lib/booking-yacht";
 import type { InventoryRow } from "@/hooks/use-realtime-inventory";
 
 export function EditProductDialog({
@@ -43,7 +43,7 @@ export function EditProductDialog({
   const [submitting, setSubmitting] = useState(false);
   const [vendorId, setVendorId] = useState<string>(item.vendor_id ?? "");
   const [category, setCategory] = useState<string>(item.category ?? "");
-  const isDinnerCruise = category === DINNER_CRUISE_CATEGORY_NAME;
+  const showReportingTime = needsReportingTime(category);
 
   async function handleSubmit(formData: FormData) {
     setSubmitting(true);
@@ -88,7 +88,7 @@ export function EditProductDialog({
         vendor_id: vendorId || null,
         jetty_name: jettyName,
         jetty_location_url: jettyLocationUrl,
-        reporting_time: isDinnerCruise ? reportingTime : null,
+        reporting_time: showReportingTime ? reportingTime : null,
       })
       .eq("id", itemId);
 
@@ -184,7 +184,7 @@ export function EditProductDialog({
             </div>
           </div>
 
-          {isDinnerCruise && (
+          {showReportingTime && (
             <div className="space-y-2">
               <Label htmlFor="reportingTime">Reporting time</Label>
               <Input

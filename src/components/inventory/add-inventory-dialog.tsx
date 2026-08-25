@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DINNER_CRUISE_CATEGORY_NAME } from "@/lib/booking-yacht";
+import { needsReportingTime } from "@/lib/booking-yacht";
 
 export function AddInventoryDialog({
   vendors,
@@ -41,7 +41,7 @@ export function AddInventoryDialog({
   const [vendorId, setVendorId] = useState<string>("");
   const [regionId, setRegionId] = useState<string>("");
   const [category, setCategory] = useState<string>("");
-  const isDinnerCruise = category === DINNER_CRUISE_CATEGORY_NAME;
+  const showReportingTime = needsReportingTime(category);
 
   async function handleSubmit(formData: FormData) {
     setSubmitting(true);
@@ -99,7 +99,7 @@ export function AddInventoryDialog({
         vendor_id: vendorId,
         jetty_name: jettyName,
         jetty_location_url: jettyLocationUrl,
-        reporting_time: isDinnerCruise ? reportingTime : null,
+        reporting_time: showReportingTime ? reportingTime : null,
       })
       .select("id")
       .single();
@@ -208,7 +208,7 @@ export function AddInventoryDialog({
             </div>
           </div>
 
-          {isDinnerCruise && (
+          {showReportingTime && (
             <div className="space-y-2">
               <Label htmlFor="reportingTime">Reporting time</Label>
               <Input id="reportingTime" name="reportingTime" type="time" className="max-w-40" />
