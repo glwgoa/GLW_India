@@ -50,6 +50,7 @@ export function bookingCategoryDetails(booking: BookingRow) {
   if (booking.anchorage_hours != null) duration.push(`${booking.anchorage_hours}h anchorage`);
   if (duration.length > 0) parts.push(duration.join(" + "));
   if (booking.guest_count != null) parts.push(`${booking.guest_count} guests`);
+  if (booking.kids_count) parts.push(`${booking.kids_count} kids`);
   if (booking.add_ons && booking.add_ons.length > 0) parts.push(booking.add_ons.join(", "));
   if (booking.transport_type) {
     const label = TRANSPORT_TYPE_LABEL[booking.transport_type];

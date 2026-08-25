@@ -135,6 +135,7 @@ export function NewBookingDialog({
     const sailingHoursRaw = formData.get("sailingHours") as string;
     const anchorageHoursRaw = formData.get("anchorageHours") as string;
     const guestCountRaw = formData.get("guestCount") as string;
+    const kidsCountRaw = formData.get("kidsCount") as string;
     const pickupDropPriceRaw = formData.get("pickupDropPrice") as string;
 
     const { error } = await supabase.from("bookings").insert({
@@ -150,6 +151,7 @@ export function NewBookingDialog({
       booking_date: new Date(date).toISOString(),
       status: "pending",
       guest_count: guestCountRaw ? Number(guestCountRaw) : null,
+      kids_count: isPerGuestPricing && kidsCountRaw ? Number(kidsCountRaw) : null,
       ...(isYacht
         ? {
             start_time: startTime,
@@ -337,9 +339,17 @@ export function NewBookingDialog({
             <Input id="transactionId" name="transactionId" placeholder="Optional" />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="guestCount">Number of guests</Label>
-            <Input id="guestCount" name="guestCount" type="number" min="0" className="max-w-40" />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="guestCount">Number of guests</Label>
+              <Input id="guestCount" name="guestCount" type="number" min="0" className="max-w-40" />
+            </div>
+            {isPerGuestPricing && (
+              <div className="space-y-2">
+                <Label htmlFor="kidsCount">Number of kids (5-10 yrs)</Label>
+                <Input id="kidsCount" name="kidsCount" type="number" min="0" className="max-w-40" />
+              </div>
+            )}
           </div>
 
           {isYacht && (

@@ -33,6 +33,7 @@ export type BookingRow = {
   anchorage_hours: number | null;
   add_ons: string[] | null;
   guest_count: number | null;
+  kids_count: number | null;
   transport_type: TransportType | null;
   pickup_drop_price: number | null;
   brand: string | null;
@@ -43,6 +44,8 @@ export type BookingRow = {
   item: {
     name: string;
     b2b_price: number | null;
+    kids_b2b_price: number | null;
+    kids_sale_price: number | null;
     category: string | null;
     reporting_time: string | null;
     jetty_name: string | null;

@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { needsReportingTime } from "@/lib/booking-yacht";
+import { needsKidsPricing, needsReportingTime } from "@/lib/booking-yacht";
 
 export function AddInventoryDialog({
   vendors,
@@ -42,6 +42,7 @@ export function AddInventoryDialog({
   const [regionId, setRegionId] = useState<string>("");
   const [category, setCategory] = useState<string>("");
   const showReportingTime = needsReportingTime(category);
+  const showKidsPricing = needsKidsPricing(category);
 
   async function handleSubmit(formData: FormData) {
     setSubmitting(true);
@@ -52,6 +53,8 @@ export function AddInventoryDialog({
     const imageFile = formData.get("imageFile") as File | null;
     const b2bPrice = Number(formData.get("b2bPrice"));
     const salePrice = Number(formData.get("salePrice"));
+    const kidsB2bPriceRaw = formData.get("kidsB2bPrice") as string;
+    const kidsSalePriceRaw = formData.get("kidsSalePrice") as string;
     const stockQuantity = Number(formData.get("stockQuantity"));
     const jettyName = (formData.get("jettyName") as string) || null;
     const jettyLocationUrl = (formData.get("jettyLocationUrl") as string) || null;
@@ -96,6 +99,8 @@ export function AddInventoryDialog({
         image_url: imageUrl,
         b2b_price: b2bPrice,
         sale_price: salePrice,
+        kids_b2b_price: showKidsPricing && kidsB2bPriceRaw ? Number(kidsB2bPriceRaw) : null,
+        kids_sale_price: showKidsPricing && kidsSalePriceRaw ? Number(kidsSalePriceRaw) : null,
         vendor_id: vendorId,
         jetty_name: jettyName,
         jetty_location_url: jettyLocationUrl,
@@ -229,6 +234,19 @@ export function AddInventoryDialog({
               <Input id="stockQuantity" name="stockQuantity" type="number" required />
             </div>
           </div>
+
+          {showKidsPricing && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="kidsB2bPrice">Kids (5 yrs - 10 yrs) B2B price</Label>
+                <Input id="kidsB2bPrice" name="kidsB2bPrice" type="number" step="0.01" placeholder="Optional" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="kidsSalePrice">Kids (5 yrs - 10 yrs) sale price</Label>
+                <Input id="kidsSalePrice" name="kidsSalePrice" type="number" step="0.01" placeholder="Optional" />
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label>Region</Label>

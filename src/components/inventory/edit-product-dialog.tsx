@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { needsReportingTime } from "@/lib/booking-yacht";
+import { needsKidsPricing, needsReportingTime } from "@/lib/booking-yacht";
 import type { InventoryRow } from "@/hooks/use-realtime-inventory";
 
 export function EditProductDialog({
@@ -44,6 +44,7 @@ export function EditProductDialog({
   const [vendorId, setVendorId] = useState<string>(item.vendor_id ?? "");
   const [category, setCategory] = useState<string>(item.category ?? "");
   const showReportingTime = needsReportingTime(category);
+  const showKidsPricing = needsKidsPricing(category);
 
   async function handleSubmit(formData: FormData) {
     setSubmitting(true);
@@ -54,6 +55,8 @@ export function EditProductDialog({
     const imageFile = formData.get("imageFile") as File | null;
     const b2bPrice = Number(formData.get("b2bPrice"));
     const salePrice = Number(formData.get("salePrice"));
+    const kidsB2bPriceRaw = formData.get("kidsB2bPrice") as string;
+    const kidsSalePriceRaw = formData.get("kidsSalePrice") as string;
     const jettyName = (formData.get("jettyName") as string) || null;
     const jettyLocationUrl = (formData.get("jettyLocationUrl") as string) || null;
     const reportingTime = (formData.get("reportingTime") as string) || null;
@@ -85,6 +88,8 @@ export function EditProductDialog({
         image_url: imageUrl,
         b2b_price: b2bPrice,
         sale_price: salePrice,
+        kids_b2b_price: showKidsPricing && kidsB2bPriceRaw ? Number(kidsB2bPriceRaw) : null,
+        kids_sale_price: showKidsPricing && kidsSalePriceRaw ? Number(kidsSalePriceRaw) : null,
         vendor_id: vendorId || null,
         jetty_name: jettyName,
         jetty_location_url: jettyLocationUrl,
@@ -221,6 +226,33 @@ export function EditProductDialog({
               />
             </div>
           </div>
+
+          {showKidsPricing && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="kidsB2bPrice">Kids (5 yrs - 10 yrs) B2B price</Label>
+                <Input
+                  id="kidsB2bPrice"
+                  name="kidsB2bPrice"
+                  type="number"
+                  step="0.01"
+                  defaultValue={item.kids_b2b_price ?? ""}
+                  placeholder="Optional"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="kidsSalePrice">Kids (5 yrs - 10 yrs) sale price</Label>
+                <Input
+                  id="kidsSalePrice"
+                  name="kidsSalePrice"
+                  type="number"
+                  step="0.01"
+                  defaultValue={item.kids_sale_price ?? ""}
+                  placeholder="Optional"
+                />
+              </div>
+            </div>
+          )}
 
           <DialogFooter>
             <Button type="submit" disabled={submitting}>

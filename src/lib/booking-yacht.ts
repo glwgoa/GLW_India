@@ -20,7 +20,20 @@ export function needsCustomerContact(category: string | null | undefined) {
   );
 }
 
-/** Dinner Cruise and Sunset Cruise products have a fixed guest reporting time. */
-export function needsReportingTime(category: string | null | undefined) {
+/**
+ * Dinner Cruise and Sunset Cruise price per person (adult + a separate kids
+ * rate) rather than a flat per-booking amount, and their products carry a
+ * fixed guest reporting time.
+ */
+export function isPerGuestCategory(category: string | null | undefined) {
   return category === DINNER_CRUISE_CATEGORY_NAME || category === SUNSET_CRUISE_CATEGORY_NAME;
+}
+
+export function needsReportingTime(category: string | null | undefined) {
+  return isPerGuestCategory(category);
+}
+
+/** Kids (5-10 yrs) get a separate B2B/sale price for these categories. */
+export function needsKidsPricing(category: string | null | undefined) {
+  return isPerGuestCategory(category);
 }

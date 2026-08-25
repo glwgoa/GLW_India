@@ -138,6 +138,7 @@ export function EditBookingDialog({
     const sailingHoursRaw = formData.get("sailingHours") as string;
     const anchorageHoursRaw = formData.get("anchorageHours") as string;
     const guestCountRaw = formData.get("guestCount") as string;
+    const kidsCountRaw = formData.get("kidsCount") as string;
     const pickupDropPriceRaw = formData.get("pickupDropPrice") as string;
 
     const { error } = await supabase
@@ -160,6 +161,7 @@ export function EditBookingDialog({
         anchorage_hours: isYacht && anchorageHoursRaw ? Number(anchorageHoursRaw) : null,
         add_ons: isYacht && addOns.length > 0 ? addOns : null,
         guest_count: guestCountRaw ? Number(guestCountRaw) : null,
+        kids_count: isPerGuestPricing && kidsCountRaw ? Number(kidsCountRaw) : null,
         transport_type: isDinnerCruise ? transportType || null : null,
         pickup_drop_price:
           isDinnerCruise && isPickupDrop && pickupDropPriceRaw ? Number(pickupDropPriceRaw) : null,
@@ -344,16 +346,31 @@ export function EditBookingDialog({
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="guestCount">Number of guests</Label>
-            <Input
-              id="guestCount"
-              name="guestCount"
-              type="number"
-              min="0"
-              className="max-w-40"
-              defaultValue={booking.guest_count ?? ""}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="guestCount">Number of guests</Label>
+              <Input
+                id="guestCount"
+                name="guestCount"
+                type="number"
+                min="0"
+                className="max-w-40"
+                defaultValue={booking.guest_count ?? ""}
+              />
+            </div>
+            {isPerGuestPricing && (
+              <div className="space-y-2">
+                <Label htmlFor="kidsCount">Number of kids (5-10 yrs)</Label>
+                <Input
+                  id="kidsCount"
+                  name="kidsCount"
+                  type="number"
+                  min="0"
+                  className="max-w-40"
+                  defaultValue={booking.kids_count ?? ""}
+                />
+              </div>
+            )}
           </div>
 
           {isYacht && (
