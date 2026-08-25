@@ -12,18 +12,6 @@ function guestMultiplier(booking: Pick<BookingRow, "item" | "guest_count">) {
   return isPerGuest && booking.guest_count ? booking.guest_count : 1;
 }
 
-/**
- * Kids (5-10 yrs) don't add to the sale price or the displayed B2B
- * price — they're not charged separately and their cost isn't shown as
- * part of what the vendor is paid. They only reduce profit: what the
- * vendor charges per kid (kids_b2b_price) is a pure cost.
- */
-function kidsB2bCost(booking: Pick<BookingRow, "item" | "kids_count">) {
-  if (!isPerGuestCategory(booking.item?.category)) return 0;
-  const kids = booking.kids_count ?? 0;
-  return kids > 0 ? (booking.item?.kids_b2b_price ?? 0) * kids : 0;
-}
-
 export function effectiveSalePrice(
   booking: Pick<BookingRow, "item" | "guest_count" | "sale_price">,
 ) {
@@ -47,6 +35,13 @@ export function effectiveB2bPrice(
   return base + extra;
 }
 
+/**
+ * For Dinner Cruise / Sunset Cruise bookings with kids, profit is
+ * Sale price − (B2B price × kids) − (Kids B2B price × kids) — both B2B
+ * costs scale with the number of kids, not the adult guest count.
+ * Everything else (no kids, or Private Yachts) uses the normal
+ * Sale price − B2B price.
+ */
 export function computeProfit(
   booking: Pick<
     BookingRow,
@@ -54,7 +49,16 @@ export function computeProfit(
   >,
 ) {
   const salePrice = effectiveSalePrice(booking);
+  if (salePrice == null) return null;
+
+  const kids = isPerGuestCategory(booking.item?.category) ? (booking.kids_count ?? 0) : 0;
+  if (kids > 0) {
+    const b2bPrice = booking.item?.b2b_price ?? 0;
+    const kidsB2bPrice = booking.item?.kids_b2b_price ?? 0;
+    return salePrice - kids * b2bPrice - kids * kidsB2bPrice;
+  }
+
   const b2bPrice = effectiveB2bPrice(booking);
-  if (salePrice == null || b2bPrice == null) return null;
-  return salePrice - b2bPrice - kidsB2bCost(booking);
+  if (b2bPrice == null) return null;
+  return salePrice - b2bPrice;
 }
