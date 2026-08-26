@@ -72,8 +72,8 @@ Number of Guests: ${booking.guest_count ?? "—"}
 
 Price: ${formatCurrency(salePrice)}
 Advance: ${formatCurrency(booking.advance_amount)}
-Balance Amount: ${formatCurrency(balance)}
-
+${isSunset ? "Balance Amount:" : "*Balance Amount:*"} ${formatCurrency(balance)}
+${!isSunset && booking.transport_type === "pickup_drop" ? "\n📍 Pick-up Time: 7:00 PM onwards\n" : ""}
 📍 Reporting Time: ${booking.item?.reporting_time ? formatBookingTime(booking.item.reporting_time) : "—"}
 
 📍 Reporting Location:
