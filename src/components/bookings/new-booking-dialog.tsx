@@ -77,6 +77,10 @@ export function NewBookingDialog({
     const product = products.find((p) => p.id === initialProductId);
     return product?.sale_price != null ? String(product.sale_price) : "";
   });
+  const [kidsPrice, setKidsPrice] = useState<string>(() => {
+    const product = products.find((p) => p.id === initialProductId);
+    return product?.kids_sale_price != null ? String(product.kids_sale_price) : "";
+  });
   const [addOns, setAddOns] = useState<string[]>([]);
   const [transportType, setTransportType] = useState<string>("");
 
@@ -92,6 +96,7 @@ export function NewBookingDialog({
     setCategory(value);
     setProductId("");
     setSalePrice("");
+    setKidsPrice("");
     setAddOns([]);
     setTransportType("");
   }
@@ -102,6 +107,7 @@ export function NewBookingDialog({
     if (product?.sale_price != null) {
       setSalePrice(String(product.sale_price));
     }
+    setKidsPrice(product?.kids_sale_price != null ? String(product.kids_sale_price) : "");
     if (product?.vendor_id) {
       setVendorId(product.vendor_id);
     }
@@ -128,6 +134,7 @@ export function NewBookingDialog({
     const customerName = formData.get("customerName") as string;
     const customerContact = (formData.get("customerContact") as string) || null;
     const priceRaw = formData.get("salePrice") as string;
+    const kidsPriceRaw = formData.get("kidsPrice") as string;
     const advanceRaw = formData.get("advanceAmount") as string;
     const transactionId = (formData.get("transactionId") as string) || null;
     const startTime = (formData.get("startTime") as string) || null;
@@ -146,6 +153,7 @@ export function NewBookingDialog({
       assigned_vendor_id: vendorId || null,
       item_id: productId || null,
       sale_price: priceRaw ? Number(priceRaw) : null,
+      kids_price: isDinnerCruise && kidsPriceRaw ? Number(kidsPriceRaw) : null,
       advance_amount: advanceRaw ? Number(advanceRaw) : null,
       transaction_id: transactionId,
       booking_date: new Date(date).toISOString(),
@@ -185,6 +193,7 @@ export function NewBookingDialog({
     const resetProduct = products.find((p) => p.id === initialProductId);
     setCategory(resetProduct?.category ?? "");
     setSalePrice(resetProduct?.sale_price != null ? String(resetProduct.sale_price) : "");
+    setKidsPrice(resetProduct?.kids_sale_price != null ? String(resetProduct.kids_sale_price) : "");
     setAddOns([]);
     setTransportType("");
     await onAdded();
@@ -351,6 +360,22 @@ export function NewBookingDialog({
               </div>
             )}
           </div>
+
+          {isDinnerCruise && (
+            <div className="space-y-2">
+              <Label htmlFor="kidsPrice">Kids price (5yrs to 10yrs) (₹)</Label>
+              <Input
+                id="kidsPrice"
+                name="kidsPrice"
+                type="number"
+                step="0.01"
+                className="max-w-60"
+                value={kidsPrice}
+                onChange={(e) => setKidsPrice(e.target.value)}
+                placeholder="Optional"
+              />
+            </div>
+          )}
 
           {isYacht && (
             <div className="space-y-4 border-t pt-4">

@@ -61,6 +61,7 @@ export function ProductDetailDialog({
           id: row.item_id,
           name: item.name,
           sale_price: item.sale_price,
+          kids_sale_price: item.kids_sale_price,
           category: item.category,
           vendor_id: item.vendor_id,
         },

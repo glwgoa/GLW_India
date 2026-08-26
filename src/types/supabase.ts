@@ -78,6 +78,7 @@ export type Database = {
           id: string
           item_id: string | null
           kids_count: number | null
+          kids_price: number | null
           pickup_drop_price: number | null
           region_id: string | null
           sailing_hours: number | null
@@ -102,6 +103,7 @@ export type Database = {
           id?: string
           item_id?: string | null
           kids_count?: number | null
+          kids_price?: number | null
           pickup_drop_price?: number | null
           region_id?: string | null
           sailing_hours?: number | null
@@ -126,6 +128,7 @@ export type Database = {
           id?: string
           item_id?: string | null
           kids_count?: number | null
+          kids_price?: number | null
           pickup_drop_price?: number | null
           region_id?: string | null
           sailing_hours?: number | null

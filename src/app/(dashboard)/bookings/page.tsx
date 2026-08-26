@@ -25,12 +25,16 @@ export default async function BookingsPage() {
         ? supabase.from("regions").select("id, name").order("name")
         : Promise.resolve({ data: [] as { id: string; name: string }[] }),
       canAssignVendor
-        ? supabase.from("catalog_items").select("id, name, sale_price, category, vendor_id").order("name")
+        ? supabase
+            .from("catalog_items")
+            .select("id, name, sale_price, kids_sale_price, category, vendor_id")
+            .order("name")
         : Promise.resolve({
             data: [] as {
               id: string;
               name: string;
               sale_price: number | null;
+              kids_sale_price: number | null;
               category: string | null;
               vendor_id: string | null;
             }[],

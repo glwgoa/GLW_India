@@ -12,6 +12,7 @@ export type BookingProduct = {
   id: string;
   name: string;
   sale_price: number | null;
+  kids_sale_price: number | null;
   category: string | null;
   vendor_id: string | null;
 };
@@ -34,6 +35,7 @@ export type BookingRow = {
   add_ons: string[] | null;
   guest_count: number | null;
   kids_count: number | null;
+  kids_price: number | null;
   transport_type: TransportType | null;
   pickup_drop_price: number | null;
   brand: string | null;

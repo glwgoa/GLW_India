@@ -81,6 +81,7 @@ export function EditBookingDialog({
   const [brand, setBrand] = useState(booking.brand ?? "");
   const [productId, setProductId] = useState(booking.item_id ?? "");
   const [salePrice, setSalePrice] = useState(booking.sale_price != null ? String(booking.sale_price) : "");
+  const [kidsPrice, setKidsPrice] = useState(booking.kids_price != null ? String(booking.kids_price) : "");
   const [status, setStatus] = useState<BookingStatus>(booking.status);
   const [addOns, setAddOns] = useState<string[]>(booking.add_ons ?? []);
   const [transportType, setTransportType] = useState<string>(booking.transport_type ?? "");
@@ -99,6 +100,7 @@ export function EditBookingDialog({
     if (product?.sale_price != null) {
       setSalePrice(String(product.sale_price));
     }
+    setKidsPrice(product?.kids_sale_price != null ? String(product.kids_sale_price) : "");
     if (product?.vendor_id) {
       setVendorId(product.vendor_id);
     }
@@ -131,6 +133,7 @@ export function EditBookingDialog({
     const customerName = formData.get("customerName") as string;
     const customerContact = (formData.get("customerContact") as string) || null;
     const priceRaw = formData.get("salePrice") as string;
+    const kidsPriceRaw = formData.get("kidsPrice") as string;
     const advanceRaw = formData.get("advanceAmount") as string;
     const transactionId = (formData.get("transactionId") as string) || null;
     const startTime = (formData.get("startTime") as string) || null;
@@ -151,6 +154,7 @@ export function EditBookingDialog({
         assigned_vendor_id: vendorId || null,
         item_id: productId || null,
         sale_price: priceRaw ? Number(priceRaw) : null,
+        kids_price: isDinnerCruise && kidsPriceRaw ? Number(kidsPriceRaw) : null,
         advance_amount: advanceRaw ? Number(advanceRaw) : null,
         transaction_id: transactionId,
         booking_date: new Date(date).toISOString(),
@@ -372,6 +376,22 @@ export function EditBookingDialog({
               </div>
             )}
           </div>
+
+          {isDinnerCruise && (
+            <div className="space-y-2">
+              <Label htmlFor="kidsPrice">Kids price (5yrs to 10yrs) (₹)</Label>
+              <Input
+                id="kidsPrice"
+                name="kidsPrice"
+                type="number"
+                step="0.01"
+                className="max-w-60"
+                value={kidsPrice}
+                onChange={(e) => setKidsPrice(e.target.value)}
+                placeholder="Optional"
+              />
+            </div>
+          )}
 
           {isYacht && (
             <div className="space-y-4 border-t pt-4">
