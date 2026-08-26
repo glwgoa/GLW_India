@@ -135,6 +135,7 @@ export function NewBookingDialog({
     const customerContact = (formData.get("customerContact") as string) || null;
     const priceRaw = formData.get("salePrice") as string;
     const kidsPriceRaw = formData.get("kidsPrice") as string;
+    const kidsBelow5CountRaw = formData.get("kidsBelow5Count") as string;
     const advanceRaw = formData.get("advanceAmount") as string;
     const transactionId = (formData.get("transactionId") as string) || null;
     const startTime = (formData.get("startTime") as string) || null;
@@ -154,6 +155,7 @@ export function NewBookingDialog({
       item_id: productId || null,
       sale_price: priceRaw ? Number(priceRaw) : null,
       kids_price: isDinnerCruise && kidsPriceRaw ? Number(kidsPriceRaw) : null,
+      kids_below_5_count: isDinnerCruise && kidsBelow5CountRaw ? Number(kidsBelow5CountRaw) : null,
       advance_amount: advanceRaw ? Number(advanceRaw) : null,
       transaction_id: transactionId,
       booking_date: new Date(date).toISOString(),
@@ -362,18 +364,23 @@ export function NewBookingDialog({
           </div>
 
           {isDinnerCruise && (
-            <div className="space-y-2">
-              <Label htmlFor="kidsPrice">Kids price (5yrs to 10yrs) (₹)</Label>
-              <Input
-                id="kidsPrice"
-                name="kidsPrice"
-                type="number"
-                step="0.01"
-                className="max-w-60"
-                value={kidsPrice}
-                onChange={(e) => setKidsPrice(e.target.value)}
-                placeholder="Optional"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="kidsPrice">Kids price (5yrs to 10yrs) (₹)</Label>
+                <Input
+                  id="kidsPrice"
+                  name="kidsPrice"
+                  type="number"
+                  step="0.01"
+                  value={kidsPrice}
+                  onChange={(e) => setKidsPrice(e.target.value)}
+                  placeholder="Optional"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="kidsBelow5Count">Kids Below 5yrs</Label>
+                <Input id="kidsBelow5Count" name="kidsBelow5Count" type="number" min="0" placeholder="Optional" />
+              </div>
             </div>
           )}
 

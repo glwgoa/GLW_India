@@ -77,6 +77,7 @@ export type Database = {
           guest_count: number | null
           id: string
           item_id: string | null
+          kids_below_5_count: number | null
           kids_count: number | null
           kids_price: number | null
           pickup_drop_price: number | null
@@ -102,6 +103,7 @@ export type Database = {
           guest_count?: number | null
           id?: string
           item_id?: string | null
+          kids_below_5_count?: number | null
           kids_count?: number | null
           kids_price?: number | null
           pickup_drop_price?: number | null
@@ -127,6 +129,7 @@ export type Database = {
           guest_count?: number | null
           id?: string
           item_id?: string | null
+          kids_below_5_count?: number | null
           kids_count?: number | null
           kids_price?: number | null
           pickup_drop_price?: number | null
