@@ -39,25 +39,32 @@ export function effectiveSalePrice(
 
 /**
  * Base B2B price (per guest for Dinner Cruise) times guests, plus the
- * Pickup/Drop transport fee (also per guest) if any — never written back
- * to the shared catalog_items.b2b_price. This is the plain adult-only
- * figure shown as the "B2B price" column.
+ * Pickup/Drop transport fee (also per guest) if any, plus the Kids B2B
+ * cost (kids_b2b_price x number of kids) for Dinner Cruise — never
+ * written back to the shared catalog_items.b2b_price.
  */
 export function effectiveB2bPrice(
-  booking: Pick<BookingRow, "item" | "guest_count" | "transport_type" | "pickup_drop_price">,
+  booking: Pick<
+    BookingRow,
+    "item" | "guest_count" | "kids_count" | "transport_type" | "pickup_drop_price"
+  >,
 ) {
-  if (booking.item?.b2b_price == null) return null;
+  const kidsB2bCost =
+    hasKidsPricing(booking) && booking.kids_count
+      ? (booking.item?.kids_b2b_price ?? 0) * booking.kids_count
+      : 0;
+  if (booking.item?.b2b_price == null) return kidsB2bCost > 0 ? kidsB2bCost : null;
   const multiplier = guestMultiplier(booking);
   const base = booking.item.b2b_price * multiplier;
   const extra =
     booking.transport_type === "pickup_drop" ? (booking.pickup_drop_price ?? 0) * multiplier : 0;
-  return base + extra;
+  return base + extra + kidsB2bCost;
 }
 
 /**
- * Profit = total sale price - [(kids B2B price x number of kids) +
- * (adult B2B price x number of guests)] for Dinner Cruise bookings with
- * kids. Everything else uses the plain sale price - B2B price.
+ * Profit = total sale price - B2B price, where B2B price already
+ * includes the Kids B2B cost for Dinner Cruise bookings (see
+ * effectiveB2bPrice above).
  */
 export function computeProfit(
   booking: Pick<
@@ -72,15 +79,7 @@ export function computeProfit(
   >,
 ) {
   const salePrice = effectiveSalePrice(booking);
-  if (salePrice == null) return null;
-
-  if (hasKidsPricing(booking) && booking.kids_count) {
-    const kidsB2bCost = (booking.item?.kids_b2b_price ?? 0) * booking.kids_count;
-    const adultB2bCost = (booking.item?.b2b_price ?? 0) * guestMultiplier(booking);
-    return salePrice - (kidsB2bCost + adultB2bCost);
-  }
-
   const b2bPrice = effectiveB2bPrice(booking);
-  if (b2bPrice == null) return null;
+  if (salePrice == null || b2bPrice == null) return null;
   return salePrice - b2bPrice;
 }
