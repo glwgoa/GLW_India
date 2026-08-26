@@ -68,7 +68,7 @@ Date: ${formatDate(booking.booking_date)}
 Name: ${booking.customer_name}
 Contact Number: ${booking.customer_contact ?? "—"}
 
-Number of Guests: ${booking.guest_count ?? "—"}
+Number of Guests: ${booking.guest_count ?? "—"}${!isSunset && booking.kids_count ? `\nKids 5yrs to 10yrs: ${booking.kids_count}` : ""}${!isSunset && booking.kids_below_5_count ? `\nkids Below 5yrs: ${booking.kids_below_5_count}` : ""}
 
 Price: ${formatCurrency(salePrice)}
 Advance: ${formatCurrency(booking.advance_amount)}
