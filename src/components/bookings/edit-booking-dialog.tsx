@@ -304,56 +304,6 @@ export function EditBookingDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="bookingDate">Booking date</Label>
-              <Input
-                id="bookingDate"
-                name="bookingDate"
-                type="datetime-local"
-                defaultValue={toDatetimeLocal(booking.booking_date)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="advanceAmount">Advance (₹)</Label>
-              <Input
-                id="advanceAmount"
-                name="advanceAmount"
-                type="number"
-                step="0.01"
-                defaultValue={booking.advance_amount ?? ""}
-                placeholder="Optional"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="transactionId">Transaction ID</Label>
-            <Input
-              id="transactionId"
-              name="transactionId"
-              defaultValue={booking.transaction_id ?? ""}
-              placeholder="Optional"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Status</Label>
-            <Select value={status} onValueChange={(v) => v && setStatus(v as BookingStatus)}>
-              <SelectTrigger>
-                <SelectValue>{(value: string) => BOOKING_STATUS_LABEL[value as BookingStatus]}</SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {BOOKING_STATUSES.map((s) => (
-                  <SelectItem key={s} value={s}>
-                    {BOOKING_STATUS_LABEL[s]}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
               <Label htmlFor="guestCount">Number of guests</Label>
               <Input
                 id="guestCount"
@@ -406,6 +356,56 @@ export function EditBookingDialog({
               </div>
             </div>
           )}
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="bookingDate">Booking date</Label>
+              <Input
+                id="bookingDate"
+                name="bookingDate"
+                type="datetime-local"
+                defaultValue={toDatetimeLocal(booking.booking_date)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="advanceAmount">Advance (₹)</Label>
+              <Input
+                id="advanceAmount"
+                name="advanceAmount"
+                type="number"
+                step="0.01"
+                defaultValue={booking.advance_amount ?? ""}
+                placeholder="Optional"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="transactionId">Transaction ID</Label>
+            <Input
+              id="transactionId"
+              name="transactionId"
+              defaultValue={booking.transaction_id ?? ""}
+              placeholder="Optional"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label>Status</Label>
+            <Select value={status} onValueChange={(v) => v && setStatus(v as BookingStatus)}>
+              <SelectTrigger>
+                <SelectValue>{(value: string) => BOOKING_STATUS_LABEL[value as BookingStatus]}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {BOOKING_STATUSES.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {BOOKING_STATUS_LABEL[s]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           {isYacht && (
             <div className="space-y-4 border-t pt-4">

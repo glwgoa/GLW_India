@@ -330,28 +330,6 @@ export function NewBookingDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="bookingDate">Booking date</Label>
-              <Input id="bookingDate" name="bookingDate" type="datetime-local" required />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="advanceAmount">Advance (₹)</Label>
-              <Input
-                id="advanceAmount"
-                name="advanceAmount"
-                type="number"
-                step="0.01"
-                placeholder="Optional"
-              />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="transactionId">Transaction ID</Label>
-            <Input id="transactionId" name="transactionId" placeholder="Optional" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
               <Label htmlFor="guestCount">Number of guests</Label>
               <Input id="guestCount" name="guestCount" type="number" min="0" className="max-w-40" />
             </div>
@@ -383,6 +361,28 @@ export function NewBookingDialog({
               </div>
             </div>
           )}
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="bookingDate">Booking date</Label>
+              <Input id="bookingDate" name="bookingDate" type="datetime-local" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="advanceAmount">Advance (₹)</Label>
+              <Input
+                id="advanceAmount"
+                name="advanceAmount"
+                type="number"
+                step="0.01"
+                placeholder="Optional"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="transactionId">Transaction ID</Label>
+            <Input id="transactionId" name="transactionId" placeholder="Optional" />
+          </div>
 
           {isYacht && (
             <div className="space-y-4 border-t pt-4">
