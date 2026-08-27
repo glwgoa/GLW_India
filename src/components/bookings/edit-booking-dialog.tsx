@@ -191,7 +191,7 @@ export function EditBookingDialog({
       <DialogTrigger render={<Button variant="ghost" size="icon-sm" aria-label="Edit booking" />}>
         <Pencil />
       </DialogTrigger>
-      <DialogContent className="sm:max-w-lg">
+      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Edit booking</DialogTitle>
           <DialogDescription>Update this booking&apos;s details.</DialogDescription>
