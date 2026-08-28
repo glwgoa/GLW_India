@@ -42,6 +42,7 @@ export function BookingsClient({
   const canCreateBooking =
     isPrivileged(profile.role) || profile.role === "project_manager" || profile.role === "employee";
   const canSeeProfit = isPrivileged(profile.role) || profile.role === "project_manager";
+  const canDownload = isPrivileged(profile.role) || profile.role === "project_manager";
   const [nameFilter, setNameFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
 
@@ -120,7 +121,7 @@ export function BookingsClient({
             <RefreshCw className={refreshing ? "animate-spin" : ""} />
             Refresh
           </Button>
-          <DownloadButton onDownload={handleDownload} />
+          {canDownload && <DownloadButton onDownload={handleDownload} />}
           {canCreateBooking && (
             <NewBookingDialog
               vendors={vendors}
