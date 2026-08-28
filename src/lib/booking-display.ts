@@ -56,7 +56,8 @@ export function bookingCategoryDetails(booking: BookingRow) {
   if (booking.transport_type) {
     const label = TRANSPORT_TYPE_LABEL[booking.transport_type];
     if (booking.transport_type === "pickup_drop" && booking.pickup_drop_price != null) {
-      const total = booking.pickup_drop_price * (booking.guest_count ?? 1);
+      const pickupDropMultiplier = booking.pickup_drop_guest_count ?? booking.guest_count ?? 1;
+      const total = booking.pickup_drop_price * pickupDropMultiplier;
       parts.push(`${label} (+₹${total.toLocaleString("en-IN")})`);
     } else {
       parts.push(label);
