@@ -144,6 +144,7 @@ export function EditBookingDialog({
     const guestCountRaw = formData.get("guestCount") as string;
     const kidsCountRaw = formData.get("kidsCount") as string;
     const pickupDropPriceRaw = formData.get("pickupDropPrice") as string;
+    const pickupDropGuestCountRaw = formData.get("pickupDropGuestCount") as string;
 
     const { error } = await supabase
       .from("bookings")
@@ -171,6 +172,10 @@ export function EditBookingDialog({
         transport_type: isDinnerCruise ? transportType || null : null,
         pickup_drop_price:
           isDinnerCruise && isPickupDrop && pickupDropPriceRaw ? Number(pickupDropPriceRaw) : null,
+        pickup_drop_guest_count:
+          isDinnerCruise && isPickupDrop && pickupDropGuestCountRaw
+            ? Number(pickupDropGuestCountRaw)
+            : null,
       })
       .eq("id", booking.id);
 
@@ -498,6 +503,19 @@ export function EditBookingDialog({
                       type="number"
                       step="0.01"
                       defaultValue={booking.pickup_drop_price ?? ""}
+                    />
+                  </div>
+                )}
+                {isPickupDrop && (
+                  <div className="space-y-2">
+                    <Label htmlFor="pickupDropGuestCount">Number of guests for pickup/drop</Label>
+                    <Input
+                      id="pickupDropGuestCount"
+                      name="pickupDropGuestCount"
+                      type="number"
+                      min="0"
+                      defaultValue={booking.pickup_drop_guest_count ?? ""}
+                      placeholder="Optional"
                     />
                   </div>
                 )}

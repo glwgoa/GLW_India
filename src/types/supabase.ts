@@ -80,6 +80,7 @@ export type Database = {
           kids_below_5_count: number | null
           kids_count: number | null
           kids_price: number | null
+          pickup_drop_guest_count: number | null
           pickup_drop_price: number | null
           region_id: string | null
           sailing_hours: number | null
@@ -106,6 +107,7 @@ export type Database = {
           kids_below_5_count?: number | null
           kids_count?: number | null
           kids_price?: number | null
+          pickup_drop_guest_count?: number | null
           pickup_drop_price?: number | null
           region_id?: string | null
           sailing_hours?: number | null
@@ -132,6 +134,7 @@ export type Database = {
           kids_below_5_count?: number | null
           kids_count?: number | null
           kids_price?: number | null
+          pickup_drop_guest_count?: number | null
           pickup_drop_price?: number | null
           region_id?: string | null
           sailing_hours?: number | null

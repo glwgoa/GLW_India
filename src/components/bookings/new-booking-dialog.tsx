@@ -145,6 +145,7 @@ export function NewBookingDialog({
     const guestCountRaw = formData.get("guestCount") as string;
     const kidsCountRaw = formData.get("kidsCount") as string;
     const pickupDropPriceRaw = formData.get("pickupDropPrice") as string;
+    const pickupDropGuestCountRaw = formData.get("pickupDropGuestCount") as string;
 
     const { error } = await supabase.from("bookings").insert({
       customer_name: customerName,
@@ -175,6 +176,8 @@ export function NewBookingDialog({
         ? {
             transport_type: transportType || null,
             pickup_drop_price: isPickupDrop && pickupDropPriceRaw ? Number(pickupDropPriceRaw) : null,
+            pickup_drop_guest_count:
+              isPickupDrop && pickupDropGuestCountRaw ? Number(pickupDropGuestCountRaw) : null,
           }
         : {}),
     });
@@ -451,6 +454,18 @@ export function NewBookingDialog({
                   <div className="space-y-2">
                     <Label htmlFor="pickupDropPrice">Pickup/Drop price per guest (₹)</Label>
                     <Input id="pickupDropPrice" name="pickupDropPrice" type="number" step="0.01" />
+                  </div>
+                )}
+                {isPickupDrop && (
+                  <div className="space-y-2">
+                    <Label htmlFor="pickupDropGuestCount">Number of guests for pickup/drop</Label>
+                    <Input
+                      id="pickupDropGuestCount"
+                      name="pickupDropGuestCount"
+                      type="number"
+                      min="0"
+                      placeholder="Optional"
+                    />
                   </div>
                 )}
               </div>

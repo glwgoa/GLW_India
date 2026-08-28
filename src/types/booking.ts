@@ -39,6 +39,7 @@ export type BookingRow = {
   kids_below_5_count: number | null;
   transport_type: TransportType | null;
   pickup_drop_price: number | null;
+  pickup_drop_guest_count: number | null;
   brand: string | null;
   transaction_id: string | null;
   created_at: string;
