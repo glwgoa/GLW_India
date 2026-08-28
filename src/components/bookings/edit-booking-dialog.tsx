@@ -163,7 +163,7 @@ export function EditBookingDialog({
         region_id: regionId,
         brand: brand || null,
         assigned_vendor_id: vendorId || null,
-        assigned_employee_id: canAssignEmployee && employeeId ? employeeId : null,
+        assigned_employee_id: canAssignEmployee ? employeeId || null : booking.assigned_employee_id,
         item_id: productId || null,
         sale_price: priceRaw ? Number(priceRaw) : null,
         kids_price: isDinnerCruise && kidsPriceRaw ? Number(kidsPriceRaw) : null,

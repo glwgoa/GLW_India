@@ -162,7 +162,12 @@ export function NewBookingDialog({
       region_id: regionId,
       brand: brand || null,
       assigned_vendor_id: vendorId || null,
-      assigned_employee_id: canAssignEmployee && employeeId ? employeeId : null,
+      assigned_employee_id:
+        canAssignEmployee && employeeId
+          ? employeeId
+          : profile?.role === "employee"
+            ? profile.id
+            : null,
       item_id: productId || null,
       sale_price: priceRaw ? Number(priceRaw) : null,
       kids_price: isDinnerCruise && kidsPriceRaw ? Number(kidsPriceRaw) : null,
