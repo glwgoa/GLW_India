@@ -8,7 +8,8 @@ export default async function BookingsPage() {
   const supabase = await createClient();
   const profile = await getCurrentProfile();
 
-  const canAssignVendor = isPrivileged(profile.role) || profile.role === "project_manager";
+  const canManageBookings =
+    isPrivileged(profile.role) || profile.role === "project_manager" || profile.role === "employee";
 
   const [{ data: bookings }, { data: vendors }, { data: regions }, { data: products }] =
     await Promise.all([
@@ -18,13 +19,13 @@ export default async function BookingsPage() {
           "*, region:regions(name), vendor:vendors(name, contact_phone), item:catalog_items(name, b2b_price, kids_b2b_price, kids_sale_price, category, reporting_time, jetty_name, jetty_location_url)",
         )
         .order("created_at", { ascending: false }),
-      canAssignVendor
+      canManageBookings
         ? supabase.from("vendors").select("id, name").order("name")
         : Promise.resolve({ data: [] as { id: string; name: string }[] }),
-      canAssignVendor
+      canManageBookings
         ? supabase.from("regions").select("id, name").order("name")
         : Promise.resolve({ data: [] as { id: string; name: string }[] }),
-      canAssignVendor
+      canManageBookings
         ? supabase
             .from("catalog_items")
             .select("id, name, sale_price, kids_sale_price, category, vendor_id")

@@ -39,8 +39,9 @@ export function BookingsClient({
   products: BookingProduct[];
 }) {
   const { bookings, setBookings, refresh, refreshing } = usePollingBookings(initialBookings);
-  const canCreateBooking = isPrivileged(profile.role) || profile.role === "project_manager";
-  const canSeeProfit = canCreateBooking;
+  const canCreateBooking =
+    isPrivileged(profile.role) || profile.role === "project_manager" || profile.role === "employee";
+  const canSeeProfit = isPrivileged(profile.role) || profile.role === "project_manager";
   const [nameFilter, setNameFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
 

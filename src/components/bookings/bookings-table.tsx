@@ -48,12 +48,13 @@ export function BookingsTable({
   products: BookingProduct[];
   refresh: () => void | Promise<void>;
 }) {
-  const canAssignVendor = isPrivileged(profile.role) || profile.role === "project_manager";
+  const canManageBookings =
+    isPrivileged(profile.role) || profile.role === "project_manager" || profile.role === "employee";
   const canDelete = isPrivileged(profile.role);
-  const canEdit = canAssignVendor;
-  // Margin over what we pay the vendor — admin/PM only, not shown to the
-  // vendor themselves or other roles.
-  const canSeeProfit = canAssignVendor;
+  const canEdit = canManageBookings;
+  // Margin over what we pay the vendor — admin/PM only, not shown to
+  // employees, the vendor themselves, or other roles.
+  const canSeeProfit = isPrivileged(profile.role) || profile.role === "project_manager";
   const { flashId, flash } = useRowFlash();
   const [selectedBooking, setSelectedBooking] = useState<BookingRow | null>(null);
 
