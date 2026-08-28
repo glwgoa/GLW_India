@@ -12,6 +12,7 @@ import {
   Receipt,
   Sailboat,
   Sunset,
+  User,
   UtensilsCrossed,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -218,6 +219,9 @@ export function BookingDetailDialog({
             <InfoRow icon={MapPin} label="Region" value={booking.region?.name ?? "—"} />
             <InfoRow icon={Building2} label="Vendor" value={booking.vendor?.name ?? "Unassigned"} />
             <InfoRow icon={Package} label="Product" value={booking.item?.name ?? "—"} />
+            {booking.employee?.full_name && (
+              <InfoRow icon={User} label="Booked by" value={booking.employee.full_name} />
+            )}
           </motion.div>
 
           {categoryDetails && (
