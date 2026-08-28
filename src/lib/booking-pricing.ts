@@ -39,14 +39,21 @@ export function effectiveSalePrice(
 
 /**
  * Base B2B price (per guest for Dinner Cruise) times guests, plus the
- * Pickup/Drop transport fee (also per guest) if any, plus the Kids B2B
- * cost (kids_b2b_price x number of kids) for Dinner Cruise — never
- * written back to the shared catalog_items.b2b_price.
+ * Pickup/Drop transport fee — multiplied by pickup_drop_guest_count when
+ * set (only some guests may need pickup/drop), falling back to the total
+ * guest count otherwise — plus the Kids B2B cost (kids_b2b_price x
+ * number of kids) for Dinner Cruise. Never written back to the shared
+ * catalog_items.b2b_price.
  */
 export function effectiveB2bPrice(
   booking: Pick<
     BookingRow,
-    "item" | "guest_count" | "kids_count" | "transport_type" | "pickup_drop_price"
+    | "item"
+    | "guest_count"
+    | "kids_count"
+    | "transport_type"
+    | "pickup_drop_price"
+    | "pickup_drop_guest_count"
   >,
 ) {
   const kidsB2bCost =
@@ -56,8 +63,11 @@ export function effectiveB2bPrice(
   if (booking.item?.b2b_price == null) return kidsB2bCost > 0 ? kidsB2bCost : null;
   const multiplier = guestMultiplier(booking);
   const base = booking.item.b2b_price * multiplier;
+  const pickupDropMultiplier = booking.pickup_drop_guest_count ?? multiplier;
   const extra =
-    booking.transport_type === "pickup_drop" ? (booking.pickup_drop_price ?? 0) * multiplier : 0;
+    booking.transport_type === "pickup_drop"
+      ? (booking.pickup_drop_price ?? 0) * pickupDropMultiplier
+      : 0;
   return base + extra + kidsB2bCost;
 }
 
@@ -76,6 +86,7 @@ export function computeProfit(
     | "sale_price"
     | "transport_type"
     | "pickup_drop_price"
+    | "pickup_drop_guest_count"
   >,
 ) {
   const salePrice = effectiveSalePrice(booking);
