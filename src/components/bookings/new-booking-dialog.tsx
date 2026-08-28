@@ -32,7 +32,9 @@ import {
   needsCustomerContact,
 } from "@/lib/booking-yacht";
 import { BRAND_NAMES } from "@/lib/brands";
+import { isPrivileged } from "@/lib/auth/roles";
 import type { BookingProduct, TransportType } from "@/types/booking";
+import type { Profile } from "@/types/profile";
 
 const TRANSPORT_TYPE_LABEL: Record<TransportType, string> = {
   pickup_drop: "Pickup/Drop",
@@ -43,6 +45,8 @@ export function NewBookingDialog({
   vendors,
   regions,
   products,
+  employees,
+  profile,
   initialProductId,
   trigger = <Button size="sm" />,
   triggerContent = (
@@ -56,6 +60,9 @@ export function NewBookingDialog({
   vendors: { id: string; name: string }[];
   regions: { id: string; name: string }[];
   products: BookingProduct[];
+  /** Only admin/developer can assign which employee made the booking. */
+  employees?: { id: string; full_name: string }[];
+  profile?: Profile;
   /** Pre-select a product (and its sale price) when the dialog opens. */
   initialProductId?: string;
   /** Custom trigger element; defaults to a small "Add booking" button. */
@@ -68,6 +75,7 @@ export function NewBookingDialog({
   const [vendorId, setVendorId] = useState<string>("");
   const [regionId, setRegionId] = useState<string>("");
   const [brand, setBrand] = useState<string>("");
+  const [employeeId, setEmployeeId] = useState<string>("");
   const [category, setCategory] = useState<string>(() => {
     const product = products.find((p) => p.id === initialProductId);
     return product?.category ?? "";
@@ -91,6 +99,7 @@ export function NewBookingDialog({
   const isPerGuestPricing = isDinnerCruise || isSunsetCruise;
   const showContactNumber = needsCustomerContact(category);
   const isPickupDrop = transportType === "pickup_drop";
+  const canAssignEmployee = !!profile && isPrivileged(profile.role);
 
   function handleCategoryChange(value: string) {
     setCategory(value);
@@ -153,6 +162,7 @@ export function NewBookingDialog({
       region_id: regionId,
       brand: brand || null,
       assigned_vendor_id: vendorId || null,
+      assigned_employee_id: canAssignEmployee && employeeId ? employeeId : null,
       item_id: productId || null,
       sale_price: priceRaw ? Number(priceRaw) : null,
       kids_price: isDinnerCruise && kidsPriceRaw ? Number(kidsPriceRaw) : null,
@@ -194,6 +204,7 @@ export function NewBookingDialog({
     setVendorId("");
     setRegionId("");
     setBrand("");
+    setEmployeeId("");
     setProductId(initialProductId ?? "");
     const resetProduct = products.find((p) => p.id === initialProductId);
     setCategory(resetProduct?.category ?? "");
@@ -294,6 +305,27 @@ export function NewBookingDialog({
                 </SelectContent>
               </Select>
             </div>
+            {canAssignEmployee && (
+              <div className="space-y-2">
+                <Label>Booked by employee</Label>
+                <Select value={employeeId} onValueChange={(v) => setEmployeeId(v ?? "")}>
+                  <SelectTrigger>
+                    <SelectValue>
+                      {(value: string) =>
+                        (employees ?? []).find((e) => e.id === value)?.full_name ?? "Optional"
+                      }
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(employees ?? []).map((e) => (
+                      <SelectItem key={e.id} value={e.id}>
+                        {e.full_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">

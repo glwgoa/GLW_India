@@ -23,6 +23,7 @@ export type BookingRow = {
   customer_contact: string | null;
   region_id: string | null;
   assigned_vendor_id: string | null;
+  assigned_employee_id: string | null;
   item_id: string | null;
   sale_price: number | null;
   advance_amount: number | null;
@@ -45,6 +46,7 @@ export type BookingRow = {
   created_at: string;
   region: { name: string } | null;
   vendor: { name: string; contact_phone: string | null } | null;
+  employee: { full_name: string } | null;
   item: {
     name: string;
     b2b_price: number | null;

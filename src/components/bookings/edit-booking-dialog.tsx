@@ -31,7 +31,9 @@ import {
   needsCustomerContact,
 } from "@/lib/booking-yacht";
 import { BRAND_NAMES } from "@/lib/brands";
+import { isPrivileged } from "@/lib/auth/roles";
 import type { BookingProduct, BookingRow, BookingStatus, TransportType } from "@/types/booking";
+import type { Profile } from "@/types/profile";
 
 const TRANSPORT_TYPE_LABEL: Record<TransportType, string> = {
   pickup_drop: "Pickup/Drop",
@@ -66,12 +68,17 @@ export function EditBookingDialog({
   vendors,
   regions,
   products,
+  employees,
+  profile,
   onSaved,
 }: {
   booking: BookingRow;
   vendors: { id: string; name: string }[];
   regions: { id: string; name: string }[];
   products: BookingProduct[];
+  /** Only admin/developer can assign which employee made the booking. */
+  employees?: { id: string; full_name: string }[];
+  profile?: Profile;
   onSaved: () => void | Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
@@ -79,6 +86,7 @@ export function EditBookingDialog({
   const [vendorId, setVendorId] = useState(booking.assigned_vendor_id ?? "");
   const [regionId, setRegionId] = useState(booking.region_id ?? "");
   const [brand, setBrand] = useState(booking.brand ?? "");
+  const [employeeId, setEmployeeId] = useState<string>(booking.assigned_employee_id ?? "");
   const [productId, setProductId] = useState(booking.item_id ?? "");
   const [salePrice, setSalePrice] = useState(booking.sale_price != null ? String(booking.sale_price) : "");
   const [kidsPrice, setKidsPrice] = useState(booking.kids_price != null ? String(booking.kids_price) : "");
@@ -93,6 +101,7 @@ export function EditBookingDialog({
   const isPerGuestPricing = isDinnerCruise || isSunsetCruise;
   const showContactNumber = needsCustomerContact(selectedProduct?.category);
   const isPickupDrop = transportType === "pickup_drop";
+  const canAssignEmployee = !!profile && isPrivileged(profile.role);
 
   function handleProductChange(id: string) {
     setProductId(id);
@@ -154,6 +163,7 @@ export function EditBookingDialog({
         region_id: regionId,
         brand: brand || null,
         assigned_vendor_id: vendorId || null,
+        assigned_employee_id: canAssignEmployee && employeeId ? employeeId : null,
         item_id: productId || null,
         sale_price: priceRaw ? Number(priceRaw) : null,
         kids_price: isDinnerCruise && kidsPriceRaw ? Number(kidsPriceRaw) : null,
@@ -270,6 +280,27 @@ export function EditBookingDialog({
                 </SelectContent>
               </Select>
             </div>
+            {canAssignEmployee && (
+              <div className="space-y-2">
+                <Label>Booked by employee</Label>
+                <Select value={employeeId} onValueChange={(v) => setEmployeeId(v ?? "")}>
+                  <SelectTrigger>
+                    <SelectValue>
+                      {(value: string) =>
+                        (employees ?? []).find((e) => e.id === value)?.full_name ?? "Optional"
+                      }
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {(employees ?? []).map((e) => (
+                      <SelectItem key={e.id} value={e.id}>
+                        {e.full_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">

@@ -31,12 +31,14 @@ export function BookingsClient({
   vendors,
   regions,
   products,
+  employees,
 }: {
   initialBookings: BookingRow[];
   profile: Profile;
   vendors: { id: string; name: string }[];
   regions: { id: string; name: string }[];
   products: BookingProduct[];
+  employees: { id: string; full_name: string }[];
 }) {
   const { bookings, setBookings, refresh, refreshing } = usePollingBookings(initialBookings);
   const canCreateBooking =
@@ -127,6 +129,8 @@ export function BookingsClient({
               vendors={vendors}
               regions={regions}
               products={products}
+              employees={employees}
+              profile={profile}
               onAdded={refresh}
             />
           )}
@@ -176,6 +180,7 @@ export function BookingsClient({
         vendors={vendors}
         regions={regions}
         products={products}
+        employees={employees}
         refresh={refresh}
       />
     </div>

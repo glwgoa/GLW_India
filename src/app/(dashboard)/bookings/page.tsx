@@ -10,13 +10,14 @@ export default async function BookingsPage() {
 
   const canManageBookings =
     isPrivileged(profile.role) || profile.role === "project_manager" || profile.role === "employee";
+  const canAssignEmployee = isPrivileged(profile.role);
 
-  const [{ data: bookings }, { data: vendors }, { data: regions }, { data: products }] =
+  const [{ data: bookings }, { data: vendors }, { data: regions }, { data: products }, { data: employees }] =
     await Promise.all([
       supabase
         .from("bookings")
         .select(
-          "*, region:regions(name), vendor:vendors(name, contact_phone), item:catalog_items(name, b2b_price, kids_b2b_price, kids_sale_price, category, reporting_time, jetty_name, jetty_location_url)",
+          "*, region:regions(name), vendor:vendors(name, contact_phone), employee:profiles!bookings_assigned_employee_id_fkey(full_name), item:catalog_items(name, b2b_price, kids_b2b_price, kids_sale_price, category, reporting_time, jetty_name, jetty_location_url)",
         )
         .order("created_at", { ascending: false }),
       canManageBookings
@@ -40,6 +41,9 @@ export default async function BookingsPage() {
               vendor_id: string | null;
             }[],
           }),
+      canAssignEmployee
+        ? supabase.from("profiles").select("id, full_name").order("full_name")
+        : Promise.resolve({ data: [] as { id: string; full_name: string }[] }),
     ]);
 
   return (
@@ -49,6 +53,7 @@ export default async function BookingsPage() {
       vendors={(vendors ?? []).map((v) => ({ ...v, name: v.name ?? "Unnamed vendor" }))}
       regions={regions ?? []}
       products={products ?? []}
+      employees={employees ?? []}
     />
   );
 }

@@ -67,6 +67,7 @@ export type Database = {
           add_ons: string[] | null
           advance_amount: number | null
           anchorage_hours: number | null
+          assigned_employee_id: string | null
           assigned_vendor_id: string | null
           booking_date: string
           brand: string | null
@@ -94,6 +95,7 @@ export type Database = {
           add_ons?: string[] | null
           advance_amount?: number | null
           anchorage_hours?: number | null
+          assigned_employee_id?: string | null
           assigned_vendor_id?: string | null
           booking_date: string
           brand?: string | null
@@ -121,6 +123,7 @@ export type Database = {
           add_ons?: string[] | null
           advance_amount?: number | null
           anchorage_hours?: number | null
+          assigned_employee_id?: string | null
           assigned_vendor_id?: string | null
           booking_date?: string
           brand?: string | null
@@ -145,6 +148,13 @@ export type Database = {
           transport_type?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "bookings_assigned_employee_id_fkey"
+            columns: ["assigned_employee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "bookings_assigned_vendor_id_fkey"
             columns: ["assigned_vendor_id"]

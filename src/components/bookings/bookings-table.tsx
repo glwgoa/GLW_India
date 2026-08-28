@@ -38,6 +38,7 @@ export function BookingsTable({
   vendors,
   regions,
   products,
+  employees,
   refresh,
 }: {
   bookings: BookingRow[];
@@ -46,6 +47,7 @@ export function BookingsTable({
   vendors: { id: string; name: string }[];
   regions: { id: string; name: string }[];
   products: BookingProduct[];
+  employees: { id: string; full_name: string }[];
   refresh: () => void | Promise<void>;
 }) {
   const canManageBookings =
@@ -219,6 +221,8 @@ export function BookingsTable({
                         vendors={vendors}
                         regions={regions}
                         products={products}
+                        employees={employees}
+                        profile={profile}
                         onSaved={refresh}
                       />
                     )}
