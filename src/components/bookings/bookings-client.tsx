@@ -79,6 +79,7 @@ export function BookingsClient({
       "Balance due",
       ...(canSeeProfit ? ["B2B price", "Profit"] : []),
       "Status",
+      "Enquiry date",
       "Booking date",
     ];
     const rows = visibleBookings.map((b) => {
@@ -99,7 +100,8 @@ export function BookingsClient({
         balance,
         ...(canSeeProfit ? [b2bPrice ?? "", profit ?? ""] : []),
         BOOKING_STATUS_LABEL[b.status] ?? b.status,
-        new Date(b.booking_date).toLocaleString(),
+        b.enquiry_date ? new Date(b.enquiry_date).toLocaleDateString() : "",
+        new Date(b.booking_date).toLocaleDateString(),
       ];
     });
     const date = new Date().toISOString().slice(0, 10);

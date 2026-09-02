@@ -161,9 +161,8 @@ export function BookingDetailDialog({
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <CalendarClock className="size-3.5" />
-                {new Date(booking.booking_date).toLocaleString("en-IN", {
+                {new Date(booking.booking_date).toLocaleDateString("en-IN", {
                   dateStyle: "medium",
-                  timeStyle: "short",
                 })}
               </span>
               {booking.customer_contact && (
@@ -212,6 +211,13 @@ export function BookingDetailDialog({
             variants={shouldAnimate ? childVariants : undefined}
             className="space-y-2 rounded-xl border border-border/30 bg-muted/30 p-3"
           >
+            {booking.enquiry_date && (
+              <InfoRow
+                icon={CalendarClock}
+                label="Enquiry date"
+                value={new Date(booking.enquiry_date).toLocaleDateString("en-IN", { dateStyle: "medium" })}
+              />
+            )}
             {booking.brand && <InfoRow icon={Building2} label="Brand" value={booking.brand} />}
             {booking.transaction_id && (
               <InfoRow icon={Receipt} label="Transaction ID" value={booking.transaction_id} />

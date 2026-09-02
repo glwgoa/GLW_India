@@ -57,10 +57,10 @@ const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
   cancelled_refunded: "Cancel/Refunded",
 };
 
-function toDatetimeLocal(iso: string) {
+function toDateOnly(iso: string) {
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
 export function EditBookingDialog({
@@ -144,6 +144,7 @@ export function EditBookingDialog({
     const priceRaw = formData.get("salePrice") as string;
     const kidsPriceRaw = formData.get("kidsPrice") as string;
     const kidsBelow5CountRaw = formData.get("kidsBelow5Count") as string;
+    const enquiryDate = (formData.get("enquiryDate") as string) || null;
     const advanceRaw = formData.get("advanceAmount") as string;
     const transactionId = (formData.get("transactionId") as string) || null;
     const startTime = (formData.get("startTime") as string) || null;
@@ -171,6 +172,7 @@ export function EditBookingDialog({
         advance_amount: advanceRaw ? Number(advanceRaw) : null,
         transaction_id: transactionId,
         booking_date: new Date(date).toISOString(),
+        enquiry_date: enquiryDate,
         status,
         start_time: isYacht ? startTime : null,
         end_time: isYacht ? endTime : null,
@@ -395,15 +397,27 @@ export function EditBookingDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
+              <Label htmlFor="enquiryDate">Enquiry date</Label>
+              <Input
+                id="enquiryDate"
+                name="enquiryDate"
+                type="date"
+                defaultValue={booking.enquiry_date ?? ""}
+              />
+            </div>
+            <div className="space-y-2">
               <Label htmlFor="bookingDate">Booking date</Label>
               <Input
                 id="bookingDate"
                 name="bookingDate"
-                type="datetime-local"
-                defaultValue={toDatetimeLocal(booking.booking_date)}
+                type="date"
+                defaultValue={toDateOnly(booking.booking_date)}
                 required
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="advanceAmount">Advance (₹)</Label>
               <Input

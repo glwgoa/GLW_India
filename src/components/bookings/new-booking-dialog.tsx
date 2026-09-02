@@ -145,6 +145,7 @@ export function NewBookingDialog({
     const priceRaw = formData.get("salePrice") as string;
     const kidsPriceRaw = formData.get("kidsPrice") as string;
     const kidsBelow5CountRaw = formData.get("kidsBelow5Count") as string;
+    const enquiryDate = (formData.get("enquiryDate") as string) || null;
     const advanceRaw = formData.get("advanceAmount") as string;
     const transactionId = (formData.get("transactionId") as string) || null;
     const startTime = (formData.get("startTime") as string) || null;
@@ -175,6 +176,7 @@ export function NewBookingDialog({
       advance_amount: advanceRaw ? Number(advanceRaw) : null,
       transaction_id: transactionId,
       booking_date: new Date(date).toISOString(),
+      enquiry_date: enquiryDate,
       status: "pending",
       guest_count: guestCountRaw ? Number(guestCountRaw) : null,
       kids_count: isPerGuestPricing && kidsCountRaw ? Number(kidsCountRaw) : null,
@@ -404,9 +406,16 @@ export function NewBookingDialog({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="bookingDate">Booking date</Label>
-              <Input id="bookingDate" name="bookingDate" type="datetime-local" required />
+              <Label htmlFor="enquiryDate">Enquiry date</Label>
+              <Input id="enquiryDate" name="enquiryDate" type="date" />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="bookingDate">Booking date</Label>
+              <Input id="bookingDate" name="bookingDate" type="date" required />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="advanceAmount">Advance (₹)</Label>
               <Input

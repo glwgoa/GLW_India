@@ -204,9 +204,8 @@ export function BookingsTable({
                 </Select>
               </TableCell>
               <TableCell className="text-muted-foreground">
-                {new Date(booking.booking_date).toLocaleString("en-IN", {
+                {new Date(booking.booking_date).toLocaleDateString("en-IN", {
                   dateStyle: "medium",
-                  timeStyle: "short",
                 })}
               </TableCell>
               <TableCell className="max-w-64 whitespace-normal text-muted-foreground">

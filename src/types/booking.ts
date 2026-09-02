@@ -29,6 +29,7 @@ export type BookingRow = {
   advance_amount: number | null;
   status: BookingStatus;
   booking_date: string;
+  enquiry_date: string | null;
   start_time: string | null;
   end_time: string | null;
   sailing_hours: number | null;
