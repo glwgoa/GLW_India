@@ -75,6 +75,7 @@ export type Database = {
           customer_contact: string | null
           customer_name: string
           end_time: string | null
+          enquiry_date: string | null
           guest_count: number | null
           id: string
           item_id: string | null
@@ -103,6 +104,7 @@ export type Database = {
           customer_contact?: string | null
           customer_name: string
           end_time?: string | null
+          enquiry_date?: string | null
           guest_count?: number | null
           id?: string
           item_id?: string | null
@@ -131,6 +133,7 @@ export type Database = {
           customer_contact?: string | null
           customer_name?: string
           end_time?: string | null
+          enquiry_date?: string | null
           guest_count?: number | null
           id?: string
           item_id?: string | null
@@ -458,6 +461,63 @@ export type Database = {
           },
         ]
       }
+      transactions: {
+        Row: {
+          amount: number
+          booking_id: string | null
+          brand: string | null
+          created_at: string
+          created_by: string | null
+          direction: Database["public"]["Enums"]["transaction_direction"]
+          id: string
+          notes: string | null
+          source: Database["public"]["Enums"]["transaction_source"]
+          transaction_date: string
+          transaction_id: string | null
+        }
+        Insert: {
+          amount: number
+          booking_id?: string | null
+          brand?: string | null
+          created_at?: string
+          created_by?: string | null
+          direction: Database["public"]["Enums"]["transaction_direction"]
+          id?: string
+          notes?: string | null
+          source?: Database["public"]["Enums"]["transaction_source"]
+          transaction_date?: string
+          transaction_id?: string | null
+        }
+        Update: {
+          amount?: number
+          booking_id?: string | null
+          brand?: string | null
+          created_at?: string
+          created_by?: string | null
+          direction?: Database["public"]["Enums"]["transaction_direction"]
+          id?: string
+          notes?: string | null
+          source?: Database["public"]["Enums"]["transaction_source"]
+          transaction_date?: string
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vendor_categories: {
         Row: {
           created_at: string
@@ -651,6 +711,8 @@ export type Database = {
         | "completed"
         | "cancelled"
         | "cancelled_refunded"
+      transaction_direction: "paid" | "received"
+      transaction_source: "manual" | "booking"
       user_role:
         | "admin"
         | "vendor"
@@ -793,6 +855,8 @@ export const Constants = {
         "cancelled",
         "cancelled_refunded",
       ],
+      transaction_direction: ["paid", "received"],
+      transaction_source: ["manual", "booking"],
       user_role: [
         "admin",
         "vendor",

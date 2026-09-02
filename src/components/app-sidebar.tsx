@@ -13,6 +13,7 @@ import {
   Users,
   LogOut,
   Tags,
+  Receipt,
 } from "lucide-react";
 import {
   Sidebar,
@@ -57,6 +58,13 @@ const NAV_ITEMS = [
   },
   { href: "/employees", label: "Employees", icon: Users, roles: null, color: "var(--chart-5)" },
   { href: "/attendance", label: "Attendance", icon: Clock, roles: null, color: "var(--chart-1)" },
+  {
+    href: "/transactions",
+    label: "Transactions",
+    icon: Receipt,
+    roles: ["admin", "developer", "project_manager"] as const,
+    color: "var(--chart-4)",
+  },
   {
     href: "/mis-reports",
     label: "MIS Reports",
