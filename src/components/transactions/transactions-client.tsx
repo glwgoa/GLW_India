@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Receipt } from "lucide-react";
+import Link from "next/link";
+import { FileCheck2, Receipt } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { TransactionsTable } from "./transactions-table";
 import { NewTransactionDialog } from "./new-transaction-dialog";
@@ -101,6 +102,10 @@ export function TransactionsClient({
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" render={<Link href="/transactions/reconcile" />}>
+            <FileCheck2 />
+            Reconcile statement
+          </Button>
           <DownloadButton onDownload={handleDownload} />
           <NewTransactionDialog profile={profile} onAdded={refresh} />
         </div>
