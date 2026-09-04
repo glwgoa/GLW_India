@@ -102,7 +102,7 @@ export function TransactionsClient({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" render={<Link href="/transactions/reconcile" />}>
+          <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/transactions/reconcile" />}>
             <FileCheck2 />
             Reconcile statement
           </Button>
