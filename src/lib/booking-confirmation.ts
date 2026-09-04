@@ -84,8 +84,8 @@ Google map Link: ${booking.item?.jetty_location_url ?? "—"}
 ${PARKING_LINK}
 
 Contact Person:
-${booking.vendor?.name ?? "—"}
-${booking.vendor?.contact_phone ?? "—"}
+${booking.item?.coordinator_name ?? booking.vendor?.name ?? "—"}
+${booking.item?.coordinator_phone ?? booking.vendor?.contact_phone ?? "—"}
 
 ${PLEASE_NOTE}`;
 }
@@ -143,7 +143,7 @@ ${addOns}
 ${reportingLocation}
 
 Contact Person:
-Lloyd: +91 7498 419454
+${booking.item?.coordinator_name ?? "Lloyd"}: ${booking.item?.coordinator_phone ?? "+91 7498 419454"}
 
 ${PLEASE_NOTE}`;
 }

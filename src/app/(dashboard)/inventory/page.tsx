@@ -12,7 +12,7 @@ export default async function InventoryPage() {
       supabase
         .from("regional_inventory")
         .select(
-          "*, region:regions(name), item:catalog_items(name, sku, category, image_url, b2b_price, sale_price, kids_b2b_price, kids_sale_price, vendor_id, jetty_name, jetty_location_url, reporting_time, vendor:vendors(name))",
+          "*, region:regions(name), item:catalog_items(name, sku, category, image_url, b2b_price, sale_price, kids_b2b_price, kids_sale_price, vendor_id, jetty_name, jetty_location_url, reporting_time, coordinator_name, coordinator_phone, vendor:vendors(name))",
         )
         .order("region_id"),
       supabase.from("vendors").select("id, name").order("name"),

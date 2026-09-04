@@ -17,7 +17,7 @@ export default async function BookingsPage() {
       supabase
         .from("bookings")
         .select(
-          "*, region:regions(name), vendor:vendors(name, contact_phone), employee:profiles!bookings_assigned_employee_id_fkey(full_name), item:catalog_items(name, b2b_price, kids_b2b_price, kids_sale_price, category, reporting_time, jetty_name, jetty_location_url)",
+          "*, region:regions(name), vendor:vendors(name, contact_phone), employee:profiles!bookings_assigned_employee_id_fkey(full_name), item:catalog_items(name, b2b_price, kids_b2b_price, kids_sale_price, category, reporting_time, jetty_name, jetty_location_url, coordinator_name, coordinator_phone)",
         )
         .order("created_at", { ascending: false }),
       canManageBookings

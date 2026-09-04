@@ -192,6 +192,8 @@ export type Database = {
         Row: {
           b2b_price: number | null
           category: string | null
+          coordinator_name: string | null
+          coordinator_phone: string | null
           description: string | null
           id: string
           image_url: string | null
@@ -208,6 +210,8 @@ export type Database = {
         Insert: {
           b2b_price?: number | null
           category?: string | null
+          coordinator_name?: string | null
+          coordinator_phone?: string | null
           description?: string | null
           id?: string
           image_url?: string | null
@@ -224,6 +228,8 @@ export type Database = {
         Update: {
           b2b_price?: number | null
           category?: string | null
+          coordinator_name?: string | null
+          coordinator_phone?: string | null
           description?: string | null
           id?: string
           image_url?: string | null

@@ -59,6 +59,8 @@ export function AddInventoryDialog({
     const jettyName = (formData.get("jettyName") as string) || null;
     const jettyLocationUrl = (formData.get("jettyLocationUrl") as string) || null;
     const reportingTime = (formData.get("reportingTime") as string) || null;
+    const coordinatorName = (formData.get("coordinatorName") as string) || null;
+    const coordinatorPhone = (formData.get("coordinatorPhone") as string) || null;
 
     if (!vendorId || !regionId) {
       toast.error("Select a vendor and a region");
@@ -105,6 +107,8 @@ export function AddInventoryDialog({
         jetty_name: jettyName,
         jetty_location_url: jettyLocationUrl,
         reporting_time: showReportingTime ? reportingTime : null,
+        coordinator_name: coordinatorName,
+        coordinator_phone: coordinatorPhone,
       })
       .select("id")
       .single();
@@ -219,6 +223,17 @@ export function AddInventoryDialog({
               <Input id="reportingTime" name="reportingTime" type="time" className="max-w-40" />
             </div>
           )}
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="coordinatorName">Coordinator name</Label>
+              <Input id="coordinatorName" name="coordinatorName" placeholder="Optional" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="coordinatorPhone">Coordinator number</Label>
+              <Input id="coordinatorPhone" name="coordinatorPhone" type="tel" placeholder="Optional" />
+            </div>
+          </div>
 
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-2">
