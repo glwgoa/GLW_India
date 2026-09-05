@@ -77,7 +77,7 @@ export function BookingsClient({
       "Advance",
       "Transaction ID",
       "Balance due",
-      ...(canSeeProfit ? ["B2B price", "Profit"] : []),
+      ...(canSeeProfit ? ["B2B price", "Earnings"] : []),
       "Status",
       "Enquiry date",
       "Booking date",

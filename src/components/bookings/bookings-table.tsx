@@ -104,7 +104,7 @@ export function BookingsTable({
             <TableHead>Advance</TableHead>
             <TableHead>Balance due</TableHead>
             {canSeeProfit && <TableHead>B2B price</TableHead>}
-            {canSeeProfit && <TableHead>Profit</TableHead>}
+            {canSeeProfit && <TableHead>Earnings</TableHead>}
             <TableHead>Status</TableHead>
             <TableHead>Booking date</TableHead>
             <TableHead>Details</TableHead>

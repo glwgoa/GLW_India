@@ -17,8 +17,8 @@ export function BrandPerformanceChart({ data }: { data: BrandPerformanceRow[] })
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Bookings & profit by brand</CardTitle>
-        <CardDescription>Total bookings (bar) vs. total profit (line)</CardDescription>
+        <CardTitle>Bookings & earnings by brand</CardTitle>
+        <CardDescription>Total bookings (bar) vs. total earnings (line)</CardDescription>
       </CardHeader>
       <CardContent className="h-72">
         {data.length === 0 ? (
@@ -36,7 +36,7 @@ export function BrandPerformanceChart({ data }: { data: BrandPerformanceRow[] })
                 yAxisId="profit"
                 type="monotone"
                 dataKey="total_profit"
-                name="Profit (₹)"
+                name="Earnings (₹)"
                 stroke="#16a34a"
                 strokeWidth={2}
               />
