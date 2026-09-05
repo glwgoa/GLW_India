@@ -115,7 +115,16 @@ export function EditProductDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button variant="secondary" size="icon-sm" aria-label="Edit product" />}>
+      <DialogTrigger
+        render={
+          <Button
+            variant="secondary"
+            size="icon-sm"
+            aria-label="Edit product"
+            className="border border-white/30 bg-white/20 text-white backdrop-blur-md hover:bg-white/30"
+          />
+        }
+      >
         <Pencil />
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">

@@ -1,11 +1,10 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { Anchor, Building2, Clock, MapPin, Package, Tag } from "lucide-react";
+import { Anchor, Building2, Clock, MapPin, Package, Tag, User } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { NewBookingDialog } from "@/components/bookings/new-booking-dialog";
-import { LOW_STOCK_THRESHOLD } from "@/lib/constants";
 import type { InventoryRow } from "@/hooks/use-realtime-inventory";
 
 type AggregatedRow = InventoryRow & { regionCount?: number };
@@ -52,8 +51,6 @@ export function ProductDetailDialog({
   const shouldReduceMotion = useReducedMotion();
   const shouldAnimate = !shouldReduceMotion;
   const item = row.item;
-  const available = row.stock_quantity - row.reserved_quantity;
-  const lowStock = available <= LOW_STOCK_THRESHOLD;
 
   const products = item
     ? [
@@ -85,11 +82,6 @@ export function ProductDetailDialog({
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
-          {lowStock && (
-            <div className="absolute top-4 right-12 rounded-full bg-destructive px-3 py-1 text-xs font-bold text-destructive-foreground">
-              Low stock
-            </div>
-          )}
         </div>
 
         <div className="space-y-4 p-6">
@@ -161,7 +153,12 @@ export function ProductDetailDialog({
             {[
               { value: formatPrice(item?.sale_price ?? null), label: "Sale price" },
               { value: formatPrice(item?.b2b_price ?? null), label: "B2B price" },
-              { value: String(available), label: "Available" },
+              ...(item?.kids_sale_price != null
+                ? [{ value: formatPrice(item.kids_sale_price), label: "Kids sale price" }]
+                : []),
+              ...(item?.kids_b2b_price != null
+                ? [{ value: formatPrice(item.kids_b2b_price), label: "Kids B2B price" }]
+                : []),
             ].map((stat) => (
               <div
                 key={stat.label}
@@ -172,6 +169,40 @@ export function ProductDetailDialog({
               </div>
             ))}
           </motion.div>
+
+          {(item?.vendor?.name || item?.vendor?.contact_phone || item?.coordinator_name || item?.coordinator_phone) && (
+            <motion.div
+              initial={shouldAnimate ? "hidden" : "visible"}
+              animate="visible"
+              variants={shouldAnimate ? childVariants : undefined}
+              className="space-y-2 rounded-xl border border-border/30 bg-muted/30 p-3 text-sm"
+            >
+              {(item?.vendor?.name || item?.vendor?.contact_phone) && (
+                <div className="flex items-center justify-between gap-3">
+                  <span className="flex items-center gap-1.5 text-muted-foreground">
+                    <Building2 className="size-3.5" />
+                    Vendor
+                  </span>
+                  <span className="truncate font-medium">
+                    {item?.vendor?.name ?? "—"}
+                    {item?.vendor?.contact_phone ? ` · ${item.vendor.contact_phone}` : ""}
+                  </span>
+                </div>
+              )}
+              {(item?.coordinator_name || item?.coordinator_phone) && (
+                <div className="flex items-center justify-between gap-3">
+                  <span className="flex items-center gap-1.5 text-muted-foreground">
+                    <User className="size-3.5" />
+                    Coordinator
+                  </span>
+                  <span className="truncate font-medium">
+                    {item?.coordinator_name ?? "—"}
+                    {item?.coordinator_phone ? ` · ${item.coordinator_phone}` : ""}
+                  </span>
+                </div>
+              )}
+            </motion.div>
+          )}
 
           {canBook && (
             <motion.div
