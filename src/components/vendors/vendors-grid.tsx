@@ -88,7 +88,7 @@ export function VendorsGrid({
 
   return (
     <>
-      <div className="rounded-md border bg-background">
+      <div className="rounded-lg border border-white/15 bg-background/85 shadow-lg shadow-black/[0.03] backdrop-blur-xl dark:shadow-black/30">
         <Table>
           <TableHeader>
             <TableRow>

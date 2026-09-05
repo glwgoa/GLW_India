@@ -28,7 +28,6 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { UniversalSearch } from "@/components/universal-search";
 import { signOut } from "@/lib/actions/auth";
 import type { Profile } from "@/types/profile";
 
@@ -95,25 +94,22 @@ export function AppSidebar({ profile }: { profile: Profile }) {
   const items = NAV_ITEMS.filter((item) => !item.roles || item.roles.includes(profile.role as never));
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="icon" variant="floating">
       <SidebarHeader>
-        <div className="flex items-center gap-2 overflow-hidden px-2 py-1.5">
-          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-primary text-primary-foreground text-xs font-semibold">
+        <div className="flex items-center gap-2 overflow-hidden px-1 py-1.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-semibold shadow-[0_0_24px_-4px_var(--color-primary)]">
             GI
           </div>
           <span className="truncate text-sm font-semibold whitespace-nowrap group-data-[collapsible=icon]:hidden">
             GLW India Ops
           </span>
         </div>
-        <div className="px-1 pb-1 group-data-[collapsible=icon]:hidden">
-          <UniversalSearch />
-        </div>
       </SidebarHeader>
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Modules</SidebarGroupLabel>
+          <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Modules</SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-2 group-data-[collapsible=icon]:items-center">
               {items.map((item) => {
                 const isActive = pathname === item.href;
                 return (
@@ -121,16 +117,17 @@ export function AppSidebar({ profile }: { profile: Profile }) {
                     <SidebarMenuButton
                       render={<Link href={item.href} prefetch={item.href === "/inventory" ? false : true} />}
                       isActive={isActive}
-                      style={
-                        isActive
-                          ? {
-                              backgroundColor: `color-mix(in srgb, ${item.color} 22%, transparent)`,
-                            }
-                          : undefined
-                      }
+                      tooltip={item.label}
+                      className="rounded-full ring-1 ring-transparent transition-all group-data-[collapsible=icon]:size-11! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-full"
+                      style={{
+                        backgroundColor: `color-mix(in srgb, ${item.color} ${isActive ? 24 : 10}%, transparent)`,
+                        boxShadow: isActive
+                          ? `0 0 24px -6px color-mix(in srgb, ${item.color} 70%, transparent)`
+                          : undefined,
+                      }}
                     >
                       <item.icon style={{ color: item.color }} />
-                      <span>{item.label}</span>
+                      <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
                 );
@@ -140,8 +137,8 @@ export function AppSidebar({ profile }: { profile: Profile }) {
         </SidebarGroup>
       </SidebarContent>
       <SidebarFooter>
-        <div className="flex items-center gap-2 overflow-hidden px-2 py-1.5">
-          <Avatar className="h-7 w-7 shrink-0">
+        <div className="flex items-center gap-2 overflow-hidden px-1 py-1.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
+          <Avatar className="shrink-0 ring-1 ring-foreground/10">
             <AvatarFallback className="text-xs">{initials(profile.full_name)}</AvatarFallback>
           </Avatar>
           <div className="flex min-w-0 flex-1 flex-col group-data-[collapsible=icon]:hidden">
@@ -152,9 +149,13 @@ export function AppSidebar({ profile }: { profile: Profile }) {
           </div>
         </div>
         <form action={signOut}>
-          <SidebarMenuButton type="submit" className="w-full">
+          <SidebarMenuButton
+            type="submit"
+            tooltip="Sign out"
+            className="w-full rounded-full group-data-[collapsible=icon]:size-11! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-full"
+          >
             <LogOut />
-            <span>Sign out</span>
+            <span className="group-data-[collapsible=icon]:hidden">Sign out</span>
           </SidebarMenuButton>
         </form>
       </SidebarFooter>

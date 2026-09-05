@@ -167,7 +167,7 @@ export function UniversalSearch() {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setTimeout(() => setIsFocused(false), 150)}
-          className="h-8 pr-7 pl-8 text-sm"
+          className="h-8 border-none bg-transparent pr-7 pl-8 text-sm shadow-none focus-visible:ring-0 dark:bg-transparent"
         />
         {isLoading && (
           <Loader2 className="absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 animate-spin text-muted-foreground" />

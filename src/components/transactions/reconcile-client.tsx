@@ -320,7 +320,7 @@ export function ReconcileClient({ transactions }: { transactions: TransactionRow
           {missingFromStatement.length > 0 && (
             <div className="space-y-2">
               <h2 className="text-sm font-medium">Recorded but not found in this statement</h2>
-              <div className="rounded-md border bg-background">
+              <div className="rounded-lg border border-white/15 bg-background/85 shadow-lg shadow-black/[0.03] backdrop-blur-xl dark:shadow-black/30">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -366,7 +366,7 @@ const STATUS_BADGE_CLASS: Record<BankRowStatus, string> = {
 
 function ResultsTable({ results }: { results: BankResultRow[] }) {
   return (
-    <div className="rounded-md border bg-background">
+    <div className="rounded-lg border border-white/15 bg-background/85 shadow-lg shadow-black/[0.03] backdrop-blur-xl dark:shadow-black/30">
       <Table>
         <TableHeader>
           <TableRow>

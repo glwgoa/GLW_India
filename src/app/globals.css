@@ -72,7 +72,13 @@
   --muted: hsl(210, 40%, 96.1%);
   --accent: hsl(262, 80%, 96%);
   --border: hsl(214.3, 31.8%, 91.4%);
-  --radius: 0.75rem;
+  --radius: 1.25rem;
+  --glow-1: 16%;
+  --glow-2: 14%;
+  --glow-3: 10%;
+  --sky-top: hsl(214, 70%, 92%);
+  --sky-mid: hsl(230, 55%, 94%);
+  --sky-bottom: hsl(185, 55%, 90%);
   --chart-1: hsl(262, 83%, 58%);
   --chart-2: hsl(173, 58%, 39%);
   --chart-3: hsl(197, 37%, 24%);
@@ -119,7 +125,13 @@
   --muted: hsl(217.2, 32.6%, 17.5%);
   --accent: hsl(263, 50%, 15%);
   --border: hsl(217.2, 32.6%, 17.5%);
-  --radius: 0.75rem;
+  --radius: 1.25rem;
+  --glow-1: 45%;
+  --glow-2: 34%;
+  --glow-3: 26%;
+  --sky-top: hsl(230, 55%, 8%);
+  --sky-mid: hsl(250, 45%, 12%);
+  --sky-bottom: hsl(200, 55%, 10%);
   --chart-1: hsl(263, 70%, 50%);
   --chart-2: hsl(160, 60%, 45%);
   --chart-3: hsl(30, 80%, 55%);
@@ -164,7 +176,28 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
+    /* Stands in for a real hero photo (sky-to-water gradient + warm "sun"
+       glow + accent blobs) until a licensed yacht/ocean photo is supplied —
+       swap this for `background-image: url(...)` plus a dark scrim then. */
+    background-image:
+      radial-gradient(
+        70rem 70rem at 90% -10%,
+        color-mix(in oklab, var(--primary) var(--glow-1), transparent),
+        transparent 65%
+      ),
+      radial-gradient(
+        60rem 60rem at -10% 100%,
+        color-mix(in oklab, var(--chart-2) var(--glow-2), transparent),
+        transparent 65%
+      ),
+      radial-gradient(
+        45rem 45rem at 75% 15%,
+        color-mix(in oklab, var(--chart-5) var(--glow-3), transparent),
+        transparent 70%
+      ),
+      linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 55%, var(--sky-bottom) 100%);
+    background-attachment: fixed;
   }
   html {
     @apply font-sans;

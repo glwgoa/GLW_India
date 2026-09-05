@@ -4,7 +4,7 @@ import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { RegionProvider } from "@/lib/region-context";
 import { AppSidebar } from "@/components/app-sidebar";
 import { RegionSwitcher } from "@/components/region-switcher";
-import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
+import { UniversalSearch } from "@/components/universal-search";
 import PixelBlast from "@/components/pixel-blast";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
@@ -43,22 +43,26 @@ export default async function DashboardLayout({
           transparent
         />
       </div>
-      <SidebarProvider>
+      <SidebarProvider defaultOpen={false}>
         <AppSidebar profile={profile} />
         <SidebarInset className="bg-transparent">
-          <header className="flex h-14 shrink-0 items-center justify-between gap-2 border-b bg-background px-4">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger />
+          <div className="flex shrink-0 items-center gap-3 p-3 pb-0">
+            <header className="flex h-14 shrink-0 items-center gap-2 rounded-full border border-white/15 bg-background/55 px-4 shadow-lg shadow-black/[0.04] backdrop-blur-2xl dark:shadow-black/30">
+              <SidebarTrigger className="rounded-full" />
               <Separator orientation="vertical" className="h-4" />
-              <span className="text-sm font-medium text-muted-foreground">
-                GLW India Ops Dashboard
+              <span className="hidden text-sm font-medium text-muted-foreground whitespace-nowrap sm:inline">
+                GLW India Ops
               </span>
+            </header>
+
+            <div className="flex h-14 min-w-0 flex-1 items-center rounded-full border border-white/15 bg-background/55 px-4 shadow-lg shadow-black/[0.04] backdrop-blur-2xl dark:shadow-black/30">
+              <UniversalSearch />
             </div>
-            <div className="flex items-center gap-3">
-              <AnimatedThemeToggler />
+
+            <header className="flex h-14 shrink-0 items-center gap-3 rounded-full border border-white/15 bg-background/55 px-4 shadow-lg shadow-black/[0.04] backdrop-blur-2xl dark:shadow-black/30">
               <RegionSwitcher regions={regions ?? []} canViewAll={canViewAllRegions} />
-            </div>
-          </header>
+            </header>
+          </div>
           <div className="flex-1 overflow-y-auto p-4 md:p-6">
             <PageTransition>{children}</PageTransition>
           </div>
