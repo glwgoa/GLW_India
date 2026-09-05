@@ -110,7 +110,7 @@ export function BookingsClient({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <PageHeaderIcon icon={CalendarClock} color="var(--chart-1)" />
           <div>

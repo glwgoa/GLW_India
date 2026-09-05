@@ -95,7 +95,7 @@ export function NewProjectDialog({
             <Input id="title" name="title" required />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Region</Label>
               <Select value={regionId} onValueChange={(v) => setRegionId(v ?? "")}>
@@ -150,7 +150,7 @@ export function NewProjectDialog({
             </Select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="budget">Budget (₹)</Label>
               <Input id="budget" name="budget" type="number" step="0.01" />

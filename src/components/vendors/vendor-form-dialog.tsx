@@ -259,7 +259,7 @@ export function VendorFormDialog({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="contactPhone">Contact number</Label>
                 <Input id="contactPhone" name="contactPhone" defaultValue={vendor?.contact_phone ?? ""} />
@@ -274,7 +274,7 @@ export function VendorFormDialog({
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
               <div className="space-y-2">
                 <Label>Vendor priority</Label>
                 <Select value={priority} onValueChange={(v) => setPriority(v ?? "")}>
@@ -317,7 +317,7 @@ export function VendorFormDialog({
                 defaultValue={vendor?.bank_account_name ?? ""}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="bankAccountNumber">Bank account number</Label>
                 <Input
@@ -331,7 +331,7 @@ export function VendorFormDialog({
                 <Input id="ifscCode" name="ifscCode" defaultValue={vendor?.ifsc_code ?? ""} />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="upiId">UPI ID</Label>
                 <Input id="upiId" name="upiId" defaultValue={vendor?.upi_id ?? ""} />

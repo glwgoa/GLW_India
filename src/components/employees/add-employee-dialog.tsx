@@ -101,7 +101,7 @@ export function AddEmployeeDialog({
             <Label htmlFor="password">Password</Label>
             <Input id="password" name="password" type="text" required minLength={6} />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Role</Label>
               <Select value={role} onValueChange={(v) => setRole(v ?? "employee")}>

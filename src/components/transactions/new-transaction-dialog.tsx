@@ -98,7 +98,7 @@ export function NewTransactionDialog({
           <DialogDescription>Record a manual payment made or received.</DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Type</Label>
               <Select value={direction} onValueChange={(v) => v && setDirection(v as TransactionDirection)}>
@@ -128,7 +128,7 @@ export function NewTransactionDialog({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="transactionId">Transaction ID</Label>
               <Input id="transactionId" name="transactionId" placeholder="Optional" />

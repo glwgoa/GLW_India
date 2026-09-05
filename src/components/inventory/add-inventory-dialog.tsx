@@ -154,7 +154,7 @@ export function AddInventoryDialog({
           </DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="name">Product name</Label>
               <Input id="name" name="name" required />
@@ -165,7 +165,7 @@ export function AddInventoryDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Category</Label>
               <Select value={category} onValueChange={(v) => setCategory(v ?? "")}>
@@ -206,7 +206,7 @@ export function AddInventoryDialog({
             <p className="text-xs text-muted-foreground">Uploaded to Supabase Storage.</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="jettyName">Jetty name</Label>
               <Input id="jettyName" name="jettyName" placeholder="Optional" />
@@ -224,7 +224,7 @@ export function AddInventoryDialog({
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="coordinatorName">Coordinator name</Label>
               <Input id="coordinatorName" name="coordinatorName" placeholder="Optional" />
@@ -235,7 +235,7 @@ export function AddInventoryDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="space-y-2">
               <Label htmlFor="b2bPrice">B2B price</Label>
               <Input id="b2bPrice" name="b2bPrice" type="number" step="0.01" required />
@@ -251,7 +251,7 @@ export function AddInventoryDialog({
           </div>
 
           {showKidsPricing && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="kidsB2bPrice">Kids (5 yrs - 10 yrs) B2B price</Label>
                 <Input id="kidsB2bPrice" name="kidsB2bPrice" type="number" step="0.01" placeholder="Optional" />

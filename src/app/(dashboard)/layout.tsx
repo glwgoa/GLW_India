@@ -46,8 +46,8 @@ export default async function DashboardLayout({
       <SidebarProvider defaultOpen={false}>
         <AppSidebar profile={profile} />
         <SidebarInset className="bg-transparent">
-          <div className="flex shrink-0 items-center gap-3 p-3 pb-0">
-            <header className="flex h-14 shrink-0 items-center gap-2 rounded-full border border-white/15 bg-background/55 px-4 shadow-lg shadow-black/[0.04] backdrop-blur-2xl dark:shadow-black/30">
+          <div className="flex shrink-0 flex-wrap items-center gap-3 p-3 pb-0 sm:flex-nowrap">
+            <header className="flex h-12 shrink-0 items-center gap-2 rounded-full border border-white/15 bg-background/55 px-4 shadow-lg shadow-black/[0.04] backdrop-blur-2xl sm:h-14 dark:shadow-black/30">
               <SidebarTrigger className="rounded-full" />
               <Separator orientation="vertical" className="h-4" />
               <span className="hidden text-sm font-medium text-muted-foreground whitespace-nowrap sm:inline">
@@ -55,13 +55,13 @@ export default async function DashboardLayout({
               </span>
             </header>
 
-            <div className="flex h-14 min-w-0 flex-1 items-center rounded-full border border-white/15 bg-background/55 px-4 shadow-lg shadow-black/[0.04] backdrop-blur-2xl dark:shadow-black/30">
-              <UniversalSearch />
-            </div>
-
-            <header className="flex h-14 shrink-0 items-center gap-3 rounded-full border border-white/15 bg-background/55 px-4 shadow-lg shadow-black/[0.04] backdrop-blur-2xl dark:shadow-black/30">
+            <header className="ml-auto flex h-12 shrink-0 items-center gap-3 rounded-full border border-white/15 bg-background/55 px-4 shadow-lg shadow-black/[0.04] backdrop-blur-2xl sm:ml-0 sm:h-14 dark:shadow-black/30">
               <RegionSwitcher regions={regions ?? []} canViewAll={canViewAllRegions} />
             </header>
+
+            <div className="order-last flex h-12 w-full min-w-0 items-center rounded-full border border-white/15 bg-background/55 px-4 shadow-lg shadow-black/[0.04] backdrop-blur-2xl sm:order-none sm:h-14 sm:w-auto sm:flex-1 dark:shadow-black/30">
+              <UniversalSearch />
+            </div>
           </div>
           <div className="flex-1 overflow-y-auto p-4 md:p-6">
             <PageTransition>{children}</PageTransition>

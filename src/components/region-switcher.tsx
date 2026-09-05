@@ -23,7 +23,7 @@ export function RegionSwitcher({
       value={selectedRegionId}
       onValueChange={(value) => setSelectedRegionId(value ?? "all")}
     >
-      <SelectTrigger className="w-44">
+      <SelectTrigger className="w-32 sm:w-44">
         <SelectValue>
           {(value: string) =>
             value === "all" ? "All Regions" : (regions.find((r) => r.id === value)?.name ?? value)

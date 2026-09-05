@@ -95,7 +95,7 @@ export function EditTransactionDialog({
           <DialogDescription>Update this manual transaction&apos;s details.</DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Type</Label>
               <Select value={direction} onValueChange={(v) => v && setDirection(v as TransactionDirection)}>
@@ -133,7 +133,7 @@ export function EditTransactionDialog({
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="transactionId">Transaction ID</Label>
               <Input

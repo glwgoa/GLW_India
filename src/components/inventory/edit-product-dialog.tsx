@@ -133,7 +133,7 @@ export function EditProductDialog({
           <DialogDescription>Update this product&apos;s details, pricing, and vendor.</DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="name">Product name</Label>
               <Input id="name" name="name" defaultValue={item.name} required />
@@ -144,7 +144,7 @@ export function EditProductDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Category</Label>
               <Select value={category} onValueChange={(v) => setCategory(v ?? "")}>
@@ -185,7 +185,7 @@ export function EditProductDialog({
             <p className="text-xs text-muted-foreground">Leave empty to keep the current image.</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="jettyName">Jetty name</Label>
               <Input id="jettyName" name="jettyName" defaultValue={item.jetty_name ?? ""} placeholder="Optional" />
@@ -215,7 +215,7 @@ export function EditProductDialog({
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="coordinatorName">Coordinator name</Label>
               <Input
@@ -237,7 +237,7 @@ export function EditProductDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="b2bPrice">B2B price</Label>
               <Input
@@ -263,7 +263,7 @@ export function EditProductDialog({
           </div>
 
           {showKidsPricing && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="kidsB2bPrice">Kids (5 yrs - 10 yrs) B2B price</Label>
                 <Input

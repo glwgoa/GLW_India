@@ -238,7 +238,7 @@ export function NewBookingDialog({
           </DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="customerName">Customer name</Label>
               <Input id="customerName" name="customerName" required />
@@ -267,7 +267,7 @@ export function NewBookingDialog({
             </Select>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Region</Label>
               <p className="flex h-8 items-center rounded-md border bg-muted/30 px-3 text-sm text-muted-foreground">
@@ -329,7 +329,7 @@ export function NewBookingDialog({
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Product</Label>
               <Select value={productId} onValueChange={(v) => handleProductChange(v ?? "")}>
@@ -364,7 +364,7 @@ export function NewBookingDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="guestCount">Number of guests</Label>
               <Input id="guestCount" name="guestCount" type="number" min="0" className="max-w-40" />
@@ -378,7 +378,7 @@ export function NewBookingDialog({
           </div>
 
           {isDinnerCruise && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="kidsPrice">Kids price (5yrs to 10yrs) (₹)</Label>
                 <Input
@@ -398,7 +398,7 @@ export function NewBookingDialog({
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="enquiryDate">Enquiry date</Label>
               <Input id="enquiryDate" name="enquiryDate" type="date" />
@@ -409,7 +409,7 @@ export function NewBookingDialog({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="advanceAmount">Advance (₹)</Label>
               <Input
@@ -430,7 +430,7 @@ export function NewBookingDialog({
           {isYacht && (
             <div className="space-y-4 border-t pt-4">
               <p className="text-xs font-medium text-muted-foreground">Private yacht details</p>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="startTime">Start time</Label>
                   <Input id="startTime" name="startTime" type="time" />
@@ -440,7 +440,7 @@ export function NewBookingDialog({
                   <Input id="endTime" name="endTime" type="time" />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="sailingHours">Sailing (hours)</Label>
                   <Input id="sailingHours" name="sailingHours" type="number" step="0.5" min="0" />
@@ -472,7 +472,7 @@ export function NewBookingDialog({
           {isDinnerCruise && (
             <div className="space-y-4 border-t pt-4">
               <p className="text-xs font-medium text-muted-foreground">Dinner cruise details</p>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label>Transport</Label>
                   <Select value={transportType} onValueChange={(v) => setTransportType(v ?? "")}>
