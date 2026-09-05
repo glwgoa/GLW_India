@@ -198,7 +198,7 @@ export function BookingDetailDialog({
             )}
             {canSeeProfit && (
               <StatTile
-                label="Profit"
+                label="Earnings"
                 value={profit != null ? `${profit >= 0 ? "+" : ""}₹${profit.toLocaleString("en-IN")}` : "—"}
                 accent={profit != null ? (profit >= 0 ? "emerald" : "destructive") : undefined}
               />
@@ -227,6 +227,9 @@ export function BookingDetailDialog({
             <InfoRow icon={Package} label="Product" value={booking.item?.name ?? "—"} />
             {booking.employee?.full_name && (
               <InfoRow icon={User} label="Booked by" value={booking.employee.full_name} />
+            )}
+            {booking.creator?.full_name && (
+              <InfoRow icon={User} label="Added by" value={booking.creator.full_name} />
             )}
           </motion.div>
 

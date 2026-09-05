@@ -17,7 +17,7 @@ export default async function BookingsPage() {
       supabase
         .from("bookings")
         .select(
-          "*, region:regions(name), vendor:vendors(name, contact_phone), employee:profiles!bookings_assigned_employee_id_fkey(full_name), item:catalog_items(name, b2b_price, kids_b2b_price, kids_sale_price, category, reporting_time, jetty_name, jetty_location_url, coordinator_name, coordinator_phone)",
+          "*, region:regions(name), vendor:vendors(name, contact_phone), employee:profiles!bookings_assigned_employee_id_fkey(full_name), creator:profiles!bookings_created_by_fkey(full_name), item:catalog_items(name, b2b_price, kids_b2b_price, kids_sale_price, category, reporting_time, jetty_name, jetty_location_url, coordinator_name, coordinator_phone)",
         )
         .order("created_at", { ascending: false }),
       canManageBookings
@@ -29,7 +29,7 @@ export default async function BookingsPage() {
       canManageBookings
         ? supabase
             .from("catalog_items")
-            .select("id, name, sale_price, kids_sale_price, category, vendor_id")
+            .select("id, name, sale_price, kids_sale_price, category, vendor_id, regional_inventory(region_id)")
             .order("name")
         : Promise.resolve({
             data: [] as {
@@ -39,6 +39,7 @@ export default async function BookingsPage() {
               kids_sale_price: number | null;
               category: string | null;
               vendor_id: string | null;
+              regional_inventory: { region_id: string | null }[];
             }[],
           }),
       canAssignEmployee

@@ -72,6 +72,7 @@ export type Database = {
           booking_date: string
           brand: string | null
           created_at: string | null
+          created_by: string | null
           customer_contact: string | null
           customer_name: string
           end_time: string | null
@@ -101,6 +102,7 @@ export type Database = {
           booking_date: string
           brand?: string | null
           created_at?: string | null
+          created_by?: string | null
           customer_contact?: string | null
           customer_name: string
           end_time?: string | null
@@ -130,6 +132,7 @@ export type Database = {
           booking_date?: string
           brand?: string | null
           created_at?: string | null
+          created_by?: string | null
           customer_contact?: string | null
           customer_name?: string
           end_time?: string | null
@@ -154,6 +157,13 @@ export type Database = {
           {
             foreignKeyName: "bookings_assigned_employee_id_fkey"
             columns: ["assigned_employee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]

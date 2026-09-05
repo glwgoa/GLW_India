@@ -12,7 +12,7 @@ import type { BookingRow } from "@/types/booking";
 import type { TransactionRow } from "@/types/transaction";
 
 const BOOKING_SELECT =
-  "*, region:regions(name), vendor:vendors(name, contact_phone), employee:profiles!bookings_assigned_employee_id_fkey(full_name), item:catalog_items(name, b2b_price, kids_b2b_price, kids_sale_price, category, reporting_time, jetty_name, jetty_location_url, coordinator_name, coordinator_phone)";
+  "*, region:regions(name), vendor:vendors(name, contact_phone), employee:profiles!bookings_assigned_employee_id_fkey(full_name), creator:profiles!bookings_created_by_fkey(full_name), item:catalog_items(name, b2b_price, kids_b2b_price, kids_sale_price, category, reporting_time, jetty_name, jetty_location_url, coordinator_name, coordinator_phone)";
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (

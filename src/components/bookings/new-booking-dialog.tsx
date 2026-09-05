@@ -33,6 +33,7 @@ import {
 } from "@/lib/booking-yacht";
 import { BRAND_NAMES } from "@/lib/brands";
 import { isPrivileged } from "@/lib/auth/roles";
+import { deriveRegionId } from "@/lib/booking-region";
 import type { BookingProduct, TransportType } from "@/types/booking";
 import type { Profile } from "@/types/profile";
 
@@ -73,7 +74,12 @@ export function NewBookingDialog({
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [vendorId, setVendorId] = useState<string>("");
-  const [regionId, setRegionId] = useState<string>("");
+  const [regionId, setRegionId] = useState<string>(() =>
+    deriveRegionId(
+      products.find((p) => p.id === initialProductId),
+      profile?.region_id ?? null,
+    ),
+  );
   const [brand, setBrand] = useState<string>("");
   const [employeeId, setEmployeeId] = useState<string>("");
   const [category, setCategory] = useState<string>(() => {
@@ -108,6 +114,7 @@ export function NewBookingDialog({
     setKidsPrice("");
     setAddOns([]);
     setTransportType("");
+    setRegionId(deriveRegionId(undefined, profile?.region_id ?? null));
   }
 
   function handleProductChange(id: string) {
@@ -120,6 +127,7 @@ export function NewBookingDialog({
     if (product?.vendor_id) {
       setVendorId(product.vendor_id);
     }
+    setRegionId(deriveRegionId(product, profile?.region_id ?? null));
   }
 
   function toggleAddOn(addOn: string) {
@@ -127,10 +135,6 @@ export function NewBookingDialog({
   }
 
   async function handleSubmit(formData: FormData) {
-    if (!regionId) {
-      toast.error("Select a region");
-      return;
-    }
     const date = formData.get("bookingDate") as string;
     if (!date) {
       toast.error("Set a booking date");
@@ -160,7 +164,7 @@ export function NewBookingDialog({
     const { error } = await supabase.from("bookings").insert({
       customer_name: customerName,
       customer_contact: showContactNumber ? customerContact : null,
-      region_id: regionId,
+      region_id: regionId || null,
       brand: brand || null,
       assigned_vendor_id: vendorId || null,
       assigned_employee_id:
@@ -169,6 +173,7 @@ export function NewBookingDialog({
           : profile?.role === "employee"
             ? profile.id
             : null,
+      created_by: profile?.id ?? null,
       item_id: productId || null,
       sale_price: priceRaw ? Number(priceRaw) : null,
       kids_price: isDinnerCruise && kidsPriceRaw ? Number(kidsPriceRaw) : null,
@@ -209,7 +214,6 @@ export function NewBookingDialog({
     toast.success("Booking created");
     setOpen(false);
     setVendorId("");
-    setRegionId("");
     setBrand("");
     setEmployeeId("");
     setProductId(initialProductId ?? "");
@@ -217,6 +221,7 @@ export function NewBookingDialog({
     setCategory(resetProduct?.category ?? "");
     setSalePrice(resetProduct?.sale_price != null ? String(resetProduct.sale_price) : "");
     setKidsPrice(resetProduct?.kids_sale_price != null ? String(resetProduct.kids_sale_price) : "");
+    setRegionId(deriveRegionId(resetProduct, profile?.region_id ?? null));
     setAddOns([]);
     setTransportType("");
     await onAdded();
@@ -265,20 +270,9 @@ export function NewBookingDialog({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Region</Label>
-              <Select value={regionId} onValueChange={(v) => setRegionId(v ?? "")}>
-                <SelectTrigger>
-                  <SelectValue>
-                    {(value: string) => regions.find((r) => r.id === value)?.name ?? "Select region"}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {regions.map((r) => (
-                    <SelectItem key={r.id} value={r.id}>
-                      {r.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <p className="flex h-8 items-center rounded-md border bg-muted/30 px-3 text-sm text-muted-foreground">
+                {regions.find((r) => r.id === regionId)?.name ?? "Determined from product"}
+              </p>
             </div>
             <div className="space-y-2">
               <Label>Vendor</Label>

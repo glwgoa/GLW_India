@@ -32,6 +32,7 @@ import {
 } from "@/lib/booking-yacht";
 import { BRAND_NAMES } from "@/lib/brands";
 import { isPrivileged } from "@/lib/auth/roles";
+import { deriveRegionId } from "@/lib/booking-region";
 import type { BookingProduct, BookingRow, BookingStatus, TransportType } from "@/types/booking";
 import type { Profile } from "@/types/profile";
 
@@ -113,6 +114,7 @@ export function EditBookingDialog({
     if (product?.vendor_id) {
       setVendorId(product.vendor_id);
     }
+    setRegionId(deriveRegionId(product, profile?.region_id ?? null));
     if (product?.category !== YACHT_CATEGORY_NAME) {
       setAddOns([]);
     }
@@ -126,10 +128,6 @@ export function EditBookingDialog({
   }
 
   async function handleSubmit(formData: FormData) {
-    if (!regionId) {
-      toast.error("Select a region");
-      return;
-    }
     const date = formData.get("bookingDate") as string;
     if (!date) {
       toast.error("Set a booking date");
@@ -161,7 +159,7 @@ export function EditBookingDialog({
       .update({
         customer_name: customerName,
         customer_contact: showContactNumber ? customerContact : null,
-        region_id: regionId,
+        region_id: regionId || null,
         brand: brand || null,
         assigned_vendor_id: vendorId || null,
         assigned_employee_id: canAssignEmployee ? employeeId || null : booking.assigned_employee_id,
@@ -235,20 +233,9 @@ export function EditBookingDialog({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Region</Label>
-              <Select value={regionId} onValueChange={(v) => setRegionId(v ?? "")}>
-                <SelectTrigger>
-                  <SelectValue>
-                    {(value: string) => regions.find((r) => r.id === value)?.name ?? "Select region"}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {regions.map((r) => (
-                    <SelectItem key={r.id} value={r.id}>
-                      {r.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <p className="flex h-8 items-center rounded-md border bg-muted/30 px-3 text-sm text-muted-foreground">
+                {regions.find((r) => r.id === regionId)?.name ?? "Determined from product"}
+              </p>
             </div>
             <div className="space-y-2">
               <Label>Vendor</Label>
