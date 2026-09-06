@@ -158,7 +158,7 @@ export function UniversalSearch() {
   return (
     <div className="relative w-full">
       <div className="relative">
-        <Search className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+        <Search className="pointer-events-none absolute top-1/2 left-2.5 h-3.5 w-3.5 -translate-y-1/2 text-neutral-400" />
         <Input
           ref={inputRef}
           type="text"
@@ -167,17 +167,17 @@ export function UniversalSearch() {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setTimeout(() => setIsFocused(false), 150)}
-          className="h-8 border-none bg-transparent pr-7 pl-8 text-sm shadow-none focus-visible:ring-0 dark:bg-transparent"
+          className="h-8 border-none bg-transparent pr-7 pl-8 text-sm text-neutral-900 shadow-none placeholder:text-neutral-400 focus-visible:ring-0 dark:bg-transparent"
         />
         {isLoading && (
-          <Loader2 className="absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 animate-spin text-muted-foreground" />
+          <Loader2 className="absolute top-1/2 right-2.5 h-3.5 w-3.5 -translate-y-1/2 animate-spin text-neutral-400" />
         )}
       </div>
 
       <AnimatePresence>
         {isFocused && trimmed && (
           <motion.div
-            className="absolute top-full left-0 z-50 mt-1.5 w-full overflow-hidden rounded-lg bg-popover text-popover-foreground shadow-lg ring-1 ring-foreground/10"
+            className="absolute top-full left-0 z-50 mt-1.5 w-full max-w-md overflow-hidden rounded-lg bg-popover text-popover-foreground shadow-lg ring-1 ring-foreground/10"
             variants={listVariants}
             initial="hidden"
             animate="show"

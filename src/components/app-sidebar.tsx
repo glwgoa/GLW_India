@@ -15,70 +15,44 @@ import {
   Tags,
   Receipt,
 } from "lucide-react";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-} from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { signOut } from "@/lib/actions/auth";
 import type { Profile } from "@/types/profile";
 
 const NAV_ITEMS = [
-  { href: "/", label: "Overview", icon: LayoutDashboard, roles: null, color: "var(--chart-1)" },
-  {
-    href: "/bookings",
-    label: "Bookings",
-    icon: CalendarClock,
-    roles: null,
-    color: "var(--chart-1)",
-  },
-  { href: "/inventory", label: "Inventory", icon: Boxes, roles: null, color: "var(--chart-2)" },
+  { href: "/", label: "Overview", icon: LayoutDashboard, roles: null },
+  { href: "/bookings", label: "Bookings", icon: CalendarClock, roles: null },
+  { href: "/inventory", label: "Inventory", icon: Boxes, roles: null },
   {
     href: "/vendors",
     label: "Vendors",
     icon: Building2,
     roles: ["admin", "developer", "project_manager", "vendor"] as const,
-    color: "var(--chart-3)",
   },
-  {
-    href: "/projects",
-    label: "Projects",
-    icon: FolderKanban,
-    roles: null,
-    color: "var(--chart-4)",
-  },
-  { href: "/employees", label: "Employees", icon: Users, roles: null, color: "var(--chart-5)" },
-  { href: "/attendance", label: "Attendance", icon: Clock, roles: null, color: "var(--chart-1)" },
+  { href: "/projects", label: "Projects", icon: FolderKanban, roles: null },
+  { href: "/employees", label: "Employees", icon: Users, roles: null },
+  { href: "/attendance", label: "Attendance", icon: Clock, roles: null },
   {
     href: "/transactions",
     label: "Transactions",
     icon: Receipt,
     roles: ["admin", "developer", "project_manager"] as const,
-    color: "var(--chart-4)",
   },
   {
     href: "/mis-reports",
     label: "MIS Reports",
     icon: BarChart3,
     roles: ["admin", "developer", "project_manager"] as const,
-    color: "var(--chart-2)",
   },
   {
     href: "/vendor-categories",
     label: "Vendor Categories",
     icon: Tags,
     roles: ["developer"] as const,
-    color: "var(--chart-3)",
   },
 ];
+
+const NAVY = "#0B1B3F";
 
 function initials(name: string) {
   return name
@@ -89,76 +63,97 @@ function initials(name: string) {
     .toUpperCase();
 }
 
+/** One frosted-glass, fully-rounded "island" — the building block every group below is made of. */
+function Pill({
+  children,
+  flowBottomLeft = false,
+}: {
+  children: React.ReactNode;
+  /** Lets the pill's bottom-left corner flare into a wide organic curve instead of a plain cap. */
+  flowBottomLeft?: boolean;
+}) {
+  return (
+    <div
+      className="flex flex-col items-center gap-3 bg-white/70 px-1.5 py-3 shadow-lg shadow-black/10 ring-1 ring-black/5 backdrop-blur-xl sm:gap-4 sm:px-2 sm:py-4"
+      style={{
+        borderRadius: flowBottomLeft ? "9999px 9999px 9999px 2.75rem" : "9999px",
+        paddingBottom: flowBottomLeft ? "1.75rem" : undefined,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+function IconSlot({
+  href,
+  label,
+  icon: Icon,
+  active,
+}: {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+  active: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      title={label}
+      aria-label={label}
+      aria-current={active ? "page" : undefined}
+      className={`flex size-9 shrink-0 items-center justify-center rounded-full transition-all sm:size-10 ${
+        active ? "bg-white shadow-md" : "bg-black/5 hover:bg-black/10"
+      }`}
+    >
+      <Icon className={`size-4 sm:size-4.5 ${active ? "" : "opacity-70"}`} style={{ color: NAVY }} />
+    </Link>
+  );
+}
+
 export function AppSidebar({ profile }: { profile: Profile }) {
   const pathname = usePathname();
   const items = NAV_ITEMS.filter((item) => !item.roles || item.roles.includes(profile.role as never));
 
   return (
-    <Sidebar collapsible="icon" variant="floating">
-      <SidebarHeader>
-        <div className="flex items-center gap-2 overflow-hidden px-1 py-1.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
-          <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground text-xs font-semibold shadow-[0_0_24px_-4px_var(--color-primary)]">
-            GI
-          </div>
-          <span className="truncate text-sm font-semibold whitespace-nowrap group-data-[collapsible=icon]:hidden">
-            GLW India Ops
-          </span>
-        </div>
-      </SidebarHeader>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel className="group-data-[collapsible=icon]:hidden">Modules</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu className="gap-2 group-data-[collapsible=icon]:items-center">
-              {items.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton
-                      render={<Link href={item.href} prefetch={item.href === "/inventory" ? false : true} />}
-                      isActive={isActive}
-                      tooltip={item.label}
-                      className="rounded-full ring-1 ring-transparent transition-all group-data-[collapsible=icon]:size-11! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-full"
-                      style={{
-                        backgroundColor: `color-mix(in srgb, ${item.color} ${isActive ? 24 : 10}%, transparent)`,
-                        boxShadow: isActive
-                          ? `0 0 24px -6px color-mix(in srgb, ${item.color} 70%, transparent)`
-                          : undefined,
-                      }}
-                    >
-                      <item.icon style={{ color: item.color }} />
-                      <span className="group-data-[collapsible=icon]:hidden">{item.label}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-      <SidebarFooter>
-        <div className="flex items-center gap-2 overflow-hidden px-1 py-1.5 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0">
-          <Avatar className="shrink-0 ring-1 ring-foreground/10">
-            <AvatarFallback className="text-xs">{initials(profile.full_name)}</AvatarFallback>
+    <nav
+      aria-label="Primary"
+      className="fixed inset-y-0 left-2 z-40 flex max-h-screen flex-col items-center justify-center gap-4 overflow-y-auto py-4 sm:left-4 sm:gap-6 sm:py-6"
+    >
+      <Pill>
+        {items.map((item) => (
+          <IconSlot
+            key={item.href}
+            href={item.href}
+            label={item.label}
+            icon={item.icon}
+            active={pathname === item.href}
+          />
+        ))}
+      </Pill>
+
+      <Pill>
+        <div className="flex size-10 items-center justify-center rounded-full bg-white p-0.5 shadow-md sm:size-11">
+          <Avatar className="size-full">
+            <AvatarFallback className="bg-transparent text-xs font-semibold" style={{ color: NAVY }}>
+              {initials(profile.full_name)}
+            </AvatarFallback>
           </Avatar>
-          <div className="flex min-w-0 flex-1 flex-col group-data-[collapsible=icon]:hidden">
-            <span className="truncate text-xs font-medium">{profile.full_name}</span>
-            <span className="truncate text-xs capitalize text-muted-foreground">
-              {profile.role.replace("_", " ")}
-            </span>
-          </div>
         </div>
+      </Pill>
+
+      <Pill flowBottomLeft>
         <form action={signOut}>
-          <SidebarMenuButton
+          <button
             type="submit"
-            tooltip="Sign out"
-            className="w-full rounded-full group-data-[collapsible=icon]:size-11! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:rounded-full"
+            title="Sign out"
+            aria-label="Sign out"
+            className="flex size-9 shrink-0 items-center justify-center rounded-full bg-black/5 transition-all sm:size-10 hover:bg-black/10"
           >
-            <LogOut />
-            <span className="group-data-[collapsible=icon]:hidden">Sign out</span>
-          </SidebarMenuButton>
+            <LogOut className="size-4 opacity-70 sm:size-4.5" style={{ color: NAVY }} />
+          </button>
         </form>
-      </SidebarFooter>
-    </Sidebar>
+      </Pill>
+    </nav>
   );
 }
