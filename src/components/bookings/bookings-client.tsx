@@ -67,6 +67,7 @@ export function BookingsClient({
 
   function handleDownload() {
     const headers = [
+      "Sl. No",
       "Customer",
       "Contact",
       "Brand",
@@ -82,12 +83,13 @@ export function BookingsClient({
       "Enquiry date",
       "Booking date",
     ];
-    const rows = visibleBookings.map((b) => {
+    const rows = visibleBookings.map((b, index) => {
       const salePrice = effectiveSalePrice(b);
       const b2bPrice = effectiveB2bPrice(b);
       const profit = computeProfit(b);
       const balance = salePrice != null ? salePrice - (b.advance_amount ?? 0) : "";
       return [
+        index + 1,
         b.customer_name,
         b.customer_contact ?? "",
         b.brand ?? "",

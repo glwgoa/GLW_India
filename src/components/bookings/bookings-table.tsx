@@ -97,6 +97,7 @@ export function BookingsTable({
       <Table>
         <TableHeader>
           <TableRow>
+            <TableHead className="w-12">Sl. No</TableHead>
             <TableHead>Customer</TableHead>
             <TableHead>Brand</TableHead>
             <TableHead>Product</TableHead>
@@ -121,6 +122,7 @@ export function BookingsTable({
               style={{ animationDelay: `${Math.min(index, 12) * 50}ms` }}
               onClick={() => setSelectedBooking(booking)}
             >
+              <TableCell className="text-muted-foreground">{index + 1}</TableCell>
               <TableCell className="font-medium">
                 <div>{booking.customer_name}</div>
                 {booking.customer_contact && (
