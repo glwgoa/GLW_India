@@ -2,7 +2,6 @@ import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { RegionProvider } from "@/lib/region-context";
-import { LayoutDashboard } from "lucide-react";
 import { AppSidebar } from "@/components/app-sidebar";
 import { RegionSwitcher } from "@/components/region-switcher";
 import { UniversalSearch } from "@/components/universal-search";
@@ -27,6 +26,7 @@ export default async function DashboardLayout({
 
   return (
     <RegionProvider initialRegionId={initialRegionId}>
+      <div aria-hidden className="app-gradient pointer-events-none fixed inset-0 -z-10" />
       <AppSidebar profile={profile} />
       <div className="flex min-h-svh w-full flex-col pl-[4.5rem] sm:pl-28">
         <div className="flex shrink-0 items-center gap-2 py-2 pr-2 pl-0 sm:gap-4 sm:p-4">

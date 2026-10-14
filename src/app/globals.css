@@ -171,3 +171,74 @@
     letter-spacing: var(--letter-spacing);
   }
 }
+
+/* Soft blue-to-orange mesh gradient backdrop. */
+.app-gradient {
+  background-color: #a9c6e8;
+  background-image:
+    radial-gradient(60rem 40rem at 0% 0%, #0b49a6 0%, transparent 60%),
+    radial-gradient(45rem 35rem at 22% 28%, #c4dcf5 0%, transparent 70%),
+    radial-gradient(55rem 40rem at 0% 90%, #2f6fb3 0%, transparent 65%),
+    radial-gradient(60rem 40rem at 100% 105%, #fb8a4c 0%, transparent 62%),
+    radial-gradient(45rem 35rem at 80% 55%, #f3b890 0%, transparent 70%),
+    linear-gradient(180deg, #8fb4e0 0%, #b9cde3 55%, #e9bfa4 100%);
+}
+.dark .app-gradient {
+  filter: brightness(0.45) saturate(1.1);
+}
+
+/* Sidebar: the black bar is masked so the active item's tab is a real cut-out
+   (page gradient shows through) and slides by animating --tab-y. */
+@property --tab-y {
+  syntax: "<length>";
+  inherits: true;
+  initial-value: 0px;
+}
+.sidebar-shell {
+  --tab-y: calc(var(--nav-top) + var(--tab-index) * var(--item-h));
+  --notch-x: 0.5rem;
+  --notch-r: 1rem;
+  transition: --tab-y 0.5s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.sidebar-bar {
+  -webkit-mask-image:
+    linear-gradient(#000, #000),
+    radial-gradient(circle at 100% 50%, #000 calc(var(--item-h) / 2), transparent calc(var(--item-h) / 2 + 0.5px)),
+    radial-gradient(circle at 0 0, transparent var(--notch-r), #000 var(--notch-r)),
+    radial-gradient(circle at 0 100%, transparent var(--notch-r), #000 var(--notch-r)),
+    linear-gradient(#000, #000);
+  mask-image:
+    linear-gradient(#000, #000),
+    radial-gradient(circle at 100% 50%, #000 calc(var(--item-h) / 2), transparent calc(var(--item-h) / 2 + 0.5px)),
+    radial-gradient(circle at 0 0, transparent var(--notch-r), #000 var(--notch-r)),
+    radial-gradient(circle at 0 100%, transparent var(--notch-r), #000 var(--notch-r)),
+    linear-gradient(#000, #000);
+  mask-repeat: no-repeat;
+  -webkit-mask-repeat: no-repeat;
+  mask-size:
+    calc(100% - var(--notch-x) - var(--item-h) / 2) var(--item-h),
+    calc(var(--item-h) / 2) var(--item-h),
+    var(--notch-r) var(--notch-r),
+    var(--notch-r) var(--notch-r),
+    100% 100%;
+  -webkit-mask-size:
+    calc(100% - var(--notch-x) - var(--item-h) / 2) var(--item-h),
+    calc(var(--item-h) / 2) var(--item-h),
+    var(--notch-r) var(--notch-r),
+    var(--notch-r) var(--notch-r),
+    100% 100%;
+  mask-position:
+    left calc(var(--notch-x) + var(--item-h) / 2) top var(--tab-y),
+    left var(--notch-x) top var(--tab-y),
+    right 0 top calc(var(--tab-y) - var(--notch-r)),
+    right 0 top calc(var(--tab-y) + var(--item-h)),
+    0 0;
+  -webkit-mask-position:
+    left calc(var(--notch-x) + var(--item-h) / 2) top var(--tab-y),
+    left var(--notch-x) top var(--tab-y),
+    right 0 top calc(var(--tab-y) - var(--notch-r)),
+    right 0 top calc(var(--tab-y) + var(--item-h)),
+    0 0;
+  mask-composite: exclude, exclude, exclude, exclude, add;
+  -webkit-mask-composite: xor, xor, xor, xor, source-over;
+}

@@ -35,7 +35,7 @@ export function TransactionsTable({
   }
 
   return (
-    <div className="rounded-lg bg-card ring-1 ring-black/[0.03]">
+    <div className="rounded-lg bg-card/80 shadow-xl shadow-black/[0.14] backdrop-blur-md ring-1 ring-black/[0.03]">
       <Table>
         <TableHeader>
           <TableRow>

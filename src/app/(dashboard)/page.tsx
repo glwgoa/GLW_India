@@ -13,6 +13,8 @@ import { ChevronRight } from "lucide-react";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { Reveal, RevealItem } from "@/components/motion/reveal";
 
+const MODULE_TINT: Record<string, string> = {"/bookings": "from-sky-500/90 to-blue-600/90", "/inventory": "from-emerald-500/90 to-teal-600/90", "/projects": "from-violet-500/90 to-purple-600/90", "/attendance": "from-amber-400/95 to-orange-500/95", "/mis-reports": "from-rose-500/90 to-pink-600/90"};
+
 const MODULES = [
   {
     href: "/bookings",
@@ -69,9 +71,9 @@ export default async function DashboardOverviewPage() {
     ]);
 
   const stats = [
-    { label: "Bookings visible to you", value: totalBookings ?? 0, icon: CalendarCheck, tint: "bg-orange-500/20", href: "/bookings" },
-    { label: "Pending bookings", value: pendingBookings ?? 0, icon: Hourglass, tint: "bg-indigo-500/25", href: "/bookings" },
-    { label: "Active projects", value: activeProjects ?? 0, icon: Layers, tint: "bg-white/10", href: "/projects" },
+    { label: "Bookings visible to you", value: totalBookings ?? 0, icon: CalendarCheck, tint: "bg-orange-500 text-white", href: "/bookings" },
+    { label: "Pending bookings", value: pendingBookings ?? 0, icon: Hourglass, tint: "bg-indigo-500 text-white", href: "/bookings" },
+    { label: "Active projects", value: activeProjects ?? 0, icon: Layers, tint: "bg-emerald-500 text-white", href: "/projects" },
   ];
 
   return (
@@ -79,14 +81,14 @@ export default async function DashboardOverviewPage() {
       <div className="space-y-6">
         <Reveal>
           <RevealItem>
-            <section className="rounded-lg bg-card p-6 sm:p-8">
+            <section className="rounded-lg bg-gradient-to-br from-blue-600 via-sky-500 to-orange-400 p-6 text-white shadow-xl shadow-black/[0.14] sm:p-8">
               <h1 className="text-3xl font-semibold">Hi {profile.full_name.split(" ")[0]}.</h1>
-              <p className="mt-3 max-w-md text-sm text-muted-foreground">
+              <p className="mt-3 max-w-md text-sm text-white/85">
                 Welcome back, {profile.full_name}. Here is what is happening across GLW India today.
               </p>
               <Link
                 href="/bookings"
-                className="mt-6 inline-flex h-10 items-center rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-transform hover:-translate-y-0.5 active:translate-y-0"
+                className="mt-6 inline-flex h-10 items-center rounded-lg bg-white px-5 text-sm font-medium text-neutral-900 transition-transform hover:-translate-y-0.5 active:translate-y-0"
               >
                 View Details
               </Link>
@@ -102,12 +104,12 @@ export default async function DashboardOverviewPage() {
                 <Link
                   href={mod.href}
                   prefetch={mod.href === "/inventory" ? false : true}
-                  className="group flex h-full flex-col gap-4 rounded-lg bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:bg-primary hover:text-primary-foreground"
+                  className={`group flex h-full flex-col gap-4 rounded-lg bg-gradient-to-br ${MODULE_TINT[mod.href]} p-5 text-white shadow-xl shadow-black/[0.14] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl`}
                 >
                   <mod.icon className="size-6" />
                   <div>
                     <div className="text-base font-medium">{mod.label}</div>
-                    <p className="mt-1 text-xs text-muted-foreground group-hover:text-primary-foreground/70">
+                    <p className="mt-1 text-xs text-white/80">
                       {mod.description}
                     </p>
                   </div>
@@ -118,7 +120,7 @@ export default async function DashboardOverviewPage() {
         </div>
       </div>
 
-      <aside className="rounded-lg bg-card p-4">
+      <aside className="rounded-lg bg-card/80 shadow-xl shadow-black/[0.14] backdrop-blur-md p-4">
         <Reveal className="space-y-4">
           {stats.map((stat) => (
             <RevealItem key={stat.label}>
