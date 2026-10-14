@@ -5,13 +5,12 @@ import {
   Clock3,
   Hourglass,
   KanbanSquare,
-  LayoutDashboard,
   Layers,
   Package,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
-import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageHeaderIcon } from "@/components/page-header-icon";
+import { ChevronRight } from "lucide-react";
+import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { Reveal, RevealItem } from "@/components/motion/reveal";
 
 const MODULES = [
@@ -52,19 +51,9 @@ const MODULES = [
   },
 ];
 
-function IconBadge({ icon: Icon, color }: { icon: typeof CalendarCheck; color: string }) {
-  return (
-    <div
-      className="flex size-10 shrink-0 items-center justify-center rounded-lg"
-      style={{ backgroundColor: `color-mix(in srgb, ${color} 16%, transparent)` }}
-    >
-      <Icon className="size-5" style={{ color }} />
-    </div>
-  );
-}
-
 export default async function DashboardOverviewPage() {
   const supabase = await createClient();
+  const profile = await getCurrentProfile();
 
   const [{ count: totalBookings }, { count: pendingBookings }, { count: activeProjects }] =
     await Promise.all([
@@ -79,71 +68,77 @@ export default async function DashboardOverviewPage() {
         .eq("status", "active"),
     ]);
 
+  const stats = [
+    { label: "Bookings visible to you", value: totalBookings ?? 0, icon: CalendarCheck, tint: "bg-orange-500/20", href: "/bookings" },
+    { label: "Pending bookings", value: pendingBookings ?? 0, icon: Hourglass, tint: "bg-indigo-500/25", href: "/bookings" },
+    { label: "Active projects", value: activeProjects ?? 0, icon: Layers, tint: "bg-white/10", href: "/projects" },
+  ];
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-3">
-        <PageHeaderIcon icon={LayoutDashboard} color="var(--chart-1)" />
+    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-6">
+      <div className="space-y-6">
+        <Reveal>
+          <RevealItem>
+            <section className="rounded-lg bg-card p-6 sm:p-8">
+              <h1 className="text-3xl font-semibold">Hi {profile.full_name.split(" ")[0]}.</h1>
+              <p className="mt-3 max-w-md text-sm text-muted-foreground">
+                Welcome back, {profile.full_name}. Here is what is happening across GLW India today.
+              </p>
+              <Link
+                href="/bookings"
+                className="mt-6 inline-flex h-10 items-center rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-transform hover:-translate-y-0.5 active:translate-y-0"
+              >
+                View Details
+              </Link>
+            </section>
+          </RevealItem>
+        </Reveal>
+
         <div>
-          <h1 className="text-2xl font-semibold">Overview</h1>
-          <p className="text-sm text-muted-foreground">
-            Scoped to what your role can see — RLS handles the filtering.
-          </p>
+          <h2 className="mb-3 text-sm font-semibold">Modules</h2>
+          <Reveal className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+            {MODULES.map((mod) => (
+              <RevealItem key={mod.href}>
+                <Link
+                  href={mod.href}
+                  prefetch={mod.href === "/inventory" ? false : true}
+                  className="group flex h-full flex-col gap-4 rounded-lg bg-card p-5 transition-all duration-300 hover:-translate-y-1 hover:bg-primary hover:text-primary-foreground"
+                >
+                  <mod.icon className="size-6" />
+                  <div>
+                    <div className="text-base font-medium">{mod.label}</div>
+                    <p className="mt-1 text-xs text-muted-foreground group-hover:text-primary-foreground/70">
+                      {mod.description}
+                    </p>
+                  </div>
+                </Link>
+              </RevealItem>
+            ))}
+          </Reveal>
         </div>
       </div>
 
-      <Reveal className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <RevealItem>
-          <Card className="border-t-2" style={{ borderTopColor: "var(--chart-1)" }}>
-            <CardHeader className="flex-row items-center gap-3 pb-2">
-              <IconBadge icon={CalendarCheck} color="var(--chart-1)" />
-              <div>
-                <CardDescription>Bookings visible to you</CardDescription>
-                <CardTitle className="text-3xl">{totalBookings ?? 0}</CardTitle>
-              </div>
-            </CardHeader>
-          </Card>
-        </RevealItem>
-        <RevealItem>
-          <Card className="border-t-2" style={{ borderTopColor: "var(--chart-5)" }}>
-            <CardHeader className="flex-row items-center gap-3 pb-2">
-              <IconBadge icon={Hourglass} color="var(--chart-5)" />
-              <div>
-                <CardDescription>Pending bookings</CardDescription>
-                <CardTitle className="text-3xl">{pendingBookings ?? 0}</CardTitle>
-              </div>
-            </CardHeader>
-          </Card>
-        </RevealItem>
-        <RevealItem>
-          <Card className="border-t-2" style={{ borderTopColor: "var(--chart-2)" }}>
-            <CardHeader className="flex-row items-center gap-3 pb-2">
-              <IconBadge icon={Layers} color="var(--chart-2)" />
-              <div>
-                <CardDescription>Active projects</CardDescription>
-                <CardTitle className="text-3xl">{activeProjects ?? 0}</CardTitle>
-              </div>
-            </CardHeader>
-          </Card>
-        </RevealItem>
-      </Reveal>
-
-      <Reveal className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {MODULES.map((mod) => (
-          <RevealItem key={mod.href}>
-            <Link href={mod.href} prefetch={mod.href === "/inventory" ? false : true}>
-              <Card className="h-full transition-colors hover:-translate-y-1 hover:bg-muted/50 hover:shadow-md active:translate-y-0 active:scale-[0.99]">
-                <CardHeader className="flex-row items-center gap-3">
-                  <IconBadge icon={mod.icon} color={mod.color} />
-                  <div>
-                    <CardTitle className="text-base">{mod.label}</CardTitle>
-                    <CardDescription>{mod.description}</CardDescription>
-                  </div>
-                </CardHeader>
-              </Card>
-            </Link>
-          </RevealItem>
-        ))}
-      </Reveal>
+      <aside className="rounded-lg bg-card p-4">
+        <Reveal className="space-y-4">
+          {stats.map((stat) => (
+            <RevealItem key={stat.label}>
+              <Link
+                href={stat.href}
+                className="flex items-center gap-3 rounded-md bg-background p-4 shadow-sm shadow-black/[0.05] ring-1 ring-black/[0.03] dark:ring-white/5 transition-transform hover:-translate-y-0.5"
+              >
+                <div className={`flex size-11 shrink-0 items-center justify-center rounded-md ${stat.tint}`}>
+                  <stat.icon className="size-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-xs text-muted-foreground">{stat.label}</div>
+                  <div className="text-2xl font-semibold">{stat.value}</div>
+                </div>
+                <ChevronRight className="size-4 text-muted-foreground" />
+              </Link>
+            </RevealItem>
+          ))}
+        </Reveal>
+      </aside>
     </div>
   );
 }

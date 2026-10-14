@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -88,12 +88,33 @@ export function BookingsTable({
     toast.success("Booking deleted");
   }
 
+  // Group by booking month (newest month first), keeping each group's row order.
+  const monthGroups = useMemo(() => {
+    const groups = new Map<string, { label: string; items: BookingRow[] }>();
+    for (const b of bookings) {
+      const key = b.booking_date.slice(0, 7);
+      let group = groups.get(key);
+      if (!group) {
+        const label = new Date(`${key}-01T00:00:00`).toLocaleDateString("en-IN", {
+          month: "long",
+          year: "numeric",
+        });
+        group = { label, items: [] };
+        groups.set(key, group);
+      }
+      group.items.push(b);
+    }
+    return [...groups.entries()].sort(([a], [b]) => b.localeCompare(a)).map(([, g]) => g);
+  }, [bookings]);
+  const columnCount = 10 + (canSeeProfit ? 2 : 0) + (canEdit || canDelete ? 1 : 0);
+  let serial = 0;
+
   if (bookings.length === 0) {
     return <p className="text-sm text-muted-foreground">No bookings visible to your role.</p>;
   }
 
   return (
-    <div className="rounded-lg border border-white/15 bg-background/85 shadow-lg shadow-black/[0.03] backdrop-blur-xl dark:shadow-black/30">
+    <div className="rounded-lg bg-card ring-1 ring-black/[0.03]">
       <Table>
         <TableHeader>
           <TableRow>
@@ -113,7 +134,19 @@ export function BookingsTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {bookings.map((booking, index) => (
+          {monthGroups.map((group) => (
+            <Fragment key={group.label}>
+              <TableRow className="bg-muted/40 hover:bg-muted/40">
+                <TableCell colSpan={columnCount} className="py-2 text-sm font-semibold">
+                  {group.label}
+                  <span className="ml-2 text-xs font-normal text-muted-foreground">
+                    {group.items.length} booking{group.items.length === 1 ? "" : "s"}
+                  </span>
+                </TableCell>
+              </TableRow>
+              {group.items.map((booking) => {
+                const index = serial++;
+                return (
             <TableRow
               key={booking.id}
               className={`cursor-pointer animate-in fade-in-0 slide-in-from-bottom-3 fill-mode-both duration-500 transition-colors ${
@@ -241,6 +274,9 @@ export function BookingsTable({
                 </TableCell>
               )}
             </TableRow>
+                );
+              })}
+            </Fragment>
           ))}
         </TableBody>
       </Table>
