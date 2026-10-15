@@ -41,6 +41,9 @@ export type BookingRow = {
   guest_count: number | null;
   kids_count: number | null;
   kids_price: number | null;
+  /** B2B prices frozen on the booking at creation; catalog price changes never alter them. */
+  b2b_price: number | null;
+  kids_b2b_price: number | null;
   kids_below_5_count: number | null;
   transport_type: TransportType | null;
   pickup_drop_price: number | null;

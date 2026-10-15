@@ -42,8 +42,9 @@ export function effectiveSalePrice(
  * Pickup/Drop transport fee — multiplied by pickup_drop_guest_count when
  * set (only some guests may need pickup/drop), falling back to the total
  * guest count otherwise — plus the Kids B2B cost (kids_b2b_price x
- * number of kids) for Dinner Cruise. Never written back to the shared
- * catalog_items.b2b_price.
+ * number of kids) for Dinner Cruise. Both base prices are read from the
+ * booking's own frozen copy, so later changes to the shared catalog
+ * prices never alter existing bookings.
  */
 export function effectiveB2bPrice(
   booking: Pick<
@@ -51,6 +52,8 @@ export function effectiveB2bPrice(
     | "item"
     | "guest_count"
     | "kids_count"
+    | "b2b_price"
+    | "kids_b2b_price"
     | "transport_type"
     | "pickup_drop_price"
     | "pickup_drop_guest_count"
@@ -58,11 +61,11 @@ export function effectiveB2bPrice(
 ) {
   const kidsB2bCost =
     hasKidsPricing(booking) && booking.kids_count
-      ? (booking.item?.kids_b2b_price ?? 0) * booking.kids_count
+      ? (booking.kids_b2b_price ?? 0) * booking.kids_count
       : 0;
-  if (booking.item?.b2b_price == null) return kidsB2bCost > 0 ? kidsB2bCost : null;
+  if (booking.b2b_price == null) return kidsB2bCost > 0 ? kidsB2bCost : null;
   const multiplier = guestMultiplier(booking);
-  const base = booking.item.b2b_price * multiplier;
+  const base = booking.b2b_price * multiplier;
   const pickupDropMultiplier = booking.pickup_drop_guest_count ?? multiplier;
   const extra =
     booking.transport_type === "pickup_drop"
@@ -84,6 +87,8 @@ export function computeProfit(
     | "kids_count"
     | "kids_price"
     | "sale_price"
+    | "b2b_price"
+    | "kids_b2b_price"
     | "transport_type"
     | "pickup_drop_price"
     | "pickup_drop_guest_count"

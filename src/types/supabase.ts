@@ -83,6 +83,8 @@ export type Database = {
           kids_below_5_count: number | null
           kids_count: number | null
           kids_price: number | null
+          b2b_price: number | null
+          kids_b2b_price: number | null
           pickup_drop_guest_count: number | null
           pickup_drop_price: number | null
           region_id: string | null
@@ -113,6 +115,8 @@ export type Database = {
           kids_below_5_count?: number | null
           kids_count?: number | null
           kids_price?: number | null
+          b2b_price?: number | null
+          kids_b2b_price?: number | null
           pickup_drop_guest_count?: number | null
           pickup_drop_price?: number | null
           region_id?: string | null
@@ -143,6 +147,8 @@ export type Database = {
           kids_below_5_count?: number | null
           kids_count?: number | null
           kids_price?: number | null
+          b2b_price?: number | null
+          kids_b2b_price?: number | null
           pickup_drop_guest_count?: number | null
           pickup_drop_price?: number | null
           region_id?: string | null
