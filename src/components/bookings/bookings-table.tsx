@@ -124,7 +124,14 @@ export function BookingsTable({
       const group = ensureGroup(key);
       group.items.push(b);
     }
-    return [...groups.entries()].sort(([a], [b]) => b.localeCompare(a)).map(([, g]) => g);
+    return [...groups.entries()]
+      .sort(([a], [b]) => {
+        if (groupBy === "month") return b.localeCompare(a);
+        // Daily: today first, then past days newest first, then any future-dated entries last.
+        const rank = (k: string) => (k === todayKey ? 0 : k < todayKey ? 1 : 2);
+        return rank(a) - rank(b) || b.localeCompare(a);
+      })
+      .map(([, g]) => g);
   }, [bookings, groupBy]);
   const columnCount = 10 + (canSeeProfit ? 2 : 0) + (canEdit || canDelete ? 1 : 0);
   let serial = 0;
