@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Plus } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -36,6 +36,42 @@ import { isPrivileged } from "@/lib/auth/roles";
 import { deriveRegionId } from "@/lib/booking-region";
 import type { BookingProduct, TransportType } from "@/types/booking";
 import type { Profile } from "@/types/profile";
+
+const DRAFT_TTL_MS = 60 * 60 * 1000;
+/** Fields whose value lives in React state, so they are restored via state rather than the DOM. */
+const CONTROLLED_FIELDS = new Set(["salePrice", "kidsPrice"]);
+
+type BookingDraft = {
+  savedAt: number;
+  state: {
+    vendorId: string;
+    regionId: string;
+    brand: string;
+    employeeId: string;
+    category: string;
+    productId: string;
+    salePrice: string;
+    kidsPrice: string;
+    addOns: string[];
+    transportType: string;
+  };
+  fields: Record<string, string>;
+};
+
+function readDraft(key: string): BookingDraft | null {
+  try {
+    const raw = window.localStorage.getItem(key);
+    if (!raw) return null;
+    const draft = JSON.parse(raw) as BookingDraft;
+    if (Date.now() - draft.savedAt > DRAFT_TTL_MS) {
+      window.localStorage.removeItem(key);
+      return null;
+    }
+    return draft;
+  } catch {
+    return null;
+  }
+}
 
 const TRANSPORT_TYPE_LABEL: Record<TransportType, string> = {
   pickup_drop: "Pickup/Drop",
@@ -97,6 +133,114 @@ export function NewBookingDialog({
   });
   const [addOns, setAddOns] = useState<string[]>([]);
   const [transportType, setTransportType] = useState<string>("");
+
+  // Draft memory: unsaved form contents are kept in this browser for 1 hour.
+  // Skipped when the dialog is opened for a specific product (initialProductId).
+  const draftKey = `glw:new-booking-draft:${profile?.id ?? "anon"}`;
+  const draftEnabled = !initialProductId;
+  const formRef = useRef<HTMLFormElement>(null);
+  const restoringRef = useRef(false);
+  const [pendingFields, setPendingFields] = useState<Record<string, string> | null>(null);
+  const [draftRestored, setDraftRestored] = useState(false);
+
+  function saveDraft() {
+    if (!draftEnabled || restoringRef.current || !formRef.current) return;
+    const fields: Record<string, string> = {};
+    for (const el of Array.from(formRef.current.elements)) {
+      if (
+        (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) &&
+        el.name &&
+        !CONTROLLED_FIELDS.has(el.name) &&
+        el.value
+      ) {
+        fields[el.name] = el.value;
+      }
+    }
+    // Nothing entered yet — don't create an empty draft.
+    if (Object.keys(fields).length === 0 && !category && !productId && !brand && !vendorId) return;
+    const draft: BookingDraft = {
+      savedAt: Date.now(),
+      state: { vendorId, regionId, brand, employeeId, category, productId, salePrice, kidsPrice, addOns, transportType },
+      fields,
+    };
+    try {
+      window.localStorage.setItem(draftKey, JSON.stringify(draft));
+    } catch {
+      // Storage unavailable (private mode / quota) — drafts are best-effort.
+    }
+  }
+
+  function clearDraft() {
+    try {
+      window.localStorage.removeItem(draftKey);
+    } catch {
+      // ignore
+    }
+  }
+
+  function handleOpenChange(next: boolean) {
+    setOpen(next);
+    if (!next) return;
+    setDraftRestored(false);
+    if (!draftEnabled) return;
+    const draft = readDraft(draftKey);
+    if (!draft) return;
+    restoringRef.current = true;
+    const d = draft.state;
+    setVendorId(d.vendorId);
+    setRegionId(d.regionId);
+    setBrand(d.brand);
+    setEmployeeId(d.employeeId);
+    setCategory(d.category);
+    setProductId(d.productId);
+    setSalePrice(d.salePrice);
+    setKidsPrice(d.kidsPrice);
+    setAddOns(d.addOns);
+    setTransportType(d.transportType);
+    setPendingFields(draft.fields);
+    setDraftRestored(true);
+  }
+
+  // Once the dialog and its conditional fields have rendered, put the typed values back.
+  useEffect(() => {
+    if (!open || !pendingFields) return;
+    const frame = requestAnimationFrame(() => {
+      const form = formRef.current;
+      if (form) {
+        for (const [name, value] of Object.entries(pendingFields)) {
+          const el = form.elements.namedItem(name);
+          if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) el.value = value;
+        }
+      }
+      setPendingFields(null);
+      restoringRef.current = false;
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [open, pendingFields]);
+
+  // Save whenever a dropdown / state-backed field changes while the dialog is open.
+  useEffect(() => {
+    if (!open) return;
+    const t = setTimeout(saveDraft, 300);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, vendorId, regionId, brand, employeeId, category, productId, salePrice, kidsPrice, addOns, transportType]);
+
+  function discardDraft() {
+    clearDraft();
+    formRef.current?.reset();
+    setVendorId("");
+    setBrand("");
+    setEmployeeId("");
+    setProductId("");
+    setCategory("");
+    setSalePrice("");
+    setKidsPrice("");
+    setAddOns([]);
+    setTransportType("");
+    setRegionId(deriveRegionId(undefined, profile?.region_id ?? null));
+    setDraftRestored(false);
+  }
 
   const filteredProducts = category ? products.filter((p) => p.category === category) : products;
   const isYacht = category === YACHT_CATEGORY_NAME;
@@ -212,6 +356,8 @@ export function NewBookingDialog({
     }
 
     toast.success("Booking created");
+    clearDraft();
+    setDraftRestored(false);
     setOpen(false);
     setVendorId("");
     setBrand("");
@@ -228,7 +374,7 @@ export function NewBookingDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger render={trigger}>{triggerContent}</DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
@@ -237,7 +383,20 @@ export function NewBookingDialog({
             Create a booking, optionally for a specific product with a sale price.
           </DialogDescription>
         </DialogHeader>
-        <form action={handleSubmit} className="space-y-4">
+        {draftRestored && (
+          <div className="flex items-center justify-between gap-2 rounded-md bg-muted px-3 py-2 text-xs text-muted-foreground">
+            <span>Draft restored from your last unfinished booking.</span>
+            <Button type="button" variant="ghost" size="xs" onClick={discardDraft}>
+              Clear draft
+            </Button>
+          </div>
+        )}
+        <form
+          ref={formRef}
+          action={handleSubmit}
+          onInput={saveDraft}
+          className="space-y-4"
+        >
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="customerName">Customer name</Label>
