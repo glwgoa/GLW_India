@@ -40,6 +40,7 @@ export function BookingsTable({
   products,
   employees,
   refresh,
+  groupBy = "month",
 }: {
   bookings: BookingRow[];
   setBookings: React.Dispatch<React.SetStateAction<BookingRow[]>>;
@@ -49,6 +50,7 @@ export function BookingsTable({
   products: BookingProduct[];
   employees: { id: string; full_name: string }[];
   refresh: () => void | Promise<void>;
+  groupBy?: "month" | "day";
 }) {
   const canManageBookings =
     isPrivileged(profile.role) || profile.role === "project_manager" || profile.role === "employee";
@@ -88,24 +90,33 @@ export function BookingsTable({
     toast.success("Booking deleted");
   }
 
-  // Group by booking month (newest month first), keeping each group's row order.
+  // Group by booking month or by booking day (newest first), keeping each group's row order.
   const monthGroups = useMemo(() => {
     const groups = new Map<string, { label: string; items: BookingRow[] }>();
+    const todayKey = new Date().toLocaleDateString("en-CA");
     for (const b of bookings) {
-      const key = b.booking_date.slice(0, 7);
+      const key = b.booking_date.slice(0, groupBy === "day" ? 10 : 7);
       let group = groups.get(key);
       if (!group) {
-        const label = new Date(`${key}-01T00:00:00`).toLocaleDateString("en-IN", {
-          month: "long",
-          year: "numeric",
-        });
+        const label =
+          groupBy === "day"
+            ? `${new Date(`${key}T00:00:00`).toLocaleDateString("en-IN", {
+                weekday: "short",
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              })}${key === todayKey ? " · Today" : ""}`
+            : new Date(`${key}-01T00:00:00`).toLocaleDateString("en-IN", {
+                month: "long",
+                year: "numeric",
+              });
         group = { label, items: [] };
         groups.set(key, group);
       }
       group.items.push(b);
     }
     return [...groups.entries()].sort(([a], [b]) => b.localeCompare(a)).map(([, g]) => g);
-  }, [bookings]);
+  }, [bookings, groupBy]);
   const columnCount = 10 + (canSeeProfit ? 2 : 0) + (canEdit || canDelete ? 1 : 0);
   let serial = 0;
 

@@ -47,6 +47,7 @@ export function BookingsClient({
   const canDownload = isPrivileged(profile.role) || profile.role === "project_manager";
   const [nameFilter, setNameFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
+  const [view, setView] = useState<"daily" | "monthly">("monthly");
 
   const visibleBookings = useMemo(() => {
     return bookings.filter((b) => {
@@ -177,7 +178,32 @@ export function BookingsClient({
         )}
       </div>
 
+      <div className="inline-flex rounded-lg bg-muted p-1" role="tablist" aria-label="Bookings view">
+        {(
+          [
+            ["daily", "Daily bookings"],
+            ["monthly", "Monthly bookings"],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            role="tab"
+            aria-selected={view === value}
+            onClick={() => setView(value)}
+            className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
+              view === value
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
       <BookingsTable
+        groupBy={view === "daily" ? "day" : "month"}
         bookings={visibleBookings}
         setBookings={setBookings}
         profile={profile}
