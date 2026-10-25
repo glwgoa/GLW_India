@@ -94,11 +94,8 @@ export function BookingsTable({
   const monthGroups = useMemo(() => {
     const groups = new Map<string, { label: string; items: BookingRow[] }>();
     const todayKey = new Date().toLocaleDateString("en-CA");
-    for (const b of bookings) {
-      const key =
-        groupBy === "day"
-          ? new Date(b.created_at).toLocaleDateString("en-CA")
-          : b.booking_date.slice(0, 7);
+    // Daily view: today's group is always first, even when nothing was added yet.
+    const ensureGroup = (key: string) => {
       let group = groups.get(key);
       if (!group) {
         const label =
@@ -116,6 +113,15 @@ export function BookingsTable({
         group = { label, items: [] };
         groups.set(key, group);
       }
+      return group;
+    };
+    if (groupBy === "day") ensureGroup(todayKey);
+    for (const b of bookings) {
+      const key =
+        groupBy === "day"
+          ? new Date(b.created_at).toLocaleDateString("en-CA")
+          : b.booking_date.slice(0, 7);
+      const group = ensureGroup(key);
       group.items.push(b);
     }
     return [...groups.entries()].sort(([a], [b]) => b.localeCompare(a)).map(([, g]) => g);
@@ -158,6 +164,13 @@ export function BookingsTable({
                   </span>
                 </TableCell>
               </TableRow>
+              {group.items.length === 0 && (
+                <TableRow className="hover:bg-transparent">
+                  <TableCell colSpan={columnCount} className="py-3 text-sm text-muted-foreground">
+                    No bookings added today yet.
+                  </TableCell>
+                </TableRow>
+              )}
               {group.items.map((booking) => {
                 const index = serial++;
                 return (

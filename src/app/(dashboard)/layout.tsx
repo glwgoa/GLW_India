@@ -28,7 +28,7 @@ export default async function DashboardLayout({
     <RegionProvider initialRegionId={initialRegionId}>
       <div aria-hidden className="app-gradient pointer-events-none fixed inset-0 -z-10" />
       <AppSidebar profile={profile} />
-      <div className="flex min-h-svh w-full flex-col pl-[4.5rem] sm:pl-28">
+      <div className="flex min-h-svh w-full min-w-0 flex-col pl-[4.5rem] sm:pl-28">
         <div className="flex shrink-0 items-center gap-2 py-2 pr-2 pl-0 sm:gap-4 sm:p-4">
           <div className="flex h-12 min-w-0 flex-1 items-center rounded-2xl bg-card px-3 sm:max-w-xl sm:px-4">
             <UniversalSearch />
@@ -36,7 +36,7 @@ export default async function DashboardLayout({
 
           <div className="ml-auto flex h-12 shrink-0 items-center gap-3">
             <RegionSwitcher regions={regions ?? []} canViewAll={canViewAllRegions} />
-            <div className="hidden text-right leading-tight sm:block">
+            <div className="hidden text-right leading-tight xl:block">
               <div className="text-sm font-medium">{profile.full_name}</div>
               <div className="text-xs text-muted-foreground capitalize">
                 {profile.role.replace("_", " ")}

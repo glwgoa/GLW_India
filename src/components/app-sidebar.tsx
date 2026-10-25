@@ -63,8 +63,8 @@ export function AppSidebar({ profile }: { profile: Profile }) {
   return (
     <nav
       aria-label="Primary"
-      className="sidebar-shell fixed inset-y-2 left-2 z-40 flex w-14 flex-col items-center py-3 [--item-h:3rem] [--nav-top:4rem] sm:inset-y-3 sm:left-3 sm:w-[4.5rem] sm:py-4 sm:[--item-h:3.25rem] sm:[--nav-top:4.75rem]"
-      style={{ ["--tab-index" as string]: Math.max(activeIndex, 0) }}
+      className="sidebar-shell fixed inset-y-2 left-2 z-40 flex w-14 flex-col items-center py-3 [--item-h:clamp(2rem,calc((100svh-9.5rem)/var(--nav-count)),3rem)] [--nav-top:4rem] sm:inset-y-3 sm:left-3 sm:w-[4.5rem] sm:py-4 sm:[--item-h:clamp(2rem,calc((100svh-10.5rem)/var(--nav-count)),3.25rem)] sm:[--nav-top:4.75rem]"
+      style={{ ["--tab-index" as string]: Math.max(activeIndex, 0), ["--nav-count" as string]: items.length }}
     >
       {/* Black bar with a notch cut out at the active item, so the page background shows through. */}
       <div aria-hidden className="sidebar-bar absolute inset-0 -z-10 rounded-[1.75rem] bg-sidebar sm:rounded-[2rem]" />
