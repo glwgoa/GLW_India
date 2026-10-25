@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { needsKidsPricing, needsReportingTime } from "@/lib/booking-yacht";
+import { DINNER_CRUISE_CATEGORY_NAME, needsKidsPricing, needsReportingTime } from "@/lib/booking-yacht";
 import type { InventoryRow } from "@/hooks/use-realtime-inventory";
 
 export function EditProductDialog({
@@ -45,6 +45,7 @@ export function EditProductDialog({
   const [category, setCategory] = useState<string>(item.category ?? "");
   const showReportingTime = needsReportingTime(category);
   const showKidsPricing = needsKidsPricing(category);
+  const isDinnerCruise = category === DINNER_CRUISE_CATEGORY_NAME;
 
   async function handleSubmit(formData: FormData) {
     setSubmitting(true);
@@ -59,6 +60,7 @@ export function EditProductDialog({
     const kidsSalePriceRaw = formData.get("kidsSalePrice") as string;
     const jettyName = (formData.get("jettyName") as string) || null;
     const jettyLocationUrl = (formData.get("jettyLocationUrl") as string) || null;
+    const parkingUrl = (formData.get("parkingUrl") as string) || null;
     const reportingTime = (formData.get("reportingTime") as string) || null;
     const coordinatorName = (formData.get("coordinatorName") as string) || null;
     const coordinatorPhone = (formData.get("coordinatorPhone") as string) || null;
@@ -95,6 +97,7 @@ export function EditProductDialog({
         vendor_id: vendorId || null,
         jetty_name: jettyName,
         jetty_location_url: jettyLocationUrl,
+        parking_url: isDinnerCruise ? parkingUrl : null,
         reporting_time: showReportingTime ? reportingTime : null,
         coordinator_name: coordinatorName,
         coordinator_phone: coordinatorPhone,
@@ -201,6 +204,19 @@ export function EditProductDialog({
               />
             </div>
           </div>
+
+          {isDinnerCruise && (
+            <div className="space-y-2">
+              <Label htmlFor="parkingUrl">Multi-Level Car Parking (Google Maps link)</Label>
+              <Input
+                id="parkingUrl"
+                name="parkingUrl"
+                type="url"
+                defaultValue={item.parking_url ?? ""}
+                placeholder="Optional — left out of the confirmation if empty"
+              />
+            </div>
+          )}
 
           {showReportingTime && (
             <div className="space-y-2">

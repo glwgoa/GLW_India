@@ -55,6 +55,11 @@ function dinnerOrSunsetConfirmation(booking: BookingRow, isSunset: boolean) {
   const balance = salePrice != null ? salePrice - advance : null;
   const transportLabel = booking.transport_type ? TRANSPORT_TYPE_LABEL[booking.transport_type] : null;
 
+  // Dinner Cruise: parking comes from the product's own link and is left out when none is set.
+  // Sunset Cruise keeps the shared default link.
+  const parkingUrl = isSunset ? PARKING_LINK : booking.item?.parking_url;
+  const parkingSection = parkingUrl ? `🅿️ Multi-Level Car Parking:\n${parkingUrl}\n\n` : "";
+
   const cruiseName = isSunset ? `${booking.item?.name ?? "—"} (Sunset Cruise)` : (booking.item?.name ?? "—");
 
   return `🛥️ ${isSunset ? "Sunset" : "Dinner"} Cruise Reservation Confirmation
@@ -80,10 +85,7 @@ ${!isSunset && booking.transport_type === "pickup_drop" ? "\n📍 Pick-up Time: 
 ${booking.item?.jetty_name ?? "—"}
 Google map Link: ${booking.item?.jetty_location_url ?? "—"}
 
-🅿️ Multi-Level Car Parking:
-${PARKING_LINK}
-
-Contact Person:
+${parkingSection}Contact Person:
 ${booking.item?.coordinator_name ?? booking.vendor?.name ?? "—"}
 ${booking.item?.coordinator_phone ?? booking.vendor?.contact_phone ?? "—"}
 
