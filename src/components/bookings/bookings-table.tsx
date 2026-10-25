@@ -90,17 +90,20 @@ export function BookingsTable({
     toast.success("Booking deleted");
   }
 
-  // Group by booking month or by booking day (newest first), keeping each group's row order.
+  // Group by booking month, or by the day the booking was added (newest first), keeping each group's row order.
   const monthGroups = useMemo(() => {
     const groups = new Map<string, { label: string; items: BookingRow[] }>();
     const todayKey = new Date().toLocaleDateString("en-CA");
     for (const b of bookings) {
-      const key = b.booking_date.slice(0, groupBy === "day" ? 10 : 7);
+      const key =
+        groupBy === "day"
+          ? new Date(b.created_at).toLocaleDateString("en-CA")
+          : b.booking_date.slice(0, 7);
       let group = groups.get(key);
       if (!group) {
         const label =
           groupBy === "day"
-            ? `${new Date(`${key}T00:00:00`).toLocaleDateString("en-IN", {
+            ? `Added ${new Date(`${key}T00:00:00`).toLocaleDateString("en-IN", {
                 weekday: "short",
                 day: "numeric",
                 month: "short",
