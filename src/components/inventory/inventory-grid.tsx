@@ -37,11 +37,11 @@ export function InventoryGrid({
 }) {
   const [selectedRow, setSelectedRow] = useState<AggregatedRow | null>(null);
 
-  // Editing/deleting the product itself (catalog_items) is admin/developer
-  // only by RLS — PMs can edit/remove regional stock but not the product
-  // record, so they never see these controls.
+  // Editing/deleting the product itself (catalog_items) is admin/developer/employee
+  // by RLS — PMs can edit/remove regional stock but not the product record,
+  // so they never see these controls.
   function canEditProduct() {
-    return isPrivileged(profile.role);
+    return isPrivileged(profile.role) || profile.role === "employee";
   }
 
   // Employees can also remove products (see the employee_inventory_vendor_permissions migration).
