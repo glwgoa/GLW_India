@@ -1,7 +1,6 @@
 "use client";
 
 import { useActionState } from "react";
-import Link from "next/link";
 import { signIn, type AuthActionState } from "@/lib/actions/auth";
 import { DotGridBackground } from "@/components/dot-grid-background";
 
@@ -137,24 +136,6 @@ export default function LoginPage() {
               {pending ? "Signing in..." : "Sign in"}
             </button>
           </form>
-
-          <div
-            style={{
-              marginTop: "1.25rem",
-              display: "flex",
-              justifyContent: "space-between",
-              width: "100%",
-              fontSize: "0.875rem",
-              color: "#888",
-            }}
-          >
-            <Link href="/register" style={{ color: "#fff", fontWeight: 500 }}>
-              Create account
-            </Link>
-            <Link href="/forgot-password" style={{ color: "#888" }}>
-              Forgot password?
-            </Link>
-          </div>
         </div>
       </div>
     </div>
