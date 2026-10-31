@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import type { UserRole } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
 
-const VALID_ROLES: UserRole[] = ["admin", "vendor", "project_manager", "hr", "employee", "developer"];
+const VALID_ROLES: UserRole[] = ["admin", "vendor", "project_manager", "hr", "employee", "accountant", "developer"];
 
 export async function POST(request: Request) {
   const supabase = await createClient();

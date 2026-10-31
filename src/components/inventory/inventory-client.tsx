@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Profile } from "@/types/profile";
-import { isPrivileged } from "@/lib/auth/roles";
+import { isPrivileged, isStaffRole } from "@/lib/auth/roles";
 
 import type { InventoryCategory } from "@/types/inventory";
 
@@ -36,7 +36,7 @@ export function InventoryClient({
   categories: InventoryCategory[];
 }) {
   const { rows, setRows, refresh } = useRealtimeInventory(initialRows);
-  const canAddProduct = isPrivileged(profile.role) || profile.role === "employee";
+  const canAddProduct = isPrivileged(profile.role) || isStaffRole(profile.role);
   const [nameFilter, setNameFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
 

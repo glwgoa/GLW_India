@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import type { BookingProduct, BookingRow, BookingStatus } from "@/types/booking";
 import type { Profile } from "@/types/profile";
 import type { TablesUpdate } from "@/types/supabase";
-import { isPrivileged } from "@/lib/auth/roles";
+import { isPrivileged, isStaffRole } from "@/lib/auth/roles";
 import { computeProfit, effectiveB2bPrice, effectiveSalePrice } from "@/lib/booking-pricing";
 import {
   BOOKING_STATUSES,
@@ -51,7 +51,7 @@ export function BookingsTable({
   groupBy?: "month" | "day";
 }) {
   const canManageBookings =
-    isPrivileged(profile.role) || profile.role === "project_manager" || profile.role === "employee";
+    isPrivileged(profile.role) || profile.role === "project_manager" || isStaffRole(profile.role);
   const canDelete = isPrivileged(profile.role);
   const canEdit = canManageBookings;
   // Margin over what we pay the vendor — admin/PM only, not shown to

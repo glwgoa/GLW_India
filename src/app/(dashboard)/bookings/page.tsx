@@ -2,14 +2,14 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { BookingsClient } from "@/components/bookings/bookings-client";
 import type { BookingRow } from "@/types/booking";
-import { isPrivileged } from "@/lib/auth/roles";
+import { isPrivileged, isStaffRole } from "@/lib/auth/roles";
 
 export default async function BookingsPage() {
   const supabase = await createClient();
   const profile = await getCurrentProfile();
 
   const canManageBookings =
-    isPrivileged(profile.role) || profile.role === "project_manager" || profile.role === "employee";
+    isPrivileged(profile.role) || profile.role === "project_manager" || isStaffRole(profile.role);
   const canAssignEmployee = isPrivileged(profile.role);
 
   const [{ data: bookings }, { data: vendors }, { data: products }, { data: employees }] =

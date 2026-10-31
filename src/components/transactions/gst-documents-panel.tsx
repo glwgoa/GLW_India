@@ -14,7 +14,7 @@ import { GstReportDialog } from "./gst-report-dialog";
 import { GST_DOC_LABEL } from "@/lib/gst-config";
 import { formatInr } from "@/lib/gst";
 import { downloadGstPdf } from "@/lib/gst-pdf";
-import { isPrivileged } from "@/lib/auth/roles";
+import { isAccountant, isPrivileged } from "@/lib/auth/roles";
 import type { GstDocType, GstDocument } from "@/types/gst-document";
 import type { Profile } from "@/types/profile";
 
@@ -28,7 +28,7 @@ export function GstDocumentsPanel({
   const [documents, setDocuments] = useState<GstDocument[]>(initialDocuments);
   const [typeFilter, setTypeFilter] = useState("");
   const [search, setSearch] = useState("");
-  const canDelete = isPrivileged(profile.role);
+  const canDelete = isPrivileged(profile.role) || isAccountant(profile.role);
 
   async function refresh() {
     const { data, error } = await createClient()

@@ -10,7 +10,7 @@ import { EditProductDialog } from "./edit-product-dialog";
 import { ProductDetailDialog } from "./product-detail-dialog";
 import type { InventoryRow } from "@/hooks/use-realtime-inventory";
 import type { Profile } from "@/types/profile";
-import { isPrivileged } from "@/lib/auth/roles";
+import { isPrivileged, isStaffRole } from "@/lib/auth/roles";
 
 type AggregatedRow = InventoryRow & { regionCount?: number };
 
@@ -41,12 +41,12 @@ export function InventoryGrid({
   // by RLS — PMs can edit/remove regional stock but not the product record,
   // so they never see these controls.
   function canEditProduct() {
-    return isPrivileged(profile.role) || profile.role === "employee";
+    return isPrivileged(profile.role) || isStaffRole(profile.role);
   }
 
   // Employees can also remove products (see the employee_inventory_vendor_permissions migration).
   function canDelete() {
-    return isPrivileged(profile.role) || profile.role === "employee";
+    return isPrivileged(profile.role) || isStaffRole(profile.role);
   }
 
   const canBook = isPrivileged(profile.role) || profile.role === "project_manager";

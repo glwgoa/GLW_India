@@ -17,6 +17,7 @@ const ROLE_VARIANT: Record<string, "default" | "secondary" | "outline" | "destru
   project_manager: "default",
   hr: "secondary",
   employee: "outline",
+  accountant: "secondary",
   vendor: "outline",
 };
 

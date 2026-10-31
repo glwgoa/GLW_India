@@ -8,7 +8,7 @@ export default async function ReconcileTransactionsPage() {
   const supabase = await createClient();
   const profile = await getCurrentProfile();
 
-  requireRole(profile, ["admin", "developer", "project_manager"]);
+  requireRole(profile, ["admin", "developer", "project_manager", "accountant"]);
 
   const { data: transactions } = await supabase
     .from("transactions")

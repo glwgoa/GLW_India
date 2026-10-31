@@ -23,7 +23,7 @@ import type {
   VendorSubCategoryRow,
 } from "@/types/vendor";
 import type { Profile } from "@/types/profile";
-import { isPrivileged } from "@/lib/auth/roles";
+import { isPrivileged, isStaffRole } from "@/lib/auth/roles";
 
 const PRIORITY_CLASS: Record<string, string> = {
   primary: "bg-destructive/10 text-destructive",
@@ -62,7 +62,7 @@ export function VendorsGrid({
     return canEdit(vendor);
   }
 
-  const canDelete = isPrivileged(profile.role) || profile.role === "employee";
+  const canDelete = isPrivileged(profile.role) || isStaffRole(profile.role);
 
   async function deleteVendor(vendor: VendorRow) {
     if (

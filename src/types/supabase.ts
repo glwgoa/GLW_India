@@ -832,6 +832,7 @@ export type Database = {
         | "project_manager"
         | "hr"
         | "employee"
+        | "accountant"
         | "developer"
     }
     CompositeTypes: {
@@ -977,6 +978,7 @@ export const Constants = {
         "project_manager",
         "hr",
         "employee",
+        "accountant",
         "developer",
       ],
     },

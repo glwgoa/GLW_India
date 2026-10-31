@@ -27,7 +27,7 @@ import type {
   VendorSubCategoryRow,
 } from "@/types/vendor";
 import type { Profile } from "@/types/profile";
-import { isPrivileged } from "@/lib/auth/roles";
+import { isPrivileged, isStaffRole } from "@/lib/auth/roles";
 
 const PRIORITIES = ["primary", "secondary", "tertiary"] as const;
 
@@ -51,7 +51,7 @@ export function VendorsClient({
   const [nameFilter, setNameFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("");
-  const canAdd = isPrivileged(profile.role) || profile.role === "employee";
+  const canAdd = isPrivileged(profile.role) || isStaffRole(profile.role);
 
   const refresh = useCallback(async () => {
     setRefreshing(true);

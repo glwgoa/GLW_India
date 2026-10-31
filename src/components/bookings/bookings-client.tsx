@@ -16,7 +16,7 @@ import { bookingCategoryDetails } from "@/lib/booking-display";
 import { computeProfit, effectiveB2bPrice, effectiveSalePrice } from "@/lib/booking-pricing";
 import type { BookingProduct, BookingRow } from "@/types/booking";
 import type { Profile } from "@/types/profile";
-import { isPrivileged } from "@/lib/auth/roles";
+import { isPrivileged, isStaffRole, isAccountant } from "@/lib/auth/roles";
 
 const TRANSPORT_LABEL: Record<string, string> = {
   pickup_drop: "Pickup & Drop",
@@ -42,9 +42,9 @@ export function BookingsClient({
 }) {
   const { bookings, setBookings, refresh, refreshing } = usePollingBookings(initialBookings);
   const canCreateBooking =
-    isPrivileged(profile.role) || profile.role === "project_manager" || profile.role === "employee";
+    isPrivileged(profile.role) || profile.role === "project_manager" || isStaffRole(profile.role);
   const canSeeProfit = isPrivileged(profile.role) || profile.role === "project_manager";
-  const canDownload = isPrivileged(profile.role) || profile.role === "project_manager";
+  const canDownload = isPrivileged(profile.role) || profile.role === "project_manager" || isAccountant(profile.role);
   const [nameFilter, setNameFilter] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");

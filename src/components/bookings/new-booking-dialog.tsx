@@ -33,7 +33,7 @@ import {
 } from "@/lib/booking-yacht";
 import { BRAND_NAMES } from "@/lib/brands";
 import { ADV_PAID_TO_OPTIONS } from "@/lib/booking-display";
-import { isPrivileged } from "@/lib/auth/roles";
+import { isPrivileged, isStaffRole } from "@/lib/auth/roles";
 import type { BookingProduct, TransportType } from "@/types/booking";
 import type { Profile } from "@/types/profile";
 
@@ -306,7 +306,7 @@ export function NewBookingDialog({
       assigned_employee_id:
         canAssignEmployee && employeeId
           ? employeeId
-          : profile?.role === "employee"
+          : (profile && isStaffRole(profile.role))
             ? profile.id
             : null,
       created_by: profile?.id ?? null,
