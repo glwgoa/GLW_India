@@ -65,3 +65,15 @@ export function bookingCategoryDetails(booking: BookingRow) {
   }
   return parts.length > 0 ? parts.join(" · ") : null;
 }
+
+/** Where a booking's advance payment was received ("ADV PAID TO"). */
+export const ADV_PAID_TO_OPTIONS = [
+  "Waterz Bank A/c",
+  "MRR Bank A/c",
+  "Gowaterz Bank A/c",
+  "LOY Bank A/c",
+  "GC Bank A/c",
+  "WZ GPay",
+  "GC Gpay",
+  "Others",
+] as const;

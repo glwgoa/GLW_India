@@ -185,6 +185,7 @@ export function BookingDetailDialog({
               label="Advance"
               value={booking.advance_amount != null ? `₹${booking.advance_amount.toLocaleString("en-IN")}` : "—"}
             />
+            <StatTile label="Adv paid to" value={booking.adv_paid_to ?? "—"} />
             <StatTile
               label="Balance due"
               value={balance != null ? `₹${balance.toLocaleString("en-IN")}` : "—"}

@@ -31,6 +31,7 @@ import {
   needsCustomerContact,
 } from "@/lib/booking-yacht";
 import { BRAND_NAMES } from "@/lib/brands";
+import { ADV_PAID_TO_OPTIONS } from "@/lib/booking-display";
 import { isPrivileged } from "@/lib/auth/roles";
 import { deriveRegionId } from "@/lib/booking-region";
 import type { BookingProduct, BookingRow, BookingStatus, TransportType } from "@/types/booking";
@@ -94,6 +95,7 @@ export function EditBookingDialog({
   const [status, setStatus] = useState<BookingStatus>(booking.status);
   const [addOns, setAddOns] = useState<string[]>(booking.add_ons ?? []);
   const [transportType, setTransportType] = useState<string>(booking.transport_type ?? "");
+  const [advPaidTo, setAdvPaidTo] = useState<string>(booking.adv_paid_to ?? "");
 
   const selectedProduct = products.find((p) => p.id === productId);
   const isYacht = selectedProduct?.category === YACHT_CATEGORY_NAME;
@@ -168,6 +170,7 @@ export function EditBookingDialog({
         kids_price: isDinnerCruise && kidsPriceRaw ? Number(kidsPriceRaw) : null,
         kids_below_5_count: isDinnerCruise && kidsBelow5CountRaw ? Number(kidsBelow5CountRaw) : null,
         advance_amount: advanceRaw ? Number(advanceRaw) : null,
+        adv_paid_to: advPaidTo || null,
         transaction_id: transactionId,
         booking_date: new Date(date).toISOString(),
         enquiry_date: enquiryDate,
@@ -415,6 +418,21 @@ export function EditBookingDialog({
                 defaultValue={booking.advance_amount ?? ""}
                 placeholder="Optional"
               />
+            </div>
+            <div className="space-y-2">
+              <Label>ADV PAID TO</Label>
+              <Select value={advPaidTo} onValueChange={(v) => setAdvPaidTo(v ?? "")}>
+                <SelectTrigger>
+                  <SelectValue>{(value: string) => value || "Select account"}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {ADV_PAID_TO_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

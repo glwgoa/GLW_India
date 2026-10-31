@@ -32,6 +32,7 @@ import {
   needsCustomerContact,
 } from "@/lib/booking-yacht";
 import { BRAND_NAMES } from "@/lib/brands";
+import { ADV_PAID_TO_OPTIONS } from "@/lib/booking-display";
 import { isPrivileged } from "@/lib/auth/roles";
 import { deriveRegionId } from "@/lib/booking-region";
 import type { BookingProduct, TransportType } from "@/types/booking";
@@ -54,6 +55,7 @@ type BookingDraft = {
     kidsPrice: string;
     addOns: string[];
     transportType: string;
+    advPaidTo?: string;
   };
   fields: Record<string, string>;
 };
@@ -133,6 +135,7 @@ export function NewBookingDialog({
   });
   const [addOns, setAddOns] = useState<string[]>([]);
   const [transportType, setTransportType] = useState<string>("");
+  const [advPaidTo, setAdvPaidTo] = useState<string>("");
 
   // Draft memory: unsaved form contents are kept in this browser for 1 hour.
   // Skipped when the dialog is opened for a specific product (initialProductId).
@@ -160,7 +163,7 @@ export function NewBookingDialog({
     if (Object.keys(fields).length === 0 && !category && !productId && !brand && !vendorId) return;
     const draft: BookingDraft = {
       savedAt: Date.now(),
-      state: { vendorId, regionId, brand, employeeId, category, productId, salePrice, kidsPrice, addOns, transportType },
+      state: { vendorId, regionId, brand, employeeId, category, productId, salePrice, kidsPrice, addOns, transportType, advPaidTo },
       fields,
     };
     try {
@@ -197,6 +200,7 @@ export function NewBookingDialog({
     setKidsPrice(d.kidsPrice);
     setAddOns(d.addOns);
     setTransportType(d.transportType);
+    setAdvPaidTo(d.advPaidTo ?? "");
     setPendingFields(draft.fields);
     setDraftRestored(true);
   }
@@ -224,7 +228,7 @@ export function NewBookingDialog({
     const t = setTimeout(saveDraft, 300);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, vendorId, regionId, brand, employeeId, category, productId, salePrice, kidsPrice, addOns, transportType]);
+  }, [open, vendorId, regionId, brand, employeeId, category, productId, salePrice, kidsPrice, addOns, transportType, advPaidTo]);
 
   function discardDraft() {
     clearDraft();
@@ -238,6 +242,7 @@ export function NewBookingDialog({
     setKidsPrice("");
     setAddOns([]);
     setTransportType("");
+    setAdvPaidTo("");
     setRegionId(deriveRegionId(undefined, profile?.region_id ?? null));
     setDraftRestored(false);
   }
@@ -323,6 +328,7 @@ export function NewBookingDialog({
       kids_price: isDinnerCruise && kidsPriceRaw ? Number(kidsPriceRaw) : null,
       kids_below_5_count: isDinnerCruise && kidsBelow5CountRaw ? Number(kidsBelow5CountRaw) : null,
       advance_amount: advanceRaw ? Number(advanceRaw) : null,
+      adv_paid_to: advPaidTo || null,
       transaction_id: transactionId,
       booking_date: new Date(date).toISOString(),
       enquiry_date: enquiryDate,
@@ -370,6 +376,7 @@ export function NewBookingDialog({
     setRegionId(deriveRegionId(resetProduct, profile?.region_id ?? null));
     setAddOns([]);
     setTransportType("");
+    setAdvPaidTo("");
     await onAdded();
   }
 
@@ -578,6 +585,21 @@ export function NewBookingDialog({
                 step="0.01"
                 placeholder="Optional"
               />
+            </div>
+            <div className="space-y-2">
+              <Label>ADV PAID TO</Label>
+              <Select value={advPaidTo} onValueChange={(v) => setAdvPaidTo(v ?? "")}>
+                <SelectTrigger>
+                  <SelectValue>{(value: string) => value || "Select account"}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {ADV_PAID_TO_OPTIONS.map((option) => (
+                    <SelectItem key={option} value={option}>
+                      {option}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
