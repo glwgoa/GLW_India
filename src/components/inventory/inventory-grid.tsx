@@ -18,6 +18,8 @@ function formatPrice(value: number | null) {
   return value == null ? "—" : `₹${value.toLocaleString("en-IN")}`;
 }
 
+import type { InventoryCategory } from "@/types/inventory";
+
 export function InventoryGrid({
   rows,
   setRows,
@@ -34,7 +36,7 @@ export function InventoryGrid({
   aggregated: boolean;
   vendors: { id: string; name: string }[];
   regions: { id: string; name: string }[];
-  categories: { id: string; name: string }[];
+  categories: InventoryCategory[];
   refresh: () => void | Promise<void>;
 }) {
   const [selectedRow, setSelectedRow] = useState<AggregatedRow | null>(null);

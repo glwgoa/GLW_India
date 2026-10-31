@@ -215,6 +215,7 @@ export type Database = {
           image_url: string | null
           jetty_location_url: string | null
           parking_url: string | null
+          sub_category: string | null
           jetty_name: string | null
           kids_b2b_price: number | null
           kids_sale_price: number | null
@@ -234,6 +235,7 @@ export type Database = {
           image_url?: string | null
           jetty_location_url?: string | null
           parking_url?: string | null
+          sub_category?: string | null
           jetty_name?: string | null
           kids_b2b_price?: number | null
           kids_sale_price?: number | null
@@ -253,6 +255,7 @@ export type Database = {
           image_url?: string | null
           jetty_location_url?: string | null
           parking_url?: string | null
+          sub_category?: string | null
           jetty_name?: string | null
           kids_b2b_price?: number | null
           kids_sale_price?: number | null

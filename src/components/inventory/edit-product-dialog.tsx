@@ -26,6 +26,8 @@ import {
 import { DINNER_CRUISE_CATEGORY_NAME, needsKidsPricing, needsReportingTime } from "@/lib/booking-yacht";
 import type { InventoryRow } from "@/hooks/use-realtime-inventory";
 
+import type { InventoryCategory } from "@/types/inventory";
+
 export function EditProductDialog({
   itemId,
   item,
@@ -36,13 +38,15 @@ export function EditProductDialog({
   itemId: string;
   item: NonNullable<InventoryRow["item"]>;
   vendors: { id: string; name: string }[];
-  categories: { id: string; name: string }[];
+  categories: InventoryCategory[];
   onSaved: () => void | Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [vendorId, setVendorId] = useState<string>(item.vendor_id ?? "");
   const [category, setCategory] = useState<string>(item.category ?? "");
+  const [subCategory, setSubCategory] = useState<string>(item.sub_category ?? "");
+  const subCategories = categories.find((c) => c.name === category)?.subCategories ?? [];
   const showReportingTime = needsReportingTime(category);
   const showKidsPricing = needsKidsPricing(category);
   const isDinnerCruise = category === DINNER_CRUISE_CATEGORY_NAME;
@@ -89,6 +93,7 @@ export function EditProductDialog({
         sku,
         name,
         category: category || null,
+        sub_category: subCategories.length > 0 && subCategory ? subCategory : null,
         image_url: imageUrl,
         b2b_price: b2bPrice,
         sale_price: salePrice,
@@ -150,7 +155,10 @@ export function EditProductDialog({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label>Category</Label>
-              <Select value={category} onValueChange={(v) => setCategory(v ?? "")}>
+              <Select value={category} onValueChange={(v) => {
+                  setCategory(v ?? "");
+                  setSubCategory("");
+                }}>
                 <SelectTrigger>
                   <SelectValue>{(value: string) => value || "Select category"}</SelectValue>
                 </SelectTrigger>
@@ -181,6 +189,24 @@ export function EditProductDialog({
               </Select>
             </div>
           </div>
+
+          {subCategories.length > 0 && (
+            <div className="space-y-2">
+              <Label>Sub-category</Label>
+              <Select value={subCategory} onValueChange={(v) => setSubCategory(v ?? "")}>
+                <SelectTrigger>
+                  <SelectValue>{(value: string) => value || "Select sub-category"}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {subCategories.map((sc) => (
+                    <SelectItem key={sc.id} value={sc.name}>
+                      {sc.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label htmlFor="imageFile">Product image</Label>

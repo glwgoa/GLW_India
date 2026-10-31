@@ -103,7 +103,7 @@ export function ProductDetailDialog({
               {item?.category && (
                 <div className="flex items-center gap-1">
                   <Tag className="h-4 w-4" />
-                  <span>{item.category}</span>
+                  <span>{item.sub_category ? `${item.category} · ${item.sub_category}` : item.category}</span>
                 </div>
               )}
               {item?.vendor?.name && (

@@ -23,6 +23,7 @@ export type InventoryRow = {
     jetty_name: string | null;
     jetty_location_url: string | null;
     parking_url: string | null;
+    sub_category: string | null;
     reporting_time: string | null;
     coordinator_name: string | null;
     coordinator_phone: string | null;
@@ -31,7 +32,7 @@ export type InventoryRow = {
 };
 
 const SELECT =
-  "*, region:regions(name), item:catalog_items(name, sku, category, image_url, b2b_price, sale_price, kids_b2b_price, kids_sale_price, vendor_id, jetty_name, jetty_location_url, parking_url, reporting_time, coordinator_name, coordinator_phone, vendor:vendors(name, contact_phone))";
+  "*, region:regions(name), item:catalog_items(name, sku, category, image_url, b2b_price, sale_price, kids_b2b_price, kids_sale_price, vendor_id, jetty_name, jetty_location_url, parking_url, sub_category, reporting_time, coordinator_name, coordinator_phone, vendor:vendors(name, contact_phone))";
 
 export function useRealtimeInventory(initial: InventoryRow[]) {
   const [rows, setRows] = useState<InventoryRow[]>(initial);

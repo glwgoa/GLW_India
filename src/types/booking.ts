@@ -65,6 +65,7 @@ export type BookingRow = {
     jetty_name: string | null;
     jetty_location_url: string | null;
     parking_url: string | null;
+    sub_category: string | null;
     coordinator_name: string | null;
     coordinator_phone: string | null;
   } | null;

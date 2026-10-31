@@ -20,6 +20,8 @@ import {
 import type { Profile } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
 
+import type { InventoryCategory } from "@/types/inventory";
+
 export function InventoryClient({
   initialRows,
   profile,
@@ -31,7 +33,7 @@ export function InventoryClient({
   profile: Profile;
   vendors: { id: string; name: string }[];
   regions: { id: string; name: string }[];
-  categories: { id: string; name: string }[];
+  categories: InventoryCategory[];
 }) {
   const { selectedRegionId } = useRegion();
   const { rows, setRows, refresh } = useRealtimeInventory(initialRows);
