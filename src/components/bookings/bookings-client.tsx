@@ -11,19 +11,21 @@ import { Label } from "@/components/ui/label";
 import { downloadCsv } from "@/lib/csv";
 import { PageHeaderIcon } from "@/components/page-header-icon";
 import { DownloadButton } from "@/components/motion/download-button";
+import { isPerGuestCategory } from "@/lib/booking-yacht";
+import { bookingCategoryDetails } from "@/lib/booking-display";
 import { computeProfit, effectiveB2bPrice, effectiveSalePrice } from "@/lib/booking-pricing";
 import type { BookingProduct, BookingRow } from "@/types/booking";
 import type { Profile } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
 
-const BOOKING_STATUS_LABEL: Record<string, string> = {
-  pending: "Pending",
-  assigned: "Assigned",
-  in_progress: "In progress",
-  completed: "Completed",
-  cancelled: "Cancelled",
-  cancelled_refunded: "Cancel/Refunded",
+const TRANSPORT_LABEL: Record<string, string> = {
+  pickup_drop: "Pickup & Drop",
+  direct_jetty: "Direct to Jetty",
 };
+
+function formatCsvDate(value: string | null) {
+  return value ? new Date(value).toLocaleDateString("en-GB") : "";
+}
 
 export function BookingsClient({
   initialBookings,
@@ -66,47 +68,70 @@ export function BookingsClient({
     setDateFilter("");
   }
 
+  // Column order matches the accounts sheet (25-26 Columns); fields the app
+  // doesn't track yet are exported blank so the sheet can be filled in by hand.
   function handleDownload() {
     const headers = [
-      "Sl. No",
-      "Customer",
-      "Contact",
-      "Brand",
-      "Region",
-      "Vendor",
-      "Product",
-      "Price",
-      "Advance",
-      "Adv paid to",
-      "Transaction ID",
-      "Balance due",
-      ...(canSeeProfit ? ["B2B price", "Earnings"] : []),
-      "Status",
-      "Enquiry date",
-      "Booking date",
+      "BRAND", "ACTIVITY NAME", "Transportation", "ENQUIRY DATE", "DATE OF BOOKING", "VENDOR",
+      "BOOKING DATE", "NAME", "CONTACT NO", "NO OF ADULTS", "NO OF KIDS (5 to 10 YEARS)",
+      "NO OF KIDS (BELOW 5 YEARS)", "REPORT FOR ADULTS", "REPORT FOR KIDS (5 to 10 YEARS)",
+      "REPORT FOR KIDS (BELOW 5 YEARS)", "TOTAL REPORT", "TOTAL", "ADVANCE", "BALANCE",
+      "PAID BY CUSTOMER", "SETTLED TO VENDOR", "TO BE PAID", "TO BE RECEIVED", "EARNING",
+      "ADV PAID TO", "ADV PAID DATE", "TRANS ID", "SETTLED TO", "SETTLEMENT DATE",
+      "SELLEMENT ID", "SETTLED BY", "INCLUSIONS", "SAILOR", "REMARKS", "AGENT",
+      "AGENT COMMISSION", "GST", "BOOKING ID", "GST STATUS", "TDS", "TDS STATUS", "SOURCE",
     ];
-    const rows = visibleBookings.map((b, index) => {
-      const salePrice = effectiveSalePrice(b);
-      const b2bPrice = effectiveB2bPrice(b);
-      const profit = computeProfit(b);
-      const balance = salePrice != null ? salePrice - (b.advance_amount ?? 0) : "";
+    const rows = visibleBookings.map((b) => {
+      const total = effectiveSalePrice(b);
+      const advance = b.advance_amount ?? 0;
+      const balance = total != null ? total - advance : "";
+      const b2bPrice = canSeeProfit ? effectiveB2bPrice(b) : null;
+      const profit = canSeeProfit ? computeProfit(b) : null;
+      const perGuest = isPerGuestCategory(b.item?.category);
+      const reportAdults =
+        canSeeProfit && b.b2b_price != null
+          ? b.b2b_price * (perGuest && b.guest_count ? b.guest_count : 1)
+          : "";
+      const reportKids =
+        canSeeProfit && b.kids_count && b.kids_b2b_price != null
+          ? b.kids_b2b_price * b.kids_count
+          : "";
       return [
-        index + 1,
+        b.brand ?? "",
+        b.item?.name ?? "",
+        b.transport_type ? (TRANSPORT_LABEL[b.transport_type] ?? b.transport_type) : "",
+        formatCsvDate(b.enquiry_date),
+        formatCsvDate(b.created_at),
+        b.vendor?.name ?? "",
+        formatCsvDate(b.booking_date),
         b.customer_name,
         b.customer_contact ?? "",
-        b.brand ?? "",
-        b.region?.name ?? "",
-        b.vendor?.name ?? "",
-        b.item?.name ?? "",
-        salePrice ?? "",
+        b.guest_count ?? "",
+        b.kids_count ?? "",
+        b.kids_below_5_count ?? "",
+        reportAdults,
+        reportKids,
+        "", // REPORT FOR KIDS (BELOW 5): no B2B price is set for them
+        b2bPrice ?? "", // TOTAL REPORT (includes pickup/drop)
+        total ?? "",
         b.advance_amount ?? "",
-        b.adv_paid_to ?? "",
-        b.transaction_id ?? "",
         balance,
-        ...(canSeeProfit ? [b2bPrice ?? "", profit ?? ""] : []),
-        BOOKING_STATUS_LABEL[b.status] ?? b.status,
-        b.enquiry_date ? new Date(b.enquiry_date).toLocaleDateString() : "",
-        new Date(b.booking_date).toLocaleDateString(),
+        b.advance_amount ?? "", // PAID BY CUSTOMER
+        "", // SETTLED TO VENDOR
+        b2bPrice ?? "", // TO BE PAID (vendor B2B cost)
+        balance, // TO BE RECEIVED
+        profit ?? "",
+        b.adv_paid_to ?? "",
+        formatCsvDate(b.created_at), // ADV PAID DATE: day the booking was added
+        b.transaction_id ?? "",
+        "", "", "", "", // SETTLED TO / SETTLEMENT DATE / SELLEMENT ID / SETTLED BY
+        b.add_ons?.join(", ") ?? "",
+        b.creator?.full_name ?? "", // SAILOR: employee who added the booking
+        bookingCategoryDetails(b) ?? "",
+        [b.agent_name, b.agent_number].filter(Boolean).join(" · "), // AGENT
+        "", "", // AGENT COMMISSION / GST
+        b.id,
+        "", "", "", "", // GST STATUS / TDS / TDS STATUS / SOURCE
       ];
     });
     const date = new Date().toISOString().slice(0, 10);

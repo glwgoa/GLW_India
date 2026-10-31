@@ -86,6 +86,8 @@ export type Database = {
           b2b_price: number | null
           kids_b2b_price: number | null
           adv_paid_to: string | null
+          agent_name: string | null
+          agent_number: string | null
           pickup_drop_guest_count: number | null
           pickup_drop_price: number | null
           region_id: string | null
@@ -119,6 +121,8 @@ export type Database = {
           b2b_price?: number | null
           kids_b2b_price?: number | null
           adv_paid_to?: string | null
+          agent_name?: string | null
+          agent_number?: string | null
           pickup_drop_guest_count?: number | null
           pickup_drop_price?: number | null
           region_id?: string | null
@@ -152,6 +156,8 @@ export type Database = {
           b2b_price?: number | null
           kids_b2b_price?: number | null
           adv_paid_to?: string | null
+          agent_name?: string | null
+          agent_number?: string | null
           pickup_drop_guest_count?: number | null
           pickup_drop_price?: number | null
           region_id?: string | null

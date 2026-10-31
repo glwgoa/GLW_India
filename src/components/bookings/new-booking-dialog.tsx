@@ -301,6 +301,8 @@ export function NewBookingDialog({
     const enquiryDate = (formData.get("enquiryDate") as string) || null;
     const advanceRaw = formData.get("advanceAmount") as string;
     const transactionId = (formData.get("transactionId") as string) || null;
+    const agentName = ((formData.get("agentName") as string) || "").trim() || null;
+    const agentNumber = ((formData.get("agentNumber") as string) || "").trim() || null;
     const startTime = (formData.get("startTime") as string) || null;
     const endTime = (formData.get("endTime") as string) || null;
     const sailingHoursRaw = formData.get("sailingHours") as string;
@@ -330,6 +332,8 @@ export function NewBookingDialog({
       advance_amount: advanceRaw ? Number(advanceRaw) : null,
       adv_paid_to: advPaidTo || null,
       transaction_id: transactionId,
+      agent_name: agentName,
+      agent_number: agentNumber,
       booking_date: new Date(date).toISOString(),
       enquiry_date: enquiryDate,
       status: "pending",
@@ -606,6 +610,17 @@ export function NewBookingDialog({
           <div className="space-y-2">
             <Label htmlFor="transactionId">Transaction ID</Label>
             <Input id="transactionId" name="transactionId" placeholder="Optional" />
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="agentName">Agent Name</Label>
+              <Input id="agentName" name="agentName" placeholder="Optional" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="agentNumber">Agent Number</Label>
+              <Input id="agentNumber" name="agentNumber" type="tel" placeholder="Optional" />
+            </div>
           </div>
 
           {isYacht && (

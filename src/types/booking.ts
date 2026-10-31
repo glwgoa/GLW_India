@@ -45,6 +45,8 @@ export type BookingRow = {
   b2b_price: number | null;
   kids_b2b_price: number | null;
   adv_paid_to: string | null;
+  agent_name: string | null;
+  agent_number: string | null;
   kids_below_5_count: number | null;
   transport_type: TransportType | null;
   pickup_drop_price: number | null;
