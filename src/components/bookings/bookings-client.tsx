@@ -48,7 +48,8 @@ export function BookingsClient({
   const canSeeProfit = isPrivileged(profile.role) || profile.role === "project_manager";
   const canDownload = isPrivileged(profile.role) || profile.role === "project_manager";
   const [nameFilter, setNameFilter] = useState("");
-  const [dateFilter, setDateFilter] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
   const [view, setView] = useState<"daily" | "monthly">("monthly");
 
   const visibleBookings = useMemo(() => {
@@ -56,16 +57,19 @@ export function BookingsClient({
       if (nameFilter && !b.customer_name.toLowerCase().includes(nameFilter.toLowerCase())) {
         return false;
       }
-      if (dateFilter && b.booking_date.slice(0, 10) !== dateFilter) return false;
+      const day = b.booking_date.slice(0, 10);
+      if (fromDate && day < fromDate) return false;
+      if (toDate && day > toDate) return false;
       return true;
     });
-  }, [bookings, nameFilter, dateFilter]);
+  }, [bookings, nameFilter, fromDate, toDate]);
 
-  const hasFilters = nameFilter || dateFilter;
+  const hasFilters = nameFilter || fromDate || toDate;
 
   function clearFilters() {
     setNameFilter("");
-    setDateFilter("");
+    setFromDate("");
+    setToDate("");
   }
 
   // Column order matches the accounts sheet (25-26 Columns); fields the app
@@ -183,14 +187,28 @@ export function BookingsClient({
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="booking-date-filter" className="text-xs text-muted-foreground">
-            Booking date
+          <Label htmlFor="booking-from-date" className="text-xs text-muted-foreground">
+            From date
           </Label>
           <Input
-            id="booking-date-filter"
+            id="booking-from-date"
             type="date"
-            value={dateFilter}
-            onChange={(e) => setDateFilter(e.target.value)}
+            value={fromDate}
+            max={toDate || undefined}
+            onChange={(e) => setFromDate(e.target.value)}
+            className="h-8 w-44"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="booking-to-date" className="text-xs text-muted-foreground">
+            To date
+          </Label>
+          <Input
+            id="booking-to-date"
+            type="date"
+            value={toDate}
+            min={fromDate || undefined}
+            onChange={(e) => setToDate(e.target.value)}
             className="h-8 w-44"
           />
         </div>
