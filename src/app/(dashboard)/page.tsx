@@ -47,7 +47,7 @@ const MODULES = [
   {
     href: "/mis-reports",
     label: "MIS Reports",
-    description: "Brand and attendance analytics",
+    description: "Monthly bookings by brand",
     icon: BarChart3,
     color: "var(--chart-3)",
   },

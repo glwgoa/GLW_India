@@ -2,11 +2,11 @@ import { BarChart3 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { requireRole } from "@/lib/auth/require-role";
-import { AttendanceSummaryChart } from "@/components/mis/attendance-summary-chart";
-import { BrandPerformanceChart } from "@/components/mis/brand-performance-chart";
+import { MonthlyBrandReport } from "@/components/mis/monthly-brand-report";
 import { PageHeaderIcon } from "@/components/page-header-icon";
-import { Reveal, RevealItem } from "@/components/motion/reveal";
-import type { AttendanceSummaryRow, BrandPerformanceRow } from "@/types/mis";
+import { computeProfit, effectiveSalePrice } from "@/lib/booking-pricing";
+import type { BookingRow } from "@/types/booking";
+import type { MonthlyBrandRow } from "@/types/mis";
 
 export default async function MisReportsPage() {
   const supabase = await createClient();
@@ -14,11 +14,24 @@ export default async function MisReportsPage() {
 
   requireRole(profile, ["admin", "developer", "project_manager"]);
 
-  const [{ data: attendanceSummary }, { data: brandPerformance }] =
-    await Promise.all([
-      supabase.from("vw_monthly_attendance_summary").select("*"),
-      supabase.from("vw_brand_performance").select("*"),
-    ]);
+  const { data: bookings } = await supabase
+    .from("bookings")
+    .select(
+      "brand, booking_date, status, sale_price, guest_count, kids_count, kids_price, b2b_price, kids_b2b_price, transport_type, pickup_drop_price, pickup_drop_guest_count, item:catalog_items(category)",
+    );
+
+  // Totals per brand per month (by booking date), using the same price maths as the Bookings page.
+  const monthly = new Map<string, MonthlyBrandRow>();
+  for (const b of (bookings ?? []) as unknown as BookingRow[]) {
+    if (b.status === "cancelled" || b.status === "cancelled_refunded") continue;
+    const month = b.booking_date.slice(0, 7);
+    const brand = b.brand ?? "No brand";
+    const row = monthly.get(`${month}|${brand}`) ?? { month, brand, bookings: 0, revenue: 0, earnings: 0 };
+    row.bookings += 1;
+    row.revenue += effectiveSalePrice(b) ?? 0;
+    row.earnings += computeProfit(b) ?? 0;
+    monthly.set(`${month}|${brand}`, row);
+  }
 
   return (
     <div className="space-y-4">
@@ -27,19 +40,11 @@ export default async function MisReportsPage() {
         <div>
           <h1 className="text-2xl font-semibold">MIS Reports</h1>
           <p className="text-sm text-muted-foreground">
-            Scoped to what your role can see — the underlying views inherit your row-level
-            security automatically. Calculation formulas are placeholders pending final figures.
+            Monthly booking totals for each brand.
           </p>
         </div>
       </div>
-      <Reveal className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <RevealItem>
-          <AttendanceSummaryChart data={(attendanceSummary ?? []) as AttendanceSummaryRow[]} />
-        </RevealItem>
-        <RevealItem>
-          <BrandPerformanceChart data={(brandPerformance ?? []) as BrandPerformanceRow[]} />
-        </RevealItem>
-      </Reveal>
+      <MonthlyBrandReport data={[...monthly.values()]} />
     </div>
   );
 }
