@@ -27,18 +27,15 @@ import type { UserRole } from "@/types/profile";
 const ROLES: UserRole[] = ["employee", "developer", "hr", "project_manager", "admin", "vendor"];
 
 export function AddEmployeeDialog({
-  regions,
   actorRole,
   onAdded,
 }: {
-  regions: { id: string; name: string }[];
   actorRole: UserRole;
   onAdded: () => void | Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [role, setRole] = useState<string>("employee");
-  const [regionId, setRegionId] = useState<string>("");
   const availableRoles = actorRole === "developer" ? ROLES : ROLES.filter((r) => r !== "developer");
 
   async function handleSubmit(formData: FormData) {
@@ -52,7 +49,6 @@ export function AddEmployeeDialog({
         email: formData.get("email"),
         password: formData.get("password"),
         role,
-        regionId: regionId || null,
       }),
     });
 
@@ -73,7 +69,6 @@ export function AddEmployeeDialog({
     toast.success("Employee added");
     setOpen(false);
     setRole("employee");
-    setRegionId("");
     await onAdded();
   }
 
@@ -101,7 +96,7 @@ export function AddEmployeeDialog({
             <Label htmlFor="password">Password</Label>
             <Input id="password" name="password" type="text" required minLength={6} />
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4">
             <div className="space-y-2">
               <Label>Role</Label>
               <Select value={role} onValueChange={(v) => setRole(v ?? "employee")}>
@@ -114,23 +109,6 @@ export function AddEmployeeDialog({
                   {availableRoles.map((r) => (
                     <SelectItem key={r} value={r} className="capitalize">
                       {r.replace("_", " ")}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Region</Label>
-              <Select value={regionId} onValueChange={(v) => setRegionId(v ?? "")}>
-                <SelectTrigger>
-                  <SelectValue>
-                    {(value: string) => regions.find((r) => r.id === value)?.name ?? "Optional"}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {regions.map((r) => (
-                    <SelectItem key={r.id} value={r.id}>
-                      {r.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

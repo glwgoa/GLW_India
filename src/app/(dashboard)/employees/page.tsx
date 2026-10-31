@@ -7,15 +7,11 @@ export default async function EmployeesPage() {
   const supabase = await createClient();
   const profile = await getCurrentProfile();
 
-  const [{ data: employees }, { data: regions }] = await Promise.all([
-    supabase.from("profiles").select("*, region:regions(name)").order("full_name"),
-    supabase.from("regions").select("id, name").order("name"),
-  ]);
+  const { data: employees } = await supabase.from("profiles").select("*").order("full_name");
 
   return (
     <EmployeesClient
       initialEmployees={(employees ?? []) as unknown as EmployeeRow[]}
-      regions={regions ?? []}
       profile={profile}
     />
   );

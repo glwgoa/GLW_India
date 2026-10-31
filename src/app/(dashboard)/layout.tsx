@@ -1,31 +1,17 @@
-import { cookies } from "next/headers";
-import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
-import { RegionProvider } from "@/lib/region-context";
 import { AppSidebar } from "@/components/app-sidebar";
-import { RegionSwitcher } from "@/components/region-switcher";
 import { UniversalSearch } from "@/components/universal-search";
 import { PageTransition } from "@/components/motion/page-transition";
-import { isPrivileged } from "@/lib/auth/roles";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
   const profile = await getCurrentProfile();
 
-  const cookieStore = await cookies();
-  const cookieRegion = cookieStore.get("selected_region_id")?.value;
-  const canViewAllRegions = isPrivileged(profile.role) || profile.role === "project_manager";
-  const initialRegionId =
-    cookieRegion ?? (canViewAllRegions ? "all" : (profile.region_id ?? "all"));
-
-  const { data: regions } = await supabase.from("regions").select("id, name").order("name");
-
   return (
-    <RegionProvider initialRegionId={initialRegionId}>
+    <>
       <div aria-hidden className="app-gradient pointer-events-none fixed inset-0 -z-10" />
       <AppSidebar profile={profile} />
       <div className="flex min-h-svh w-full min-w-0 flex-col pl-[4.5rem] sm:pl-28">
@@ -35,7 +21,6 @@ export default async function DashboardLayout({
           </div>
 
           <div className="ml-auto flex h-12 shrink-0 items-center gap-3">
-            <RegionSwitcher regions={regions ?? []} canViewAll={canViewAllRegions} />
             <div className="hidden text-right leading-tight xl:block">
               <div className="text-sm font-medium">{profile.full_name}</div>
               <div className="text-xs text-muted-foreground capitalize">
@@ -56,6 +41,6 @@ export default async function DashboardLayout({
           <PageTransition>{children}</PageTransition>
         </div>
       </div>
-    </RegionProvider>
+    </>
   );
 }

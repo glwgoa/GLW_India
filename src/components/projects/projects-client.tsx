@@ -12,19 +12,17 @@ import type { Profile } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
 
 const SELECT =
-  "*, region:regions(name), vendor:vendors(name), employee:profiles!projects_assigned_employee_id_fkey(full_name)";
+  "*, vendor:vendors(name), employee:profiles!projects_assigned_employee_id_fkey(full_name)";
 
 export function ProjectsClient({
   initialProjects,
   profile,
   vendors,
-  regions,
   employees,
 }: {
   initialProjects: ProjectRow[];
   profile: Profile;
   vendors: { id: string; name: string }[];
-  regions: { id: string; name: string }[];
   employees: { id: string; full_name: string }[];
 }) {
   const [projects, setProjects] = useState<ProjectRow[]>(initialProjects);
@@ -59,7 +57,6 @@ export function ProjectsClient({
           {canCreateProject && (
             <NewProjectDialog
               vendors={vendors}
-              regions={regions}
               employees={employees}
               onAdded={refresh}
             />

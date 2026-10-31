@@ -15,8 +15,6 @@ export type BookingProduct = {
   kids_sale_price: number | null;
   category: string | null;
   vendor_id: string | null;
-  /** Regions this product is stocked in — used to auto-derive a booking's region. */
-  regional_inventory?: { region_id: string | null }[];
 };
 
 export type BookingRow = {
@@ -54,7 +52,6 @@ export type BookingRow = {
   brand: string | null;
   transaction_id: string | null;
   created_at: string;
-  region: { name: string } | null;
   vendor: { name: string; contact_phone: string | null } | null;
   employee: { full_name: string } | null;
   creator: { full_name: string } | null;

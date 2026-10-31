@@ -26,7 +26,7 @@ export default async function InventoryPage() {
       initialRows={(rows ?? []) as unknown as InventoryRow[]}
       profile={profile}
       vendors={(vendors ?? []).map((v) => ({ ...v, name: v.name ?? "Unnamed vendor" }))}
-      regions={regions ?? []}
+      defaultRegionId={regions?.[0]?.id ?? ""}
       categories={(categories ?? []).map((c) => ({
         ...c,
         subCategories: (subCategories ?? [])

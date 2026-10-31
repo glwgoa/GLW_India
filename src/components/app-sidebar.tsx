@@ -26,7 +26,7 @@ const NAV_ITEMS = [
     href: "/vendors",
     label: "Vendors",
     icon: Building2,
-    roles: ["admin", "developer", "project_manager", "vendor"] as const,
+    roles: ["admin", "developer", "project_manager", "employee", "vendor"] as const,
   },
   { href: "/projects", label: "Projects", icon: FolderKanban, roles: null },
   { href: "/employees", label: "Employees", icon: Users, roles: null },

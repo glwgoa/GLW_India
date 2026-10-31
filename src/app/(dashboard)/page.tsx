@@ -26,7 +26,7 @@ const MODULES = [
   {
     href: "/inventory",
     label: "Inventory",
-    description: "Regional stock levels",
+    description: "Live stock levels",
     icon: Package,
     color: "var(--chart-2)",
   },
@@ -47,7 +47,7 @@ const MODULES = [
   {
     href: "/mis-reports",
     label: "MIS Reports",
-    description: "Region and attendance analytics",
+    description: "Brand and attendance analytics",
     icon: BarChart3,
     color: "var(--chart-3)",
   },

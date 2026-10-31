@@ -1,6 +1,9 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "sonner";
+import { Trash2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { EditEmployeeDialog } from "./edit-employee-dialog";
@@ -28,12 +31,10 @@ function initials(name: string) {
 
 export function EmployeesGrid({
   employees,
-  regions,
   profile,
   refresh,
 }: {
   employees: EmployeeRow[];
-  regions: { id: string; name: string }[];
   profile: Profile;
   refresh: () => void | Promise<void>;
 }) {
@@ -43,6 +44,28 @@ export function EmployeesGrid({
     if (!canEdit) return false;
     if (employee.role === "developer") return profile.role === "developer";
     return true;
+  }
+
+  async function removeEmployee(employee: EmployeeRow) {
+    if (
+      !window.confirm(
+        `Remove ${employee.full_name}? They will no longer be able to sign in, and their attendance records will be deleted. Bookings they added or were assigned keep existing but lose the name. This cannot be undone.`,
+      )
+    ) {
+      return;
+    }
+    const res = await fetch("/api/admin/delete-employee", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: employee.id }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      toast.error(body.error ?? "Could not remove employee");
+      return;
+    }
+    toast.success(`${employee.full_name} removed`);
+    await refresh();
   }
 
   if (employees.length === 0) {
@@ -70,17 +93,25 @@ export function EmployeesGrid({
               </div>
             </div>
             {canEditRow(employee) && (
-              <EditEmployeeDialog
-                employee={employee}
-                regions={regions}
-                actorRole={profile.role}
-                onSaved={refresh}
-              />
+              <div className="flex items-center gap-1">
+                <EditEmployeeDialog
+                  employee={employee}
+                  actorRole={profile.role}
+                  onSaved={refresh}
+                />
+                {employee.id !== profile.id && (
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    aria-label={`Remove ${employee.full_name}`}
+                    onClick={() => removeEmployee(employee)}
+                  >
+                    <Trash2 className="text-destructive" />
+                  </Button>
+                )}
+              </div>
             )}
           </CardHeader>
-          <CardContent className="text-sm text-muted-foreground">
-            {employee.region?.name ?? "No region assigned"}
-          </CardContent>
         </Card>
       ))}
     </div>

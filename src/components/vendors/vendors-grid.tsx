@@ -62,7 +62,7 @@ export function VendorsGrid({
     return canEdit(vendor);
   }
 
-  const canDelete = isPrivileged(profile.role);
+  const canDelete = isPrivileged(profile.role) || profile.role === "employee";
 
   async function deleteVendor(vendor: VendorRow) {
     if (

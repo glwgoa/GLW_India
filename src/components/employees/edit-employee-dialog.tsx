@@ -30,19 +30,16 @@ const ROLES: UserRole[] = ["employee", "developer", "hr", "project_manager", "ad
 
 export function EditEmployeeDialog({
   employee,
-  regions,
   actorRole,
   onSaved,
 }: {
   employee: EmployeeRow;
-  regions: { id: string; name: string }[];
   actorRole: UserRole;
   onSaved: () => void | Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [role, setRole] = useState<string>(employee.role);
-  const [regionId, setRegionId] = useState<string>(employee.region_id ?? "");
   const availableRoles = actorRole === "developer" ? ROLES : ROLES.filter((r) => r !== "developer");
 
   async function handleSubmit(formData: FormData) {
@@ -54,7 +51,6 @@ export function EditEmployeeDialog({
       .update({
         full_name: formData.get("fullName") as string,
         role: role as UserRole,
-        region_id: regionId || null,
       })
       .eq("id", employee.id);
 
@@ -80,14 +76,14 @@ export function EditEmployeeDialog({
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Edit employee</DialogTitle>
-          <DialogDescription>Update role, region, or name.</DialogDescription>
+          <DialogDescription>Update role or name.</DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="fullName">Full name</Label>
             <Input id="fullName" name="fullName" defaultValue={employee.full_name} required />
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4">
             <div className="space-y-2">
               <Label>Role</Label>
               <Select value={role} onValueChange={(v) => setRole(v ?? "employee")}>
@@ -100,23 +96,6 @@ export function EditEmployeeDialog({
                   {availableRoles.map((r) => (
                     <SelectItem key={r} value={r} className="capitalize">
                       {r.replace("_", " ")}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Region</Label>
-              <Select value={regionId} onValueChange={(v) => setRegionId(v ?? "")}>
-                <SelectTrigger>
-                  <SelectValue>
-                    {(value: string) => regions.find((r) => r.id === value)?.name ?? "None"}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {regions.map((r) => (
-                    <SelectItem key={r.id} value={r.id}>
-                      {r.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

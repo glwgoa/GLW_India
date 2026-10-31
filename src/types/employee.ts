@@ -7,5 +7,4 @@ export type EmployeeRow = {
   region_id: string | null;
   vendor_id: string | null;
   created_at: string;
-  region: { name: string } | null;
 };

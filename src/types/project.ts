@@ -9,5 +9,4 @@ export type ProjectRow = {
   status: string;
   vendor: { name: string } | null;
   employee: { full_name: string } | null;
-  region: { name: string } | null;
 };

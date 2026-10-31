@@ -11,15 +11,13 @@ import type { EmployeeRow } from "@/types/employee";
 import type { Profile } from "@/types/profile";
 import { isPrivileged } from "@/lib/auth/roles";
 
-const SELECT = "*, region:regions(name)";
+const SELECT = "*";
 
 export function EmployeesClient({
   initialEmployees,
-  regions,
   profile,
 }: {
   initialEmployees: EmployeeRow[];
-  regions: { id: string; name: string }[];
   profile: Profile;
 }) {
   const [employees, setEmployees] = useState<EmployeeRow[]>(initialEmployees);
@@ -42,7 +40,7 @@ export function EmployeesClient({
           <div>
             <h1 className="text-2xl font-semibold">Employees</h1>
             <p className="text-sm text-muted-foreground">
-              Everyone can view — only admins can add or edit.
+              Everyone can view — only admins can add, edit or remove.
             </p>
           </div>
         </div>
@@ -52,11 +50,11 @@ export function EmployeesClient({
             Refresh
           </Button>
           {canAdd && (
-            <AddEmployeeDialog regions={regions} actorRole={profile.role} onAdded={refresh} />
+            <AddEmployeeDialog actorRole={profile.role} onAdded={refresh} />
           )}
         </div>
       </div>
-      <EmployeesGrid employees={employees} regions={regions} profile={profile} refresh={refresh} />
+      <EmployeesGrid employees={employees} profile={profile} refresh={refresh} />
     </div>
   );
 }

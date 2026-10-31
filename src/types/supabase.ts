@@ -498,6 +498,81 @@ export type Database = {
           },
         ]
       }
+      gst_documents: {
+        Row: {
+          booking_id: string | null
+          brand: string
+          cgst: number
+          created_at: string
+          created_by: string | null
+          customer_address: string | null
+          customer_gstin: string | null
+          customer_name: string
+          customer_state_code: string
+          description: string
+          doc_date: string
+          doc_number: string
+          doc_type: Database["public"]["Enums"]["gst_doc_type"]
+          gst_rate: number
+          hsn_sac: string | null
+          id: string
+          igst: number
+          notes: string | null
+          ref_document_id: string | null
+          sgst: number
+          taxable_value: number
+          total: number
+        }
+        Insert: {
+          booking_id?: string | null
+          brand: string
+          cgst?: number
+          created_at?: string
+          created_by?: string | null
+          customer_address?: string | null
+          customer_gstin?: string | null
+          customer_name: string
+          customer_state_code: string
+          description: string
+          doc_date?: string
+          doc_number?: string
+          doc_type: Database["public"]["Enums"]["gst_doc_type"]
+          gst_rate: number
+          hsn_sac?: string | null
+          id?: string
+          igst?: number
+          notes?: string | null
+          ref_document_id?: string | null
+          sgst?: number
+          taxable_value: number
+          total: number
+        }
+        Update: {
+          booking_id?: string | null
+          brand?: string
+          cgst?: number
+          created_at?: string
+          created_by?: string | null
+          customer_address?: string | null
+          customer_gstin?: string | null
+          customer_name?: string
+          customer_state_code?: string
+          description?: string
+          doc_date?: string
+          doc_number?: string
+          doc_type?: Database["public"]["Enums"]["gst_doc_type"]
+          gst_rate?: number
+          hsn_sac?: string | null
+          id?: string
+          igst?: number
+          notes?: string | null
+          ref_document_id?: string | null
+          sgst?: number
+          taxable_value?: number
+          total?: number
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number
@@ -748,6 +823,7 @@ export type Database = {
         | "completed"
         | "cancelled"
         | "cancelled_refunded"
+      gst_doc_type: "invoice" | "quotation" | "credit_note"
       transaction_direction: "paid" | "received"
       transaction_source: "manual" | "booking"
       user_role:
@@ -892,6 +968,7 @@ export const Constants = {
         "cancelled",
         "cancelled_refunded",
       ],
+      gst_doc_type: ["invoice", "quotation", "credit_note"],
       transaction_direction: ["paid", "received"],
       transaction_source: ["manual", "booking"],
       user_role: [

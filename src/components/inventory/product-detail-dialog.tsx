@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useReducedMotion } from "framer-motion";
-import { Anchor, Building2, Clock, MapPin, Package, Tag, User } from "lucide-react";
+import { Anchor, Building2, Clock, Package, Tag, User } from "lucide-react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { NewBookingDialog } from "@/components/bookings/new-booking-dialog";
@@ -36,7 +36,6 @@ export function ProductDetailDialog({
   onOpenChange,
   row,
   vendors,
-  regions,
   canBook,
   onBooked,
 }: {
@@ -44,7 +43,6 @@ export function ProductDetailDialog({
   onOpenChange: (open: boolean) => void;
   row: AggregatedRow;
   vendors: { id: string; name: string }[];
-  regions: { id: string; name: string }[];
   canBook: boolean;
   onBooked: () => void | Promise<void>;
 }) {
@@ -110,12 +108,6 @@ export function ProductDetailDialog({
                 <div className="flex items-center gap-1">
                   <Building2 className="h-4 w-4" />
                   <span>{item.vendor.name}</span>
-                </div>
-              )}
-              {row.region?.name && (
-                <div className="flex items-center gap-1">
-                  <MapPin className="h-4 w-4" />
-                  <span>{row.region.name}</span>
                 </div>
               )}
             </div>
@@ -212,7 +204,6 @@ export function ProductDetailDialog({
             >
               <NewBookingDialog
                 vendors={vendors}
-                regions={regions}
                 products={products}
                 initialProductId={row.item_id}
                 trigger={

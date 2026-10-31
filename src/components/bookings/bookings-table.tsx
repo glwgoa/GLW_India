@@ -36,7 +36,6 @@ export function BookingsTable({
   setBookings,
   profile,
   vendors,
-  regions,
   products,
   employees,
   refresh,
@@ -46,7 +45,6 @@ export function BookingsTable({
   setBookings: React.Dispatch<React.SetStateAction<BookingRow[]>>;
   profile: Profile;
   vendors: { id: string; name: string }[];
-  regions: { id: string; name: string }[];
   products: BookingProduct[];
   employees: { id: string; full_name: string }[];
   refresh: () => void | Promise<void>;
@@ -287,7 +285,6 @@ export function BookingsTable({
                       <EditBookingDialog
                         booking={booking}
                         vendors={vendors}
-                        regions={regions}
                         products={products}
                         employees={employees}
                         profile={profile}

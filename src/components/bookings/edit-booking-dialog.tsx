@@ -33,7 +33,6 @@ import {
 import { BRAND_NAMES } from "@/lib/brands";
 import { ADV_PAID_TO_OPTIONS } from "@/lib/booking-display";
 import { isPrivileged } from "@/lib/auth/roles";
-import { deriveRegionId } from "@/lib/booking-region";
 import type { BookingProduct, BookingRow, BookingStatus, TransportType } from "@/types/booking";
 import type { Profile } from "@/types/profile";
 
@@ -68,7 +67,6 @@ function toDateOnly(iso: string) {
 export function EditBookingDialog({
   booking,
   vendors,
-  regions,
   products,
   employees,
   profile,
@@ -76,7 +74,6 @@ export function EditBookingDialog({
 }: {
   booking: BookingRow;
   vendors: { id: string; name: string }[];
-  regions: { id: string; name: string }[];
   products: BookingProduct[];
   /** Only admin/developer can assign which employee made the booking. */
   employees?: { id: string; full_name: string }[];
@@ -86,7 +83,6 @@ export function EditBookingDialog({
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [vendorId, setVendorId] = useState(booking.assigned_vendor_id ?? "");
-  const [regionId, setRegionId] = useState(booking.region_id ?? "");
   const [brand, setBrand] = useState(booking.brand ?? "");
   const [employeeId, setEmployeeId] = useState<string>(booking.assigned_employee_id ?? "");
   const [productId, setProductId] = useState(booking.item_id ?? "");
@@ -116,7 +112,6 @@ export function EditBookingDialog({
     if (product?.vendor_id) {
       setVendorId(product.vendor_id);
     }
-    setRegionId(deriveRegionId(product, profile?.region_id ?? null));
     if (product?.category !== YACHT_CATEGORY_NAME) {
       setAddOns([]);
     }
@@ -163,7 +158,6 @@ export function EditBookingDialog({
       .update({
         customer_name: customerName,
         customer_contact: showContactNumber ? customerContact : null,
-        region_id: regionId || null,
         brand: brand || null,
         assigned_vendor_id: vendorId || null,
         assigned_employee_id: canAssignEmployee ? employeeId || null : booking.assigned_employee_id,
@@ -238,12 +232,6 @@ export function EditBookingDialog({
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Region</Label>
-              <p className="flex h-8 items-center rounded-md border bg-muted/30 px-3 text-sm text-muted-foreground">
-                {regions.find((r) => r.id === regionId)?.name ?? "Determined from product"}
-              </p>
-            </div>
             <div className="space-y-2">
               <Label>Vendor</Label>
               <Select value={vendorId} onValueChange={(v) => setVendorId(v ?? "")}>

@@ -2,12 +2,11 @@ import { BarChart3 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { requireRole } from "@/lib/auth/require-role";
-import { RegionRevenueChart } from "@/components/mis/region-revenue-chart";
 import { AttendanceSummaryChart } from "@/components/mis/attendance-summary-chart";
 import { BrandPerformanceChart } from "@/components/mis/brand-performance-chart";
 import { PageHeaderIcon } from "@/components/page-header-icon";
 import { Reveal, RevealItem } from "@/components/motion/reveal";
-import type { RegionRevenueRow, AttendanceSummaryRow, BrandPerformanceRow } from "@/types/mis";
+import type { AttendanceSummaryRow, BrandPerformanceRow } from "@/types/mis";
 
 export default async function MisReportsPage() {
   const supabase = await createClient();
@@ -15,9 +14,8 @@ export default async function MisReportsPage() {
 
   requireRole(profile, ["admin", "developer", "project_manager"]);
 
-  const [{ data: regionRevenue }, { data: attendanceSummary }, { data: brandPerformance }] =
+  const [{ data: attendanceSummary }, { data: brandPerformance }] =
     await Promise.all([
-      supabase.from("vw_region_revenue_orders").select("*"),
       supabase.from("vw_monthly_attendance_summary").select("*"),
       supabase.from("vw_brand_performance").select("*"),
     ]);
@@ -35,9 +33,6 @@ export default async function MisReportsPage() {
         </div>
       </div>
       <Reveal className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <RevealItem>
-          <RegionRevenueChart data={(regionRevenue ?? []) as RegionRevenueRow[]} />
-        </RevealItem>
         <RevealItem>
           <AttendanceSummaryChart data={(attendanceSummary ?? []) as AttendanceSummaryRow[]} />
         </RevealItem>

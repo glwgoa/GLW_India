@@ -29,19 +29,18 @@ import type { InventoryCategory } from "@/types/inventory";
 
 export function AddInventoryDialog({
   vendors,
-  regions,
+  defaultRegionId,
   categories,
   onAdded,
 }: {
   vendors: { id: string; name: string }[];
-  regions: { id: string; name: string }[];
+  defaultRegionId: string;
   categories: InventoryCategory[];
   onAdded: () => void | Promise<void>;
 }) {
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [vendorId, setVendorId] = useState<string>("");
-  const [regionId, setRegionId] = useState<string>("");
   const [category, setCategory] = useState<string>("");
   const [subCategory, setSubCategory] = useState<string>("");
   const subCategories = categories.find((c) => c.name === category)?.subCategories ?? [];
@@ -68,8 +67,8 @@ export function AddInventoryDialog({
     const coordinatorName = (formData.get("coordinatorName") as string) || null;
     const coordinatorPhone = (formData.get("coordinatorPhone") as string) || null;
 
-    if (!vendorId || !regionId) {
-      toast.error("Select a vendor and a region");
+    if (!vendorId) {
+      toast.error("Select a vendor");
       setSubmitting(false);
       return;
     }
@@ -128,7 +127,7 @@ export function AddInventoryDialog({
     }
 
     const { error: stockError } = await supabase.from("regional_inventory").insert({
-      region_id: regionId,
+      region_id: defaultRegionId,
       item_id: item.id,
       stock_quantity: stockQuantity,
       reserved_quantity: 0,
@@ -144,7 +143,6 @@ export function AddInventoryDialog({
     toast.success("Product added to inventory");
     setOpen(false);
     setVendorId("");
-    setRegionId("");
     await onAdded();
   }
 
@@ -158,7 +156,7 @@ export function AddInventoryDialog({
         <DialogHeader>
           <DialogTitle>Add product to inventory</DialogTitle>
           <DialogDescription>
-            Create a new product with its vendor, pricing, and starting stock in a region.
+            Create a new product with its vendor, pricing, and starting stock.
           </DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="space-y-4">
@@ -298,24 +296,6 @@ export function AddInventoryDialog({
               </div>
             </div>
           )}
-
-          <div className="space-y-2">
-            <Label>Region</Label>
-            <Select value={regionId} onValueChange={(v) => setRegionId(v ?? "")}>
-              <SelectTrigger>
-                <SelectValue>
-                  {(value: string) => regions.find((r) => r.id === value)?.name ?? "Select region"}
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {regions.map((r) => (
-                  <SelectItem key={r.id} value={r.id}>
-                    {r.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
 
           <DialogFooter>
             <Button type="submit" disabled={submitting}>

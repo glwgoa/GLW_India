@@ -12,7 +12,7 @@ import type { BookingRow } from "@/types/booking";
 import type { TransactionRow } from "@/types/transaction";
 
 const BOOKING_SELECT =
-  "*, region:regions(name), vendor:vendors(name, contact_phone), employee:profiles!bookings_assigned_employee_id_fkey(full_name), creator:profiles!bookings_created_by_fkey(full_name), item:catalog_items(name, b2b_price, kids_b2b_price, kids_sale_price, category, reporting_time, jetty_name, jetty_location_url, parking_url, sub_category, coordinator_name, coordinator_phone)";
+  "*, vendor:vendors(name, contact_phone), employee:profiles!bookings_assigned_employee_id_fkey(full_name), creator:profiles!bookings_created_by_fkey(full_name), item:catalog_items(name, b2b_price, kids_b2b_price, kids_sale_price, category, reporting_time, jetty_name, jetty_location_url, parking_url, sub_category, coordinator_name, coordinator_phone)";
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
@@ -69,7 +69,6 @@ export function MatchDetailDialog({ transaction }: { transaction: TransactionRow
               <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
                 <InfoRow label="Customer" value={booking.customer_name} />
                 <InfoRow label="Brand" value={booking.brand ?? "—"} />
-                <InfoRow label="Region" value={booking.region?.name ?? "—"} />
                 <InfoRow label="Vendor" value={booking.vendor?.name ?? "Unassigned"} />
                 <InfoRow label="Product" value={booking.item?.name ?? "—"} />
                 <InfoRow

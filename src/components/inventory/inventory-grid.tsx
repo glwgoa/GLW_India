@@ -24,18 +24,14 @@ export function InventoryGrid({
   rows,
   setRows,
   profile,
-  aggregated,
   vendors,
-  regions,
   categories,
   refresh,
 }: {
   rows: AggregatedRow[];
   setRows: React.Dispatch<React.SetStateAction<InventoryRow[]>>;
   profile: Profile;
-  aggregated: boolean;
   vendors: { id: string; name: string }[];
-  regions: { id: string; name: string }[];
   categories: InventoryCategory[];
   refresh: () => void | Promise<void>;
 }) {
@@ -48,28 +44,26 @@ export function InventoryGrid({
     return isPrivileged(profile.role);
   }
 
+  // Employees can also remove products (see the employee_inventory_vendor_permissions migration).
   function canDelete() {
-    return isPrivileged(profile.role);
+    return isPrivileged(profile.role) || profile.role === "employee";
   }
 
   const canBook = isPrivileged(profile.role) || profile.role === "project_manager";
 
   async function deleteRow(row: AggregatedRow) {
     const label = row.item?.name ?? "this item";
-    const regionCount = row.regionCount ?? 1;
-    const scope = aggregated && regionCount > 1 ? ` across all ${regionCount} regions` : "";
 
     if (
       !window.confirm(
-        `Permanently delete ${label}${scope}? This removes the product itself, not just its stock — this cannot be undone.`,
+        `Permanently delete ${label}? This removes the product itself, not just its stock — this cannot be undone.`,
       )
     ) {
       return;
     }
 
     const supabase = createClient();
-    // Deleting the product cascades to every regional_inventory row for it
-    // (ON DELETE CASCADE), so one delete clears it out of every region.
+    // Deleting the product cascades to its regional_inventory rows (ON DELETE CASCADE).
     const { error } = await supabase.from("catalog_items").delete().eq("id", row.item_id);
     if (error) {
       toast.error(`Delete failed: ${error.message}`);
@@ -147,7 +141,6 @@ export function InventoryGrid({
                 <div className="line-clamp-1 text-[11px] text-white/75">
                   {row.item?.sku ?? "—"}
                   {row.item?.vendor?.name ? ` · ${row.item.vendor.name}` : ""}
-                  {!aggregated && row.region?.name ? ` · ${row.region.name}` : ""}
                 </div>
               </div>
             </div>
@@ -181,7 +174,6 @@ export function InventoryGrid({
           onOpenChange={(o) => !o && setSelectedRow(null)}
           row={selectedRow}
           vendors={vendors}
-          regions={regions}
           canBook={canBook}
           onBooked={refresh}
         />

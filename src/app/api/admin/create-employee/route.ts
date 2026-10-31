@@ -34,7 +34,6 @@ export async function POST(request: Request) {
   const email = (body.email as string)?.trim();
   const password = body.password as string;
   const role = (body.role as string) || "employee";
-  const regionId = (body.regionId as string) || null;
 
   if (!fullName || !email || !password) {
     return NextResponse.json({ error: "Full name, email, and password are required" }, { status: 400 });
@@ -63,7 +62,7 @@ export async function POST(request: Request) {
 
   const { error: profileError } = await admin
     .from("profiles")
-    .update({ role, region_id: regionId })
+    .update({ role })
     .eq("id", created.user.id);
 
   if (profileError) {

@@ -229,7 +229,6 @@ export function BookingDetailDialog({
             {booking.transaction_id && (
               <InfoRow icon={Receipt} label="Transaction ID" value={booking.transaction_id} />
             )}
-            <InfoRow icon={MapPin} label="Region" value={booking.region?.name ?? "—"} />
             <InfoRow icon={Building2} label="Vendor" value={booking.vendor?.name ?? "Unassigned"} />
             <InfoRow icon={Package} label="Product" value={booking.item?.name ?? "—"} />
             {booking.employee?.full_name && (

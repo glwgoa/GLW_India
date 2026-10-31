@@ -34,7 +34,6 @@ import {
 import { BRAND_NAMES } from "@/lib/brands";
 import { ADV_PAID_TO_OPTIONS } from "@/lib/booking-display";
 import { isPrivileged } from "@/lib/auth/roles";
-import { deriveRegionId } from "@/lib/booking-region";
 import type { BookingProduct, TransportType } from "@/types/booking";
 import type { Profile } from "@/types/profile";
 
@@ -46,7 +45,6 @@ type BookingDraft = {
   savedAt: number;
   state: {
     vendorId: string;
-    regionId: string;
     brand: string;
     employeeId: string;
     category: string;
@@ -82,7 +80,6 @@ const TRANSPORT_TYPE_LABEL: Record<TransportType, string> = {
 
 export function NewBookingDialog({
   vendors,
-  regions,
   products,
   employees,
   profile,
@@ -97,7 +94,6 @@ export function NewBookingDialog({
   onAdded,
 }: {
   vendors: { id: string; name: string }[];
-  regions: { id: string; name: string }[];
   products: BookingProduct[];
   /** Only admin/developer can assign which employee made the booking. */
   employees?: { id: string; full_name: string }[];
@@ -112,12 +108,6 @@ export function NewBookingDialog({
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [vendorId, setVendorId] = useState<string>("");
-  const [regionId, setRegionId] = useState<string>(() =>
-    deriveRegionId(
-      products.find((p) => p.id === initialProductId),
-      profile?.region_id ?? null,
-    ),
-  );
   const [brand, setBrand] = useState<string>("");
   const [employeeId, setEmployeeId] = useState<string>("");
   const [category, setCategory] = useState<string>(() => {
@@ -163,7 +153,7 @@ export function NewBookingDialog({
     if (Object.keys(fields).length === 0 && !category && !productId && !brand && !vendorId) return;
     const draft: BookingDraft = {
       savedAt: Date.now(),
-      state: { vendorId, regionId, brand, employeeId, category, productId, salePrice, kidsPrice, addOns, transportType, advPaidTo },
+      state: { vendorId, brand, employeeId, category, productId, salePrice, kidsPrice, addOns, transportType, advPaidTo },
       fields,
     };
     try {
@@ -191,7 +181,6 @@ export function NewBookingDialog({
     restoringRef.current = true;
     const d = draft.state;
     setVendorId(d.vendorId);
-    setRegionId(d.regionId);
     setBrand(d.brand);
     setEmployeeId(d.employeeId);
     setCategory(d.category);
@@ -228,7 +217,7 @@ export function NewBookingDialog({
     const t = setTimeout(saveDraft, 300);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, vendorId, regionId, brand, employeeId, category, productId, salePrice, kidsPrice, addOns, transportType, advPaidTo]);
+  }, [open, vendorId, brand, employeeId, category, productId, salePrice, kidsPrice, addOns, transportType, advPaidTo]);
 
   function discardDraft() {
     clearDraft();
@@ -243,7 +232,6 @@ export function NewBookingDialog({
     setAddOns([]);
     setTransportType("");
     setAdvPaidTo("");
-    setRegionId(deriveRegionId(undefined, profile?.region_id ?? null));
     setDraftRestored(false);
   }
 
@@ -263,7 +251,6 @@ export function NewBookingDialog({
     setKidsPrice("");
     setAddOns([]);
     setTransportType("");
-    setRegionId(deriveRegionId(undefined, profile?.region_id ?? null));
   }
 
   function handleProductChange(id: string) {
@@ -276,7 +263,6 @@ export function NewBookingDialog({
     if (product?.vendor_id) {
       setVendorId(product.vendor_id);
     }
-    setRegionId(deriveRegionId(product, profile?.region_id ?? null));
   }
 
   function toggleAddOn(addOn: string) {
@@ -315,7 +301,6 @@ export function NewBookingDialog({
     const { error } = await supabase.from("bookings").insert({
       customer_name: customerName,
       customer_contact: showContactNumber ? customerContact : null,
-      region_id: regionId || null,
       brand: brand || null,
       assigned_vendor_id: vendorId || null,
       assigned_employee_id:
@@ -377,7 +362,6 @@ export function NewBookingDialog({
     setCategory(resetProduct?.category ?? "");
     setSalePrice(resetProduct?.sale_price != null ? String(resetProduct.sale_price) : "");
     setKidsPrice(resetProduct?.kids_sale_price != null ? String(resetProduct.kids_sale_price) : "");
-    setRegionId(deriveRegionId(resetProduct, profile?.region_id ?? null));
     setAddOns([]);
     setTransportType("");
     setAdvPaidTo("");
@@ -438,12 +422,6 @@ export function NewBookingDialog({
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Region</Label>
-              <p className="flex h-8 items-center rounded-md border bg-muted/30 px-3 text-sm text-muted-foreground">
-                {regions.find((r) => r.id === regionId)?.name ?? "Determined from product"}
-              </p>
-            </div>
             <div className="space-y-2">
               <Label>Vendor</Label>
               <Select value={vendorId} onValueChange={(v) => setVendorId(v ?? "")}>

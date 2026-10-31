@@ -51,7 +51,7 @@ export function VendorsClient({
   const [nameFilter, setNameFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("");
-  const canAdd = isPrivileged(profile.role);
+  const canAdd = isPrivileged(profile.role) || profile.role === "employee";
 
   const refresh = useCallback(async () => {
     setRefreshing(true);

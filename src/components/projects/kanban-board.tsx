@@ -49,9 +49,9 @@ export function KanbanBoard({
   profile: Profile;
   employees: { id: string; full_name: string }[];
 }) {
-  function canModify(project: ProjectRow) {
+  function canModify() {
     if (isPrivileged(profile.role)) return true;
-    if (profile.role === "project_manager") return project.region_id === profile.region_id;
+    if (profile.role === "project_manager") return true;
     return false;
   }
 
@@ -93,7 +93,7 @@ export function KanbanBoard({
             </div>
             <div className="space-y-3">
               {columnProjects.map((project, index) => {
-                const editable = canModify(project);
+                const editable = canModify();
                 return (
                   <Card
                     key={project.id}
@@ -114,7 +114,6 @@ export function KanbanBoard({
                       )}
                     </CardHeader>
                     <CardContent className="space-y-2 text-sm">
-                      <p className="text-muted-foreground">{project.region?.name ?? "—"}</p>
                       <p className="text-muted-foreground">
                         {project.vendor?.name ?? "Unassigned vendor"}
                       </p>

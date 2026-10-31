@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { FileCheck2, Receipt } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { GstDocumentsPanel } from "./gst-documents-panel";
 import { TransactionsTable } from "./transactions-table";
 import { NewTransactionDialog } from "./new-transaction-dialog";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,7 @@ import { PageHeaderIcon } from "@/components/page-header-icon";
 import { DownloadButton } from "@/components/motion/download-button";
 import { downloadCsv } from "@/lib/csv";
 import { transactionDescription } from "@/lib/transaction-display";
+import type { GstDocument } from "@/types/gst-document";
 import type { TransactionDirection, TransactionRow } from "@/types/transaction";
 import type { Profile } from "@/types/profile";
 
@@ -24,14 +26,17 @@ const DIRECTION_LABEL: Record<TransactionDirection, string> = {
 
 export function TransactionsClient({
   initialTransactions,
+  initialGstDocuments,
   profile,
 }: {
   initialTransactions: TransactionRow[];
+  initialGstDocuments: GstDocument[];
   profile: Profile;
 }) {
   const [transactions, setTransactions] = useState<TransactionRow[]>(initialTransactions);
   const [directionFilter, setDirectionFilter] = useState<string>("");
   const [search, setSearch] = useState("");
+  const [view, setView] = useState<"payments" | "gst">("payments");
 
   async function refresh() {
     const supabase = createClient();
@@ -101,15 +106,46 @@ export function TransactionsClient({
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/transactions/reconcile" />}>
-            <FileCheck2 />
-            Reconcile statement
-          </Button>
-          <DownloadButton onDownload={handleDownload} />
-          <NewTransactionDialog profile={profile} onAdded={refresh} />
-        </div>
+        {view === "payments" && (
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" nativeButton={false} render={<Link href="/transactions/reconcile" />}>
+              <FileCheck2 />
+              Reconcile statement
+            </Button>
+            <DownloadButton onDownload={handleDownload} />
+            <NewTransactionDialog profile={profile} onAdded={refresh} />
+          </div>
+        )}
       </div>
+
+      <div className="inline-flex rounded-lg bg-muted p-1" role="tablist" aria-label="Transactions view">
+        {(
+          [
+            ["payments", "Payments"],
+            ["gst", "GST billing"],
+          ] as const
+        ).map(([value, label]) => (
+          <button
+            key={value}
+            type="button"
+            role="tab"
+            aria-selected={view === value}
+            onClick={() => setView(value)}
+            className={`rounded-md px-4 py-1.5 text-sm font-medium transition-colors ${
+              view === value
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {view === "gst" ? (
+        <GstDocumentsPanel profile={profile} initialDocuments={initialGstDocuments} />
+      ) : (
+        <>
 
       <div className="grid grid-cols-3 gap-3">
         <div className="rounded-lg border bg-muted/30 p-3 text-center">
@@ -175,6 +211,8 @@ export function TransactionsClient({
       </div>
 
       <TransactionsTable transactions={visibleTransactions} setTransactions={setTransactions} refresh={refresh} />
+        </>
+      )}
     </div>
   );
 }

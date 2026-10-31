@@ -12,7 +12,7 @@ export default async function VendorsPage() {
   const supabase = await createClient();
   const profile = await getCurrentProfile();
 
-  requireRole(profile, ["admin", "developer", "project_manager", "vendor"]);
+  requireRole(profile, ["admin", "developer", "project_manager", "employee", "vendor"]);
 
   const [{ data: vendors }, { data: categories }, { data: subCategories }, { data: selections }] =
     await Promise.all([

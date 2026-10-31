@@ -31,14 +31,12 @@ export function BookingsClient({
   initialBookings,
   profile,
   vendors,
-  regions,
   products,
   employees,
 }: {
   initialBookings: BookingRow[];
   profile: Profile;
   vendors: { id: string; name: string }[];
-  regions: { id: string; name: string }[];
   products: BookingProduct[];
   employees: { id: string; full_name: string }[];
 }) {
@@ -163,7 +161,6 @@ export function BookingsClient({
           {canCreateBooking && (
             <NewBookingDialog
               vendors={vendors}
-              regions={regions}
               products={products}
               employees={employees}
               profile={profile}
@@ -253,7 +250,6 @@ export function BookingsClient({
         setBookings={setBookings}
         profile={profile}
         vendors={vendors}
-        regions={regions}
         products={products}
         employees={employees}
         refresh={refresh}

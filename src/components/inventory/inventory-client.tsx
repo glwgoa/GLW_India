@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { Boxes, X } from "lucide-react";
-import { useRegion } from "@/lib/region-context";
 import { useRealtimeInventory, type InventoryRow } from "@/hooks/use-realtime-inventory";
 import { InventoryGrid } from "./inventory-grid";
 import { AddInventoryDialog } from "./add-inventory-dialog";
@@ -26,42 +25,35 @@ export function InventoryClient({
   initialRows,
   profile,
   vendors,
-  regions,
+  defaultRegionId,
   categories,
 }: {
   initialRows: InventoryRow[];
   profile: Profile;
   vendors: { id: string; name: string }[];
-  regions: { id: string; name: string }[];
+  /** Stock rows still need a region in the database; new products use this one. */
+  defaultRegionId: string;
   categories: InventoryCategory[];
 }) {
-  const { selectedRegionId } = useRegion();
   const { rows, setRows, refresh } = useRealtimeInventory(initialRows);
-  const aggregated = selectedRegionId === "all";
-  const canAddProduct = isPrivileged(profile.role);
+  const canAddProduct = isPrivileged(profile.role) || profile.role === "employee";
   const [nameFilter, setNameFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
 
   const visibleRows = useMemo(() => {
-    const regionRows = aggregated ? rows : rows.filter((row) => row.region_id === selectedRegionId);
-
-    let combined: (InventoryRow & { regionCount?: number })[];
-    if (!aggregated) {
-      combined = regionRows;
-    } else {
-      const byItem = new Map<string, InventoryRow & { regionCount: number }>();
-      for (const row of regionRows) {
-        const existing = byItem.get(row.item_id);
-        if (existing) {
-          existing.stock_quantity += row.stock_quantity;
-          existing.reserved_quantity += row.reserved_quantity;
-          existing.regionCount += 1;
-        } else {
-          byItem.set(row.item_id, { ...row, regionCount: 1 });
-        }
+    // Stock is kept per region in the database; show one total per product.
+    const byItem = new Map<string, InventoryRow & { regionCount: number }>();
+    for (const row of rows) {
+      const existing = byItem.get(row.item_id);
+      if (existing) {
+        existing.stock_quantity += row.stock_quantity;
+        existing.reserved_quantity += row.reserved_quantity;
+        existing.regionCount += 1;
+      } else {
+        byItem.set(row.item_id, { ...row, regionCount: 1 });
       }
-      combined = Array.from(byItem.values());
     }
+    const combined = Array.from(byItem.values());
 
     return combined.filter((row) => {
       if (nameFilter && !row.item?.name?.toLowerCase().includes(nameFilter.toLowerCase())) {
@@ -70,7 +62,7 @@ export function InventoryClient({
       if (categoryFilter && row.item?.category !== categoryFilter) return false;
       return true;
     });
-  }, [rows, selectedRegionId, aggregated, nameFilter, categoryFilter]);
+  }, [rows, nameFilter, categoryFilter]);
 
   const hasFilters = nameFilter || categoryFilter;
 
@@ -87,16 +79,14 @@ export function InventoryClient({
           <div>
             <h1 className="text-2xl font-semibold">Inventory</h1>
             <p className="text-sm text-muted-foreground">
-              {aggregated
-                ? "Aggregated stock across all regions — live updates, read-only."
-                : "Live stock levels for the selected region."}
+              Live stock levels — updates automatically.
             </p>
           </div>
         </div>
         {canAddProduct && (
           <AddInventoryDialog
             vendors={vendors}
-            regions={regions}
+            defaultRegionId={defaultRegionId}
             categories={categories}
             onAdded={refresh}
           />
@@ -146,9 +136,7 @@ export function InventoryClient({
         rows={visibleRows}
         setRows={setRows}
         profile={profile}
-        aggregated={aggregated}
         vendors={vendors}
-        regions={regions}
         categories={categories}
         refresh={refresh}
       />

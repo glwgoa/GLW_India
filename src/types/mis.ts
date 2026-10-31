@@ -1,10 +1,3 @@
-export type RegionRevenueRow = {
-  region_id: string;
-  region_name: string;
-  total_orders: number;
-  total_revenue: number;
-};
-
 export type BrandPerformanceRow = {
   brand: string;
   total_bookings: number;

@@ -26,12 +26,10 @@ import {
 
 export function NewProjectDialog({
   vendors,
-  regions,
   employees,
   onAdded,
 }: {
   vendors: { id: string; name: string }[];
-  regions: { id: string; name: string }[];
   employees: { id: string; full_name: string }[];
   onAdded: () => void | Promise<void>;
 }) {
@@ -39,13 +37,8 @@ export function NewProjectDialog({
   const [submitting, setSubmitting] = useState(false);
   const [vendorId, setVendorId] = useState<string>("");
   const [employeeId, setEmployeeId] = useState<string>("");
-  const [regionId, setRegionId] = useState<string>("");
 
   async function handleSubmit(formData: FormData) {
-    if (!regionId) {
-      toast.error("Select a region");
-      return;
-    }
     setSubmitting(true);
     const supabase = createClient();
 
@@ -55,7 +48,6 @@ export function NewProjectDialog({
 
     const { error } = await supabase.from("projects").insert({
       title,
-      region_id: regionId,
       assigned_vendor_id: vendorId || null,
       assigned_employee_id: employeeId || null,
       budget,
@@ -74,7 +66,6 @@ export function NewProjectDialog({
     setOpen(false);
     setVendorId("");
     setEmployeeId("");
-    setRegionId("");
     await onAdded();
   }
 
@@ -87,7 +78,7 @@ export function NewProjectDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>New project</DialogTitle>
-          <DialogDescription>Assign a project to a vendor, employee, and region.</DialogDescription>
+          <DialogDescription>Assign a project to a vendor and employee.</DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="space-y-4">
           <div className="space-y-2">
@@ -96,23 +87,6 @@ export function NewProjectDialog({
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label>Region</Label>
-              <Select value={regionId} onValueChange={(v) => setRegionId(v ?? "")}>
-                <SelectTrigger>
-                  <SelectValue>
-                    {(value: string) => regions.find((r) => r.id === value)?.name ?? "Select region"}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {regions.map((r) => (
-                    <SelectItem key={r.id} value={r.id}>
-                      {r.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
             <div className="space-y-2">
               <Label>Vendor</Label>
               <Select value={vendorId} onValueChange={(v) => setVendorId(v ?? "")}>
