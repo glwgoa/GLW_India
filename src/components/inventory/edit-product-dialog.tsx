@@ -23,7 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DINNER_CRUISE_CATEGORY_NAME, needsKidsPricing, needsReportingTime } from "@/lib/booking-yacht";
+import { DINNER_CRUISE_CATEGORY_NAME, needsKidsPricing, needsReportingTime, needsJettyDetails } from "@/lib/booking-yacht";
 import type { InventoryRow } from "@/hooks/use-realtime-inventory";
 
 import type { InventoryCategory } from "@/types/inventory";
@@ -50,6 +50,7 @@ export function EditProductDialog({
   const showReportingTime = needsReportingTime(category);
   const showKidsPricing = needsKidsPricing(category);
   const isDinnerCruise = category === DINNER_CRUISE_CATEGORY_NAME;
+  const showJetty = needsJettyDetails(subCategory);
 
   async function handleSubmit(formData: FormData) {
     setSubmitting(true);
@@ -100,8 +101,8 @@ export function EditProductDialog({
         kids_b2b_price: showKidsPricing && kidsB2bPriceRaw ? Number(kidsB2bPriceRaw) : null,
         kids_sale_price: showKidsPricing && kidsSalePriceRaw ? Number(kidsSalePriceRaw) : null,
         vendor_id: vendorId || null,
-        jetty_name: jettyName,
-        jetty_location_url: jettyLocationUrl,
+        jetty_name: showJetty ? jettyName : null,
+        jetty_location_url: showJetty ? jettyLocationUrl : null,
         parking_url: isDinnerCruise ? parkingUrl : null,
         reporting_time: showReportingTime ? reportingTime : null,
         coordinator_name: coordinatorName,
@@ -214,22 +215,24 @@ export function EditProductDialog({
             <p className="text-xs text-muted-foreground">Leave empty to keep the current image.</p>
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="jettyName">Jetty name</Label>
-              <Input id="jettyName" name="jettyName" defaultValue={item.jetty_name ?? ""} placeholder="Optional" />
+          {showJetty && (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="jettyName">Jetty name</Label>
+                <Input id="jettyName" name="jettyName" defaultValue={item.jetty_name ?? ""} placeholder="Optional" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="jettyLocationUrl">Jetty location (Google Maps link)</Label>
+                <Input
+                  id="jettyLocationUrl"
+                  name="jettyLocationUrl"
+                  type="url"
+                  defaultValue={item.jetty_location_url ?? ""}
+                  placeholder="Optional"
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="jettyLocationUrl">Jetty location (Google Maps link)</Label>
-              <Input
-                id="jettyLocationUrl"
-                name="jettyLocationUrl"
-                type="url"
-                defaultValue={item.jetty_location_url ?? ""}
-                placeholder="Optional"
-              />
-            </div>
-          </div>
+          )}
 
           {isDinnerCruise && (
             <div className="space-y-2">

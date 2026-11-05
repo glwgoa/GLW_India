@@ -1,6 +1,8 @@
 export const YACHT_CATEGORY_NAME = "Private Yachts";
 export const DINNER_CRUISE_CATEGORY_NAME = "Dinner Cruise";
 export const SUNSET_CRUISE_CATEGORY_NAME = "Sunset Cruise";
+/** Sub-category of "Goa Trip" — a road trip, so its products have no jetty/location details. */
+export const DUDHSAGAR_SUB_CATEGORY_NAME = "Dudhsagar";
 
 /** The 3 core booking categories, shown as a dropdown when adding a booking. */
 export const BOOKING_CATEGORIES = [
@@ -36,4 +38,9 @@ export function needsReportingTime(category: string | null | undefined) {
 /** Kids (5-10 yrs) get a separate B2B/sale price for these categories. */
 export function needsKidsPricing(category: string | null | undefined) {
   return isPerGuestCategory(category);
+}
+
+/** Every product has a jetty name and location link except Dudhsagar trips. */
+export function needsJettyDetails(subCategory: string | null | undefined) {
+  return subCategory !== DUDHSAGAR_SUB_CATEGORY_NAME;
 }
