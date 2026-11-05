@@ -27,6 +27,7 @@ import {
   BOOKING_CATEGORIES,
   DINNER_CRUISE_CATEGORY_NAME,
   GOA_TRIP_CATEGORY_NAME,
+  DUDHSAGAR_SUB_CATEGORY_NAME,
   GOA_TRIP_PICKUP_LOCATIONS,
   SUNSET_CRUISE_CATEGORY_NAME,
   YACHT_ADD_ONS,
@@ -264,6 +265,8 @@ export function NewBookingDialog({
   const isDinnerCruise = category === DINNER_CRUISE_CATEGORY_NAME;
   const isSunsetCruise = category === SUNSET_CRUISE_CATEGORY_NAME;
   const isPerGuestPricing = isDinnerCruise || isSunsetCruise || isGoaTrip;
+  // Dudhsagar trips only take kids below 5yrs — no 5-10yrs count or price.
+  const showOlderKids = !(isGoaTrip && subCategory === DUDHSAGAR_SUB_CATEGORY_NAME);
   const showKidsPriceFields = hasKidsPriceFields(category);
   const showContactNumber = needsCustomerContact(category);
   const isPickupDrop = transportType === "pickup_drop";
@@ -352,7 +355,7 @@ export function NewBookingDialog({
       created_by: profile?.id ?? null,
       item_id: productId || null,
       sale_price: priceRaw ? Number(priceRaw) : null,
-      kids_price: showKidsPriceFields && kidsPriceRaw ? Number(kidsPriceRaw) : null,
+      kids_price: showKidsPriceFields && showOlderKids && kidsPriceRaw ? Number(kidsPriceRaw) : null,
       kids_below_5_count: showKidsPriceFields && kidsBelow5CountRaw ? Number(kidsBelow5CountRaw) : null,
       advance_amount: advanceRaw ? Number(advanceRaw) : null,
       adv_paid_to: advPaidTo || null,
@@ -364,7 +367,7 @@ export function NewBookingDialog({
       status: "pending",
       guest_count: guestCountRaw ? Number(guestCountRaw) : null,
       pickup_location: isGoaTrip ? pickupLocation : null,
-      kids_count: isPerGuestPricing && kidsCountRaw ? Number(kidsCountRaw) : null,
+      kids_count: isPerGuestPricing && showOlderKids && kidsCountRaw ? Number(kidsCountRaw) : null,
       ...(isYacht
         ? {
             start_time: startTime,
@@ -578,7 +581,7 @@ export function NewBookingDialog({
               <Label htmlFor="guestCount">Number of guests</Label>
               <Input id="guestCount" name="guestCount" type="number" min="0" className="max-w-40" />
             </div>
-            {isPerGuestPricing && (
+            {isPerGuestPricing && showOlderKids && (
               <div className="space-y-2">
                 <Label htmlFor="kidsCount">Number of kids (5-10 yrs)</Label>
                 <Input id="kidsCount" name="kidsCount" type="number" min="0" className="max-w-40" />
@@ -588,18 +591,20 @@ export function NewBookingDialog({
 
           {showKidsPriceFields && (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="kidsPrice">Kids price (5yrs to 10yrs) (₹)</Label>
-                <Input
-                  id="kidsPrice"
-                  name="kidsPrice"
-                  type="number"
-                  step="0.01"
-                  value={kidsPrice}
-                  onChange={(e) => setKidsPrice(e.target.value)}
-                  placeholder="Optional"
-                />
-              </div>
+              {showOlderKids && (
+                <div className="space-y-2">
+                  <Label htmlFor="kidsPrice">Kids price (5yrs to 10yrs) (₹)</Label>
+                  <Input
+                    id="kidsPrice"
+                    name="kidsPrice"
+                    type="number"
+                    step="0.01"
+                    value={kidsPrice}
+                    onChange={(e) => setKidsPrice(e.target.value)}
+                    placeholder="Optional"
+                  />
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="kidsBelow5Count">Kids Below 5yrs</Label>
                 <Input id="kidsBelow5Count" name="kidsBelow5Count" type="number" min="0" placeholder="Optional" />
