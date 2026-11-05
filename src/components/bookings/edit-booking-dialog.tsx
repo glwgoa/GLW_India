@@ -25,9 +25,12 @@ import {
 } from "@/components/ui/select";
 import {
   DINNER_CRUISE_CATEGORY_NAME,
+  GOA_TRIP_CATEGORY_NAME,
+  GOA_TRIP_PICKUP_LOCATIONS,
   SUNSET_CRUISE_CATEGORY_NAME,
   YACHT_ADD_ONS,
   YACHT_CATEGORY_NAME,
+  hasKidsPriceFields,
   needsCustomerContact,
 } from "@/lib/booking-yacht";
 import { BRAND_NAMES } from "@/lib/brands";
@@ -92,12 +95,15 @@ export function EditBookingDialog({
   const [addOns, setAddOns] = useState<string[]>(booking.add_ons ?? []);
   const [transportType, setTransportType] = useState<string>(booking.transport_type ?? "");
   const [advPaidTo, setAdvPaidTo] = useState<string>(booking.adv_paid_to ?? "");
+  const [pickupLocation, setPickupLocation] = useState<string>(booking.pickup_location ?? "");
 
   const selectedProduct = products.find((p) => p.id === productId);
   const isYacht = selectedProduct?.category === YACHT_CATEGORY_NAME;
   const isDinnerCruise = selectedProduct?.category === DINNER_CRUISE_CATEGORY_NAME;
   const isSunsetCruise = selectedProduct?.category === SUNSET_CRUISE_CATEGORY_NAME;
-  const isPerGuestPricing = isDinnerCruise || isSunsetCruise;
+  const isGoaTrip = selectedProduct?.category === GOA_TRIP_CATEGORY_NAME;
+  const isPerGuestPricing = isDinnerCruise || isSunsetCruise || isGoaTrip;
+  const showKidsPriceFields = hasKidsPriceFields(selectedProduct?.category);
   const showContactNumber = needsCustomerContact(selectedProduct?.category);
   const isPickupDrop = transportType === "pickup_drop";
   const canAssignEmployee = !!profile && isPrivileged(profile.role);
@@ -163,8 +169,8 @@ export function EditBookingDialog({
         assigned_employee_id: canAssignEmployee ? employeeId || null : booking.assigned_employee_id,
         item_id: productId || null,
         sale_price: priceRaw ? Number(priceRaw) : null,
-        kids_price: isDinnerCruise && kidsPriceRaw ? Number(kidsPriceRaw) : null,
-        kids_below_5_count: isDinnerCruise && kidsBelow5CountRaw ? Number(kidsBelow5CountRaw) : null,
+        kids_price: showKidsPriceFields && kidsPriceRaw ? Number(kidsPriceRaw) : null,
+        kids_below_5_count: showKidsPriceFields && kidsBelow5CountRaw ? Number(kidsBelow5CountRaw) : null,
         advance_amount: advanceRaw ? Number(advanceRaw) : null,
         adv_paid_to: advPaidTo || null,
         transaction_id: transactionId,
@@ -179,6 +185,7 @@ export function EditBookingDialog({
         anchorage_hours: isYacht && anchorageHoursRaw ? Number(anchorageHoursRaw) : null,
         add_ons: isYacht && addOns.length > 0 ? addOns : null,
         guest_count: guestCountRaw ? Number(guestCountRaw) : null,
+        pickup_location: isGoaTrip ? pickupLocation || null : null,
         kids_count: isPerGuestPricing && kidsCountRaw ? Number(kidsCountRaw) : null,
         transport_type: isDinnerCruise ? transportType || null : null,
         pickup_drop_price:
@@ -349,7 +356,7 @@ export function EditBookingDialog({
             )}
           </div>
 
-          {isDinnerCruise && (
+          {showKidsPriceFields && (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="kidsPrice">Kids price (5yrs to 10yrs) (₹)</Label>
@@ -572,6 +579,27 @@ export function EditBookingDialog({
                     />
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {isGoaTrip && (
+            <div className="space-y-4 border-t pt-4">
+              <p className="text-xs font-medium text-muted-foreground">Goa trip details</p>
+              <div className="space-y-2">
+                <Label>Pickup location</Label>
+                <Select value={pickupLocation} onValueChange={(v) => setPickupLocation(v ?? "")}>
+                  <SelectTrigger>
+                    <SelectValue>{(value: string) => value || "Select pickup location"}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {GOA_TRIP_PICKUP_LOCATIONS.map((l) => (
+                      <SelectItem key={l} value={l}>
+                        {l}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           )}

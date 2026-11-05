@@ -58,6 +58,7 @@ export function ProductDetailDialog({
           sale_price: item.sale_price,
           kids_sale_price: item.kids_sale_price,
           category: item.category,
+          sub_category: item.sub_category,
           vendor_id: item.vendor_id,
         },
       ]

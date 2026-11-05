@@ -2,6 +2,8 @@ import { effectiveSalePrice } from "@/lib/booking-pricing";
 import { formatBookingTime } from "@/lib/booking-display";
 import {
   DINNER_CRUISE_CATEGORY_NAME,
+  DUDHSAGAR_SUB_CATEGORY_NAME,
+  GOA_TRIP_CATEGORY_NAME,
   SUNSET_CRUISE_CATEGORY_NAME,
   YACHT_CATEGORY_NAME,
 } from "@/lib/booking-yacht";
@@ -92,6 +94,43 @@ ${booking.item?.coordinator_phone ?? booking.vendor?.contact_phone ?? "—"}
 ${PLEASE_NOTE}`;
 }
 
+/** Goa Trips (Dudhsagar, dolphin sightseeing, North/South Goa tours) share one road-trip template. */
+function goaTripConfirmation(booking: BookingRow) {
+  const salePrice = effectiveSalePrice(booking);
+  const advance = booking.advance_amount ?? 0;
+  const balance = salePrice != null ? salePrice - advance : null;
+  const subCategory = booking.item?.sub_category;
+  const tripName =
+    subCategory === DUDHSAGAR_SUB_CATEGORY_NAME ? "Dudhsagar Waterfall Trip" : (subCategory ?? "Goa Trip");
+  const note = PLEASE_NOTE.replace(/Thanks, Have a nice day.*$/, "Thanks, Have a nice day 😊🙏🏻");
+
+  return `*🛥️ ${tripName} Reservation Confirmation*
+
+Thank you for choosing ${booking.brand ?? "—"}! We are pleased to confirm your reservation as under:
+
+Date: ${formatDate(booking.booking_date)}
+
+Name: ${booking.customer_name}
+Contact Number: ${booking.customer_contact ?? "—"}
+
+Number of Guests:
+Adults: ${booking.guest_count ?? "—"}${booking.kids_count ? `\nKids 5yrs to 10yrs: ${booking.kids_count}` : ""}${booking.kids_below_5_count ? `\nKids below 5yrs: ${booking.kids_below_5_count}` : ""}
+
+Price: ${formatCurrency(salePrice)}
+Advance: ${formatCurrency(booking.advance_amount)}
+Balance Amount: ${formatCurrency(balance)}
+
+🕓 Pick-up Time: 6:30AM onwards
+
+📍 Pickup Location: ${booking.pickup_location ?? "—"}
+
+Contact Person:
+${booking.item?.coordinator_name ?? booking.vendor?.name ?? "—"}
+${booking.item?.coordinator_phone ?? booking.vendor?.contact_phone ?? "—"}
+
+${note}`;
+}
+
 function yachtConfirmation(booking: BookingRow) {
   const salePrice = effectiveSalePrice(booking);
   const advance = booking.advance_amount ?? 0;
@@ -156,5 +195,6 @@ export function generateBookingConfirmation(booking: BookingRow): string | null 
   if (category === DINNER_CRUISE_CATEGORY_NAME) return dinnerOrSunsetConfirmation(booking, false);
   if (category === SUNSET_CRUISE_CATEGORY_NAME) return dinnerOrSunsetConfirmation(booking, true);
   if (category === YACHT_CATEGORY_NAME) return yachtConfirmation(booking);
+  if (category === GOA_TRIP_CATEGORY_NAME) return goaTripConfirmation(booking);
   return null;
 }

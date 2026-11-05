@@ -11,6 +11,7 @@ import {
   Phone,
   Receipt,
   Sailboat,
+  Mountain,
   Sunset,
   User,
   UtensilsCrossed,
@@ -23,6 +24,7 @@ import { BOOKING_STATUS_LABEL, bookingCategoryDetails } from "@/lib/booking-disp
 import { generateBookingConfirmation } from "@/lib/booking-confirmation";
 import {
   DINNER_CRUISE_CATEGORY_NAME,
+  GOA_TRIP_CATEGORY_NAME,
   SUNSET_CRUISE_CATEGORY_NAME,
   YACHT_CATEGORY_NAME,
 } from "@/lib/booking-yacht";
@@ -41,6 +43,7 @@ const CATEGORY_VISUAL: Record<string, { icon: typeof Sailboat; color: string }> 
   [YACHT_CATEGORY_NAME]: { icon: Sailboat, color: "var(--chart-1)" },
   [DINNER_CRUISE_CATEGORY_NAME]: { icon: UtensilsCrossed, color: "var(--chart-2)" },
   [SUNSET_CRUISE_CATEGORY_NAME]: { icon: Sunset, color: "var(--chart-5)" },
+  [GOA_TRIP_CATEGORY_NAME]: { icon: Mountain, color: "var(--chart-3)" },
 };
 
 const childVariants = {

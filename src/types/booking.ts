@@ -14,6 +14,7 @@ export type BookingProduct = {
   sale_price: number | null;
   kids_sale_price: number | null;
   category: string | null;
+  sub_category?: string | null;
   vendor_id: string | null;
 };
 
@@ -43,6 +44,7 @@ export type BookingRow = {
   b2b_price: number | null;
   kids_b2b_price: number | null;
   adv_paid_to: string | null;
+  pickup_location: string | null;
   agent_name: string | null;
   agent_number: string | null;
   kids_below_5_count: number | null;

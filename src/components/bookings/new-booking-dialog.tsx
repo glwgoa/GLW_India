@@ -26,9 +26,12 @@ import {
 import {
   BOOKING_CATEGORIES,
   DINNER_CRUISE_CATEGORY_NAME,
+  GOA_TRIP_CATEGORY_NAME,
+  GOA_TRIP_PICKUP_LOCATIONS,
   SUNSET_CRUISE_CATEGORY_NAME,
   YACHT_ADD_ONS,
   YACHT_CATEGORY_NAME,
+  hasKidsPriceFields,
   needsCustomerContact,
 } from "@/lib/booking-yacht";
 import { BRAND_NAMES } from "@/lib/brands";
@@ -54,6 +57,8 @@ type BookingDraft = {
     addOns: string[];
     transportType: string;
     advPaidTo?: string;
+    subCategory?: string;
+    pickupLocation?: string;
   };
   fields: Record<string, string>;
 };
@@ -126,6 +131,10 @@ export function NewBookingDialog({
   const [addOns, setAddOns] = useState<string[]>([]);
   const [transportType, setTransportType] = useState<string>("");
   const [advPaidTo, setAdvPaidTo] = useState<string>("");
+  const [subCategory, setSubCategory] = useState<string>(
+    () => products.find((p) => p.id === initialProductId)?.sub_category ?? "",
+  );
+  const [pickupLocation, setPickupLocation] = useState<string>("");
 
   // Draft memory: unsaved form contents are kept in this browser for 1 hour.
   // Skipped when the dialog is opened for a specific product (initialProductId).
@@ -153,7 +162,7 @@ export function NewBookingDialog({
     if (Object.keys(fields).length === 0 && !category && !productId && !brand && !vendorId) return;
     const draft: BookingDraft = {
       savedAt: Date.now(),
-      state: { vendorId, brand, employeeId, category, productId, salePrice, kidsPrice, addOns, transportType, advPaidTo },
+      state: { vendorId, brand, employeeId, category, productId, salePrice, kidsPrice, addOns, transportType, advPaidTo, subCategory, pickupLocation },
       fields,
     };
     try {
@@ -190,6 +199,8 @@ export function NewBookingDialog({
     setAddOns(d.addOns);
     setTransportType(d.transportType);
     setAdvPaidTo(d.advPaidTo ?? "");
+    setSubCategory(d.subCategory ?? "");
+    setPickupLocation(d.pickupLocation ?? "");
     setPendingFields(draft.fields);
     setDraftRestored(true);
   }
@@ -217,7 +228,7 @@ export function NewBookingDialog({
     const t = setTimeout(saveDraft, 300);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, vendorId, brand, employeeId, category, productId, salePrice, kidsPrice, addOns, transportType, advPaidTo]);
+  }, [open, vendorId, brand, employeeId, category, productId, salePrice, kidsPrice, addOns, transportType, advPaidTo, subCategory, pickupLocation]);
 
   function discardDraft() {
     clearDraft();
@@ -232,14 +243,28 @@ export function NewBookingDialog({
     setAddOns([]);
     setTransportType("");
     setAdvPaidTo("");
+    setSubCategory("");
+    setPickupLocation("");
     setDraftRestored(false);
   }
 
-  const filteredProducts = category ? products.filter((p) => p.category === category) : products;
+  const isGoaTrip = category === GOA_TRIP_CATEGORY_NAME;
+  // Goa Trip sub-categories come from the products stocked under it.
+  const goaTripSubCategories = Array.from(
+    new Set(
+      products
+        .filter((p) => p.category === GOA_TRIP_CATEGORY_NAME && p.sub_category)
+        .map((p) => p.sub_category as string),
+    ),
+  ).sort();
+  const filteredProducts = (category ? products.filter((p) => p.category === category) : products).filter(
+    (p) => !isGoaTrip || !subCategory || p.sub_category === subCategory,
+  );
   const isYacht = category === YACHT_CATEGORY_NAME;
   const isDinnerCruise = category === DINNER_CRUISE_CATEGORY_NAME;
   const isSunsetCruise = category === SUNSET_CRUISE_CATEGORY_NAME;
-  const isPerGuestPricing = isDinnerCruise || isSunsetCruise;
+  const isPerGuestPricing = isDinnerCruise || isSunsetCruise || isGoaTrip;
+  const showKidsPriceFields = hasKidsPriceFields(category);
   const showContactNumber = needsCustomerContact(category);
   const isPickupDrop = transportType === "pickup_drop";
   const canAssignEmployee = !!profile && isPrivileged(profile.role);
@@ -251,6 +276,15 @@ export function NewBookingDialog({
     setKidsPrice("");
     setAddOns([]);
     setTransportType("");
+    setSubCategory("");
+    setPickupLocation("");
+  }
+
+  function handleSubCategoryChange(value: string) {
+    setSubCategory(value);
+    setProductId("");
+    setSalePrice("");
+    setKidsPrice("");
   }
 
   function handleProductChange(id: string) {
@@ -260,6 +294,7 @@ export function NewBookingDialog({
       setSalePrice(String(product.sale_price));
     }
     setKidsPrice(product?.kids_sale_price != null ? String(product.kids_sale_price) : "");
+    if (product?.category === GOA_TRIP_CATEGORY_NAME) setSubCategory(product.sub_category ?? "");
     if (product?.vendor_id) {
       setVendorId(product.vendor_id);
     }
@@ -273,6 +308,11 @@ export function NewBookingDialog({
     const date = formData.get("bookingDate") as string;
     if (!date) {
       toast.error("Set a booking date");
+      return;
+    }
+
+    if (isGoaTrip && !pickupLocation) {
+      toast.error("Select a pickup location");
       return;
     }
 
@@ -312,8 +352,8 @@ export function NewBookingDialog({
       created_by: profile?.id ?? null,
       item_id: productId || null,
       sale_price: priceRaw ? Number(priceRaw) : null,
-      kids_price: isDinnerCruise && kidsPriceRaw ? Number(kidsPriceRaw) : null,
-      kids_below_5_count: isDinnerCruise && kidsBelow5CountRaw ? Number(kidsBelow5CountRaw) : null,
+      kids_price: showKidsPriceFields && kidsPriceRaw ? Number(kidsPriceRaw) : null,
+      kids_below_5_count: showKidsPriceFields && kidsBelow5CountRaw ? Number(kidsBelow5CountRaw) : null,
       advance_amount: advanceRaw ? Number(advanceRaw) : null,
       adv_paid_to: advPaidTo || null,
       transaction_id: transactionId,
@@ -323,6 +363,7 @@ export function NewBookingDialog({
       enquiry_date: enquiryDate,
       status: "pending",
       guest_count: guestCountRaw ? Number(guestCountRaw) : null,
+      pickup_location: isGoaTrip ? pickupLocation : null,
       kids_count: isPerGuestPricing && kidsCountRaw ? Number(kidsCountRaw) : null,
       ...(isYacht
         ? {
@@ -365,6 +406,8 @@ export function NewBookingDialog({
     setAddOns([]);
     setTransportType("");
     setAdvPaidTo("");
+    setSubCategory("");
+    setPickupLocation("");
     await onAdded();
   }
 
@@ -420,6 +463,24 @@ export function NewBookingDialog({
               </SelectContent>
             </Select>
           </div>
+
+          {isGoaTrip && (
+            <div className="space-y-2">
+              <Label>Sub-category</Label>
+              <Select value={subCategory} onValueChange={(v) => handleSubCategoryChange(v ?? "")}>
+                <SelectTrigger>
+                  <SelectValue>{(value: string) => value || "Select sub-category"}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {goaTripSubCategories.map((sc) => (
+                    <SelectItem key={sc} value={sc}>
+                      {sc}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="space-y-2">
@@ -525,7 +586,7 @@ export function NewBookingDialog({
             )}
           </div>
 
-          {isDinnerCruise && (
+          {showKidsPriceFields && (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="kidsPrice">Kids price (5yrs to 10yrs) (₹)</Label>
@@ -682,6 +743,27 @@ export function NewBookingDialog({
                     />
                   </div>
                 )}
+              </div>
+            </div>
+          )}
+
+          {isGoaTrip && (
+            <div className="space-y-4 border-t pt-4">
+              <p className="text-xs font-medium text-muted-foreground">Goa trip details</p>
+              <div className="space-y-2">
+                <Label>Pickup location</Label>
+                <Select value={pickupLocation} onValueChange={(v) => setPickupLocation(v ?? "")}>
+                  <SelectTrigger>
+                    <SelectValue>{(value: string) => value || "Select pickup location"}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {GOA_TRIP_PICKUP_LOCATIONS.map((l) => (
+                      <SelectItem key={l} value={l}>
+                        {l}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           )}

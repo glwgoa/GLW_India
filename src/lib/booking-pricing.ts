@@ -1,4 +1,4 @@
-import { DINNER_CRUISE_CATEGORY_NAME, isPerGuestCategory } from "@/lib/booking-yacht";
+import { hasKidsPriceFields, isPerGuestCategory } from "@/lib/booking-yacht";
 import type { BookingRow } from "@/types/booking";
 
 /**
@@ -13,12 +13,12 @@ function guestMultiplier(booking: Pick<BookingRow, "item" | "guest_count">) {
 }
 
 /**
- * Kids (5-10 yrs) pricing is live for Dinner Cruise bookings first —
+ * Kids (5-10 yrs) pricing is live for Dinner Cruise and Goa Trip bookings —
  * Sunset Cruise keeps the plain guest-only math until this is rolled
  * out there too.
  */
 function hasKidsPricing(booking: Pick<BookingRow, "item">) {
-  return booking.item?.category === DINNER_CRUISE_CATEGORY_NAME;
+  return hasKidsPriceFields(booking.item?.category);
 }
 
 /**

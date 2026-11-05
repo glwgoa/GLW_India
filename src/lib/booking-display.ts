@@ -53,6 +53,7 @@ export function bookingCategoryDetails(booking: BookingRow) {
   if (booking.kids_count) parts.push(`${booking.kids_count} kids`);
   if (booking.kids_below_5_count) parts.push(`${booking.kids_below_5_count} kids below 5yrs`);
   if (booking.add_ons && booking.add_ons.length > 0) parts.push(booking.add_ons.join(", "));
+  if (booking.pickup_location) parts.push(`Pickup: ${booking.pickup_location}`);
   if (booking.transport_type) {
     const label = TRANSPORT_TYPE_LABEL[booking.transport_type];
     if (booking.transport_type === "pickup_drop" && booking.pickup_drop_price != null) {
