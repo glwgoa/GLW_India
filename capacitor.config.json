@@ -6,8 +6,9 @@
   "bundledWebRuntime": false,
   "buildCommand": "npm run build",
   "server": {
-    "url": "http://localhost:3000",
-    "cleartext": true
+    "url": "https://glw-india.vercel.app",
+    "cleartext": true,
+    "allowNavigation": ["*.vercel.app", "*.supabase.co", "*.githubusercontent.com"]
   },
   "android": {
     "buildPath": "android",
