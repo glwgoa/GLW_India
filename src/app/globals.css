@@ -172,6 +172,13 @@
   }
 }
 
+/* Ensure time inputs are wide enough to show AM/PM in all browsers.
+   Some browsers (especially on mobile) need ~140px minimum to display the
+   full time with AM/PM picker without truncation. */
+input[type="time"] {
+  min-width: 140px;
+}
+
 /* Soft blue-to-orange mesh gradient backdrop. */
 .app-gradient {
   background-color: #a9c6e8;

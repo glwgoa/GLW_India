@@ -673,11 +673,11 @@ export function NewBookingDialog({
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="startTime">Start time</Label>
-                  <Input id="startTime" name="startTime" type="time" />
+                  <Input id="startTime" name="startTime" type="time" className="max-w-40" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="endTime">End time</Label>
-                  <Input id="endTime" name="endTime" type="time" />
+                  <Input id="endTime" name="endTime" type="time" className="max-w-40" />
                 </div>
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

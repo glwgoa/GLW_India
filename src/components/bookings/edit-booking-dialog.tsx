@@ -487,12 +487,13 @@ export function EditBookingDialog({
                     id="startTime"
                     name="startTime"
                     type="time"
+                    className="max-w-40"
                     defaultValue={booking.start_time ?? ""}
                   />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="endTime">End time</Label>
-                  <Input id="endTime" name="endTime" type="time" defaultValue={booking.end_time ?? ""} />
+                  <Input id="endTime" name="endTime" type="time" className="max-w-40" defaultValue={booking.end_time ?? ""} />
                 </div>
               </div>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
