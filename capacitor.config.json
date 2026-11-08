@@ -1,0 +1,16 @@
+{
+  "appName": "GLW India",
+  "packageName": "com.glwgoa.india",
+  "appId": "com.glwgoa.india",
+  "webDir": "out",
+  "bundledWebRuntime": false,
+  "buildCommand": "npm run build",
+  "server": {
+    "url": "http://localhost:3000",
+    "cleartext": true
+  },
+  "android": {
+    "buildPath": "android",
+    "allowCleartext": true
+  }
+}

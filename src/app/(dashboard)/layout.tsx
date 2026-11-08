@@ -2,6 +2,7 @@ import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { AppSidebar } from "@/components/app-sidebar";
 import { UniversalSearch } from "@/components/universal-search";
 import { PageTransition } from "@/components/motion/page-transition";
+import { MobileBottomNav } from "@/components/mobile/mobile-bottom-nav";
 
 export default async function DashboardLayout({
   children,
@@ -37,10 +38,11 @@ export default async function DashboardLayout({
             </div>
           </div>
         </div>
-        <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
+        <div className="mobile-shell flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
           <PageTransition>{children}</PageTransition>
         </div>
       </div>
+      <MobileBottomNav profile={profile} />
     </>
   );
 }

@@ -179,6 +179,18 @@ input[type="time"] {
   min-width: 140px;
 }
 
+/* Mobile app (Capacitor) layout overrides — same colors, phone-optimized UI.
+   On phones we hide the desktop sidebar and use a bottom tab bar instead. */
+@media (max-width: 767px) {
+  .sidebar-shell {
+    display: none;
+  }
+  .mobile-shell {
+    padding-left: 0;
+    padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+}
+
 /* Soft blue-to-orange mesh gradient backdrop. */
 .app-gradient {
   background-color: #a9c6e8;
