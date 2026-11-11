@@ -36,13 +36,12 @@ async function fetchBase64(url: string) {
 /** Builds the PDF for an invoice, quotation or credit note and downloads it. */
 export async function downloadGstPdf(doc: GstDocument, refNumber?: string | null) {
   // Loaded on demand so the PDF libraries stay out of the main bundle.
-  const [{ jsPDF }, { default: autoTable }, regular, bold, logo, signature] = await Promise.all([
+  const [{ jsPDF }, { default: autoTable }, regular, bold, logo] = await Promise.all([
     import("jspdf"),
     import("jspdf-autotable"),
     fetchBase64("/invoice/Roboto-Regular.ttf"),
     fetchBase64("/invoice/Roboto-Bold.ttf"),
     fetchBase64("/invoice/logo.png"),
-    fetchBase64("/invoice/signature.png"),
   ]);
 
   const seller = GST_SELLERS[doc.brand] ?? GST_SELLERS["Waterz Goa"];
@@ -202,18 +201,17 @@ export async function downloadGstPdf(doc: GstDocument, refNumber?: string | null
     pdf.text(pdf.splitTextToSize(doc.notes, 100), left, ty - 13);
   }
 
-  // Signature
-  const sigW = 55;
-  const sigH = sigW * (165 / 383);
-  const sigY = Math.max(ty + 12, 235);
-  pdf.addImage(`data:image/png;base64,${signature}`, "PNG", right - sigW, sigY, sigW, sigH);
-  font("bold", 10);
-  pdf.text("Authorized Signatory", right - sigW / 2, sigY + sigH + 6, { align: "center" });
+  // Footer note instead of a signature
+  const noteY = Math.max(ty + 14, 270);
+  font("normal", 9);
+  pdf.setTextColor(...GREY);
+  const kind = doc.doc_type === "invoice" ? "invoice" : doc.doc_type === "quotation" ? "quotation" : "credit note";
+  pdf.text(`This is a computer generated ${kind}, signature not required.`, 105, noteY, { align: "center" });
 
   if (doc.doc_type === "quotation") {
     font("normal", 8);
     pdf.setTextColor(...GREY);
-    pdf.text("This is a quotation and not a tax invoice.", left, 288);
+    pdf.text("This is a quotation and not a tax invoice.", 105, noteY + 5, { align: "center" });
   }
 
   pdf.save(`${doc.doc_number.replace(/\//g, "-")}.pdf`);
