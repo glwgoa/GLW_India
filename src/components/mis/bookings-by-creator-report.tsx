@@ -34,9 +34,9 @@ export function BookingsByCreatorReport({ data }: { data: MonthlyCreatorRow[] })
     <Card>
       <CardHeader className="flex flex-row flex-wrap items-start justify-between gap-3">
         <div className="space-y-1">
-          <CardTitle>Bookings added by user</CardTitle>
+          <CardTitle>Booked by user</CardTitle>
           <CardDescription>
-            How many bookings each person added. Cancelled and refunded bookings are not counted.
+            How many bookings each person booked. Cancelled and refunded bookings are not counted.
           </CardDescription>
         </div>
         <select
