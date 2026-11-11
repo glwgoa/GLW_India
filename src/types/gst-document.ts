@@ -1,5 +1,13 @@
 export type GstDocType = "invoice" | "quotation" | "credit_note";
 
+/** One invoice row. `rate` is the taxable unit price (GST is added on top). */
+export type GstLineItem = {
+  description: string;
+  qty: number;
+  rate: number;
+  gst_rate: number;
+};
+
 export type GstDocument = {
   id: string;
   doc_type: GstDocType;
@@ -21,5 +29,8 @@ export type GstDocument = {
   igst: number;
   total: number;
   notes: string | null;
+  line_items: GstLineItem[] | null;
+  paid_amount: number;
+  paid_date: string | null;
   created_at: string;
 };

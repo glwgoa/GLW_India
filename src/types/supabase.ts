@@ -521,6 +521,9 @@ export type Database = {
           id: string
           igst: number
           notes: string | null
+          line_items: Json | null
+          paid_amount: number
+          paid_date: string | null
           ref_document_id: string | null
           sgst: number
           taxable_value: number
@@ -545,6 +548,9 @@ export type Database = {
           id?: string
           igst?: number
           notes?: string | null
+          line_items?: Json | null
+          paid_amount?: number
+          paid_date?: string | null
           ref_document_id?: string | null
           sgst?: number
           taxable_value: number
@@ -569,6 +575,9 @@ export type Database = {
           id?: string
           igst?: number
           notes?: string | null
+          line_items?: Json | null
+          paid_amount?: number
+          paid_date?: string | null
           ref_document_id?: string | null
           sgst?: number
           taxable_value?: number

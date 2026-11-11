@@ -13,20 +13,21 @@ export type GstSeller = {
   email: string;
 };
 
-const PLACEHOLDER = (brand: string): GstSeller => ({
-  legalName: brand,
-  gstin: "ADD GSTIN",
-  address: "ADD ADDRESS",
-  stateCode: "30", // Goa
+const MRR: GstSeller = {
+  legalName: "MRR Technology Solutions PvtLtd",
+  gstin: "29AAMCM8868P1Z3",
+  address: "#3/60, Pinto Compound Kannur Post, Mangalore - 575007",
+  stateCode: "29", // Karnataka
   phone: "",
-  email: "",
-});
+  email: "info@waterz.in",
+};
 
+// All brands invoice under the same legal entity.
 export const GST_SELLERS: Record<string, GstSeller> = {
-  "Waterz Goa": PLACEHOLDER("Waterz Goa"),
-  GoaCruising: PLACEHOLDER("GoaCruising"),
-  "Life on Yachts": PLACEHOLDER("Life on Yachts"),
-  "Cruise Goa": PLACEHOLDER("Cruise Goa"),
+  "Waterz Goa": MRR,
+  GoaCruising: MRR,
+  "Life on Yachts": MRR,
+  "Cruise Goa": MRR,
 };
 
 /** TODO: set the SAC code used on your invoices. */
