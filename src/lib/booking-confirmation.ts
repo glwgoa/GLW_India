@@ -80,7 +80,7 @@ Number of Guests: ${booking.guest_count ?? "—"}${!isSunset && booking.kids_cou
 Price: ${formatCurrency(salePrice)}
 Advance: ${formatCurrency(booking.advance_amount)}
 ${isSunset ? "Balance Amount:" : "*Balance Amount:*"} ${formatCurrency(balance)}
-${!isSunset && booking.transport_type === "pickup_drop" ? "\n📍 Pick-up Time: 7:00 PM onwards\n" : ""}
+${!isSunset && booking.transport_type === "pickup_drop" ? `\n📍 Pick-up Time: 7:00 PM onwards\n${booking.pickup_location ? `📍 Pickup Location: ${booking.pickup_location}\n` : ""}` : ""}
 📍 Reporting Time: ${booking.item?.reporting_time ? formatBookingTime(booking.item.reporting_time) : "—"}
 
 📍 Reporting Location:

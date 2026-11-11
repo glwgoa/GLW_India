@@ -314,6 +314,10 @@ export function NewBookingDialog({
       return;
     }
 
+    if (isDinnerCruise && isPickupDrop && !pickupLocation) {
+      toast.error("Select a pickup/drop location");
+      return;
+    }
     if (isGoaTrip && !pickupLocation) {
       toast.error("Select a pickup location");
       return;
@@ -366,7 +370,7 @@ export function NewBookingDialog({
       enquiry_date: enquiryDate,
       status: "pending",
       guest_count: guestCountRaw ? Number(guestCountRaw) : null,
-      pickup_location: isGoaTrip ? pickupLocation : null,
+      pickup_location: isGoaTrip ? pickupLocation : isDinnerCruise && isPickupDrop ? pickupLocation || null : null,
       kids_count: isPerGuestPricing && showOlderKids && kidsCountRaw ? Number(kidsCountRaw) : null,
       ...(isYacht
         ? {
@@ -730,6 +734,23 @@ export function NewBookingDialog({
                     </SelectContent>
                   </Select>
                 </div>
+                {isPickupDrop && (
+                  <div className="space-y-2">
+                    <Label>Pickup/Drop location</Label>
+                    <Select value={pickupLocation} onValueChange={(v) => setPickupLocation(v ?? "")}>
+                      <SelectTrigger>
+                        <SelectValue>{(value: string) => value || "Select location"}</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {GOA_TRIP_PICKUP_LOCATIONS.map((l) => (
+                          <SelectItem key={l} value={l}>
+                            {l}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 {isPickupDrop && (
                   <div className="space-y-2">
                     <Label htmlFor="pickupDropPrice">Pickup/Drop price per guest (₹)</Label>

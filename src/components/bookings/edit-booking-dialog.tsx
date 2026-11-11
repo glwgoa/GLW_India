@@ -188,7 +188,7 @@ export function EditBookingDialog({
         anchorage_hours: isYacht && anchorageHoursRaw ? Number(anchorageHoursRaw) : null,
         add_ons: isYacht && addOns.length > 0 ? addOns : null,
         guest_count: guestCountRaw ? Number(guestCountRaw) : null,
-        pickup_location: isGoaTrip ? pickupLocation || null : null,
+        pickup_location: isGoaTrip || (isDinnerCruise && isPickupDrop) ? pickupLocation || null : null,
         kids_count: isPerGuestPricing && showOlderKids && kidsCountRaw ? Number(kidsCountRaw) : null,
         transport_type: isDinnerCruise ? transportType || null : null,
         pickup_drop_price:
@@ -560,6 +560,23 @@ export function EditBookingDialog({
                     </SelectContent>
                   </Select>
                 </div>
+                {isPickupDrop && (
+                  <div className="space-y-2">
+                    <Label>Pickup/Drop location</Label>
+                    <Select value={pickupLocation} onValueChange={(v) => setPickupLocation(v ?? "")}>
+                      <SelectTrigger>
+                        <SelectValue>{(value: string) => value || "Select location"}</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {GOA_TRIP_PICKUP_LOCATIONS.map((l) => (
+                          <SelectItem key={l} value={l}>
+                            {l}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 {isPickupDrop && (
                   <div className="space-y-2">
                     <Label htmlFor="pickupDropPrice">Pickup/Drop price per guest (₹)</Label>
