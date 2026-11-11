@@ -185,8 +185,10 @@ input[type="time"] {
   .sidebar-shell {
     display: none;
   }
-  .mobile-shell {
+  .dashboard-main {
     padding-left: 0;
+  }
+  .mobile-shell {
     padding-bottom: calc(4rem + env(safe-area-inset-bottom));
   }
 }
