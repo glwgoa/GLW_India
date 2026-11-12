@@ -75,6 +75,7 @@ export function MobileBottomNav({ profile }: { profile: Profile }) {
           <Link
             key={item.href}
             href={item.href}
+            prefetch={item.href === "/inventory" ? false : true}
             aria-label={item.label}
             aria-current={active ? "page" : undefined}
             className={`flex flex-col items-center gap-1 rounded-lg px-2 py-1 transition-colors ${

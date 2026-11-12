@@ -86,6 +86,7 @@ export function AppSidebar({ profile }: { profile: Profile }) {
               <li key={item.href} style={{ height: "var(--item-h)" }}>
                 <Link
                   href={item.href}
+                  prefetch={item.href === "/inventory" ? false : true}
                   title={item.label}
                   aria-label={item.label}
                   aria-current={active ? "page" : undefined}

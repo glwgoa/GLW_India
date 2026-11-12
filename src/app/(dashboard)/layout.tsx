@@ -2,6 +2,8 @@ import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { AppSidebar } from "@/components/app-sidebar";
 import { UniversalSearch } from "@/components/universal-search";
 import { PageTransition } from "@/components/motion/page-transition";
+import { Suspense } from "react";
+import { NavProgress } from "@/components/nav-progress";
 import { MobileBottomNav } from "@/components/mobile/mobile-bottom-nav";
 
 export default async function DashboardLayout({
@@ -42,6 +44,9 @@ export default async function DashboardLayout({
           <PageTransition>{children}</PageTransition>
         </div>
       </div>
+      <Suspense fallback={null}>
+        <NavProgress />
+      </Suspense>
       <MobileBottomNav profile={profile} />
     </>
   );
