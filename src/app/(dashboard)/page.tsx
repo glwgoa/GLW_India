@@ -12,6 +12,9 @@ import { createClient } from "@/lib/supabase/server";
 import { ChevronRight } from "lucide-react";
 import { getCurrentProfile } from "@/lib/auth/get-current-profile";
 import { Reveal, RevealItem } from "@/components/motion/reveal";
+import { activityCode } from "@/lib/booking-activity";
+import { formatBookingTime } from "@/lib/booking-display";
+import { Badge } from "@/components/ui/badge";
 
 const MODULE_TINT: Record<string, string> = {"/bookings": "from-sky-500/90 to-blue-600/90", "/inventory": "from-emerald-500/90 to-teal-600/90", "/projects": "from-violet-500/90 to-purple-600/90", "/attendance": "from-amber-400/95 to-orange-500/95", "/mis-reports": "from-rose-500/90 to-pink-600/90"};
 
@@ -70,6 +73,26 @@ export default async function DashboardOverviewPage() {
         .eq("status", "active"),
     ]);
 
+  const dayStart = new Date();
+  dayStart.setHours(0, 0, 0, 0);
+  const dayEnd = new Date(dayStart);
+  dayEnd.setDate(dayEnd.getDate() + 1);
+  const { data: todayRaw } = await supabase
+    .from("bookings")
+    .select("id, customer_name, customer_contact, brand, start_time, status, item:catalog_items(category)")
+    .gte("booking_date", dayStart.toISOString())
+    .lt("booking_date", dayEnd.toISOString())
+    .not("status", "in", "(cancelled,cancelled_refunded)")
+    .order("start_time", { ascending: true });
+  const todayBookings = (todayRaw ?? []) as unknown as {
+    id: string;
+    customer_name: string | null;
+    customer_contact: string | null;
+    brand: string | null;
+    start_time: string | null;
+    item: { category: string | null } | null;
+  }[];
+
   const stats = [
     { label: "Bookings visible to you", value: totalBookings ?? 0, icon: CalendarCheck, tint: "bg-orange-500 text-white", href: "/bookings" },
     { label: "Pending bookings", value: pendingBookings ?? 0, icon: Hourglass, tint: "bg-indigo-500 text-white", href: "/bookings" },
@@ -95,6 +118,42 @@ export default async function DashboardOverviewPage() {
             </section>
           </RevealItem>
         </Reveal>
+
+        <section className="rounded-lg bg-card/80 p-4 shadow-xl shadow-black/[0.14] backdrop-blur-md">
+          <h2 className="mb-3 text-sm font-semibold">
+            Today&apos;s bookings ({todayBookings.length})
+          </h2>
+          {todayBookings.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No bookings today.</p>
+          ) : (
+            <ul className="divide-y">
+              {todayBookings.map((b) => {
+                const act = activityCode(b.item?.category);
+                return (
+                  <li key={b.id} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-2 text-sm">
+                    <Badge variant="outline" title={act.label} className="w-10 justify-center font-semibold">
+                      {act.code}
+                    </Badge>
+                    <span className="font-medium">{b.customer_name ?? "—"}</span>
+                    {b.customer_contact ? (
+                      <a href={`tel:${b.customer_contact}`} className="text-primary hover:underline">
+                        {b.customer_contact}
+                      </a>
+                    ) : (
+                      <span className="text-muted-foreground">No number</span>
+                    )}
+                    <span className="text-muted-foreground">{b.brand ?? "—"}</span>
+                    {b.start_time && (
+                      <span className="ml-auto text-xs text-muted-foreground">
+                        {formatBookingTime(b.start_time)}
+                      </span>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
 
         <div>
           <h2 className="mb-3 text-sm font-semibold">Modules</h2>
