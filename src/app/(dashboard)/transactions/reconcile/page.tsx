@@ -16,7 +16,7 @@ export default async function ReconcileTransactionsPage() {
     .order("transaction_date", { ascending: false });
 
   // Empty until the transaction_reconciliations migration has been applied.
-  const { data: reconciled } = await supabase.from("transaction_reconciliations").select("transaction_id, reconciled_at");
+  const { data: reconciled } = await supabase.from("transaction_reconciliations").select("transaction_id, reconciled_at, bank_account");
 
   return (
     <ReconcileClient

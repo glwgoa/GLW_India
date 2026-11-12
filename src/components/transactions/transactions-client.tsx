@@ -15,6 +15,7 @@ import { PageHeaderIcon } from "@/components/page-header-icon";
 import { DownloadButton } from "@/components/motion/download-button";
 import { downloadCsv } from "@/lib/csv";
 import { transactionDescription } from "@/lib/transaction-display";
+import type { ReconciledRecord } from "./reconcile-client";
 import type { GstDocument } from "@/types/gst-document";
 import type { TransactionDirection, TransactionRow } from "@/types/transaction";
 import type { Profile } from "@/types/profile";
@@ -27,10 +28,12 @@ const DIRECTION_LABEL: Record<TransactionDirection, string> = {
 export function TransactionsClient({
   initialTransactions,
   initialGstDocuments,
+  reconciliations,
   profile,
 }: {
   initialTransactions: TransactionRow[];
   initialGstDocuments: GstDocument[];
+  reconciliations: ReconciledRecord[];
   profile: Profile;
 }) {
   const [transactions, setTransactions] = useState<TransactionRow[]>(initialTransactions);
@@ -210,7 +213,7 @@ export function TransactionsClient({
         )}
       </div>
 
-      <TransactionsTable transactions={visibleTransactions} setTransactions={setTransactions} refresh={refresh} />
+      <TransactionsTable reconciliations={reconciliations} transactions={visibleTransactions} setTransactions={setTransactions} refresh={refresh} />
         </>
       )}
     </div>

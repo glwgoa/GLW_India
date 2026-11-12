@@ -7,13 +7,17 @@ import { EditTransactionDialog } from "./edit-transaction-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { transactionDescription } from "@/lib/transaction-display";
+import { Badge } from "@/components/ui/badge";
+import type { ReconciledRecord } from "./reconcile-client";
 import type { TransactionRow } from "@/types/transaction";
 
 export function TransactionsTable({
+  reconciliations,
   transactions,
   setTransactions,
   refresh,
 }: {
+  reconciliations: ReconciledRecord[];
   transactions: TransactionRow[];
   setTransactions: React.Dispatch<React.SetStateAction<TransactionRow[]>>;
   refresh: () => void | Promise<void>;
@@ -30,6 +34,8 @@ export function TransactionsTable({
     toast.success("Transaction deleted");
   }
 
+  const reconciledById = new Map(reconciliations.map((r) => [r.transaction_id, r]));
+
   if (transactions.length === 0) {
     return <p className="text-sm text-muted-foreground">No transactions found.</p>;
   }
@@ -45,6 +51,7 @@ export function TransactionsTable({
             <TableHead>Debit</TableHead>
             <TableHead>Credit</TableHead>
             <TableHead>Bank A/c</TableHead>
+            <TableHead>Reconciled</TableHead>
             <TableHead>Added by</TableHead>
             <TableHead className="w-20" />
           </TableRow>
@@ -71,6 +78,17 @@ export function TransactionsTable({
                   {transaction.direction === "received" ? `₹${transaction.amount.toLocaleString("en-IN")}` : "—"}
                 </TableCell>
                 <TableCell className="text-muted-foreground">{transaction.brand ?? "—"}</TableCell>
+                <TableCell>
+                  {(() => {
+                    const rec = reconciledById.get(transaction.id);
+                    if (!rec) return <span className="text-muted-foreground">—</span>;
+                    return (
+                      <Badge variant="outline" className="border-emerald-300 bg-emerald-50 text-emerald-700">
+                        ✓ {rec.bank_account ?? "Reconciled"}
+                      </Badge>
+                    );
+                  })()}
+                </TableCell>
                 <TableCell className="text-muted-foreground">{transaction.creator?.full_name ?? "—"}</TableCell>
                 <TableCell>
                   {isManual && (

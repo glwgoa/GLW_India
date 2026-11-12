@@ -5,6 +5,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { ArrowLeft, FileCheck2, Save, Upload } from "lucide-react";
 import { downloadCsv } from "@/lib/csv";
+import { BRAND_NAMES } from "@/lib/brands";
 import { readStatementFile, parseBankDate, toLocalDateKey } from "@/lib/bank-statement";
 import { createClient } from "@/lib/supabase/client";
 import { transactionDescription } from "@/lib/transaction-display";
@@ -63,7 +64,7 @@ type BankResultRow = {
   matchedBy?: "reference" | "date-amount";
 };
 
-export type ReconciledRecord = { transaction_id: string; reconciled_at: string };
+export type ReconciledRecord = { transaction_id: string; reconciled_at: string; bank_account: string | null };
 
 function autoDetectColumn(header: string[], key: ColumnKey): string {
   const keywords = AUTO_DETECT_KEYWORDS[key];
@@ -118,6 +119,7 @@ export function ReconcileClient({
     () => new Set(reconciled.map((r) => r.transaction_id)),
   );
   const [saving, setSaving] = useState(false);
+  const [bankAccount, setBankAccount] = useState("");
 
   const systemByRef = useMemo(() => {
     const map = new Map<string, TransactionRow>();
@@ -163,7 +165,13 @@ export function ReconcileClient({
       toast.error("Map at least a Debit or Credit column");
       return;
     }
+    if (!bankAccount) {
+      toast.error("Choose which bank account this statement is from");
+      return;
+    }
     const dateIdx = Number(columnMap.date);
+    // Only this account's transactions can be matched by date + amount.
+    const accountPool = transactions.filter((t) => t.brand === bankAccount);
     const claimed = new Set<string>(); // system transaction ids already matched in this run
 
     const next: BankResultRow[] = dataRows.map((cells, i) => {
@@ -183,6 +191,10 @@ export function ReconcileClient({
 
       const byRef = reference ? systemByRef.get(reference.toLowerCase()) : undefined;
       if (byRef) {
+        if (byRef.brand && byRef.brand !== bankAccount) {
+          claimed.add(byRef.id);
+          return { ...base, status: "mismatch" as const, match: byRef, reasons: [`recorded under ${byRef.brand}, not ${bankAccount}`] };
+        }
         if (agrees(byRef)) {
           claimed.add(byRef.id);
           return { ...base, status: "matched" as const, match: byRef, matchedBy: "reference" as const };
@@ -197,7 +209,7 @@ export function ReconcileClient({
       }
 
       // No usable reference: fall back to an unambiguous date + amount + type match.
-      const candidates = transactions.filter((t) => !claimed.has(t.id) && !reconciledIds.has(t.id) && agrees(t));
+      const candidates = accountPool.filter((t) => !claimed.has(t.id) && !reconciledIds.has(t.id) && agrees(t));
       if (candidates.length === 1) {
         claimed.add(candidates[0].id);
         return { ...base, status: "matched" as const, match: candidates[0], matchedBy: "date-amount" as const };
@@ -211,8 +223,8 @@ export function ReconcileClient({
   const missingFromStatement = useMemo(() => {
     if (!results) return [];
     const seen = new Set(results.filter((r) => r.match).map((r) => r.match!.id));
-    return transactions.filter((t) => !seen.has(t.id) && !reconciledIds.has(t.id));
-  }, [results, transactions, reconciledIds]);
+    return transactions.filter((t) => t.brand === bankAccount && !seen.has(t.id) && !reconciledIds.has(t.id));
+  }, [results, transactions, reconciledIds, bankAccount]);
 
   const summary = useMemo(() => {
     if (!results) return null;
@@ -241,6 +253,7 @@ export function ReconcileClient({
         bank_date: r.bankDate,
         bank_amount: r.bankAmount,
         bank_reference: r.reference || null,
+        bank_account: bankAccount,
         statement_name: fileName || null,
         reconciled_by: userData.user?.id ?? null,
       })),
@@ -293,6 +306,28 @@ export function ReconcileClient({
       </Link>
 
       <div className="space-y-3 rounded-md border bg-background p-4">
+        <div className="max-w-xs space-y-1.5">
+          <Label className="text-xs text-muted-foreground">Bank account of this statement</Label>
+          <Select
+            value={bankAccount}
+            onValueChange={(v) => {
+              setBankAccount(v ?? "");
+              setResults(null);
+            }}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue>{(value: string) => value || "Select bank account"}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {BRAND_NAMES.map((b) => (
+                <SelectItem key={b} value={b}>
+                  {b}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-xs text-muted-foreground">Only transactions recorded under this Bank A/c can be matched.</p>
+        </div>
         <input
           ref={fileInputRef}
           type="file"

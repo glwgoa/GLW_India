@@ -587,6 +587,7 @@ export type Database = {
       }
       transaction_reconciliations: {
         Row: {
+          bank_account: string | null
           bank_amount: number
           bank_date: string
           bank_reference: string | null
@@ -597,6 +598,7 @@ export type Database = {
           transaction_id: string
         }
         Insert: {
+          bank_account?: string | null
           bank_amount: number
           bank_date: string
           bank_reference?: string | null
@@ -607,6 +609,7 @@ export type Database = {
           transaction_id: string
         }
         Update: {
+          bank_account?: string | null
           bank_amount?: number
           bank_date?: string
           bank_reference?: string | null

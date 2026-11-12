@@ -16,6 +16,11 @@ export default async function TransactionsPage() {
     .select("*, booking:bookings(customer_name, brand), creator:profiles(full_name)")
     .order("transaction_date", { ascending: false });
 
+  // Empty until the transaction_reconciliations migrations have been applied.
+  const { data: reconciliations } = await supabase
+    .from("transaction_reconciliations")
+    .select("transaction_id, bank_account, reconciled_at");
+
   // Empty until the gst_documents migration has been applied.
   const { data: gstDocuments } = await supabase
     .from("gst_documents")
@@ -26,6 +31,7 @@ export default async function TransactionsPage() {
   return (
     <TransactionsClient
       initialTransactions={(transactions ?? []) as unknown as TransactionRow[]}
+      reconciliations={reconciliations ?? []}
       initialGstDocuments={(gstDocuments ?? []) as GstDocument[]}
       profile={profile}
     />
