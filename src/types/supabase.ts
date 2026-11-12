@@ -585,6 +585,54 @@ export type Database = {
         }
         Relationships: []
       }
+      transaction_reconciliations: {
+        Row: {
+          bank_amount: number
+          bank_date: string
+          bank_reference: string | null
+          id: string
+          reconciled_at: string
+          reconciled_by: string | null
+          statement_name: string | null
+          transaction_id: string
+        }
+        Insert: {
+          bank_amount: number
+          bank_date: string
+          bank_reference?: string | null
+          id?: string
+          reconciled_at?: string
+          reconciled_by?: string | null
+          statement_name?: string | null
+          transaction_id: string
+        }
+        Update: {
+          bank_amount?: number
+          bank_date?: string
+          bank_reference?: string | null
+          id?: string
+          reconciled_at?: string
+          reconciled_by?: string | null
+          statement_name?: string | null
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transaction_reconciliations_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: true
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transaction_reconciliations_reconciled_by_fkey"
+            columns: ["reconciled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       transactions: {
         Row: {
           amount: number
