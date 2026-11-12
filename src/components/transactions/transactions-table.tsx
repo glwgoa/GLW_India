@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -22,6 +23,22 @@ export function TransactionsTable({
   setTransactions: React.Dispatch<React.SetStateAction<TransactionRow[]>>;
   refresh: () => void | Promise<void>;
 }) {
+  const [visibleCount, setVisibleCount] = useState(50);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const hasMore = visibleCount < transactions.length;
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !hasMore) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) setVisibleCount((c) => c + 50);
+      },
+      { rootMargin: "600px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, visibleCount]);
+
   async function deleteTransaction(transaction: TransactionRow) {
     if (!window.confirm("Delete this transaction? This cannot be undone.")) return;
     const supabase = createClient();
@@ -57,7 +74,7 @@ export function TransactionsTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {transactions.map((transaction) => {
+          {transactions.slice(0, visibleCount).map((transaction) => {
             const isManual = transaction.source === "manual";
             return (
               <TableRow key={transaction.id}>
@@ -110,6 +127,7 @@ export function TransactionsTable({
           })}
         </TableBody>
       </Table>
+      {hasMore && <div ref={sentinelRef} className="h-8" aria-hidden />}
     </div>
   );
 }

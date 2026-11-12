@@ -1,13 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import { toast } from "sonner";
 import { Package, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { EditProductDialog } from "./edit-product-dialog";
-import { ProductDetailDialog } from "./product-detail-dialog";
+const ProductDetailDialog = dynamic(() =>
+  import("./product-detail-dialog").then((m) => m.ProductDetailDialog),
+);
+
+const PAGE_SIZE = 20;
 import type { InventoryRow } from "@/hooks/use-realtime-inventory";
 import type { Profile } from "@/types/profile";
 import { isPrivileged, isStaffRole } from "@/lib/auth/roles";
@@ -36,6 +41,23 @@ export function InventoryGrid({
   refresh: () => void | Promise<void>;
 }) {
   const [selectedRow, setSelectedRow] = useState<AggregatedRow | null>(null);
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const hasMore = visibleCount < rows.length;
+
+  // Render more cards as the user scrolls near the bottom.
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !hasMore) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) setVisibleCount((c) => c + PAGE_SIZE);
+      },
+      { rootMargin: "400px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, visibleCount]);
 
   // Editing/deleting the product itself (catalog_items) is admin/developer/employee
   // by RLS — PMs can edit/remove regional stock but not the product record,
@@ -79,7 +101,7 @@ export function InventoryGrid({
 
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
-      {rows.map((row, index) => {
+      {rows.slice(0, visibleCount).map((row, index) => {
         const editableProduct = canEditProduct() && row.item;
         const deletable = canDelete();
 
@@ -96,6 +118,8 @@ export function InventoryGrid({
                 <img
                   src={row.item.image_url}
                   alt={row.item?.name ?? ""}
+                  loading="lazy"
+                  decoding="async"
                   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                 />
               ) : (
@@ -167,6 +191,8 @@ export function InventoryGrid({
           </Card>
         );
       })}
+
+      {hasMore && <div ref={sentinelRef} className="col-span-full h-8" aria-hidden />}
 
       {selectedRow && (
         <ProductDetailDialog

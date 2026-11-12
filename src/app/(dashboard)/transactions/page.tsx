@@ -11,22 +11,22 @@ export default async function TransactionsPage() {
 
   requireRole(profile, ["admin", "developer", "project_manager", "accountant"]);
 
-  const { data: transactions } = await supabase
-    .from("transactions")
-    .select("*, booking:bookings(customer_name, brand), creator:profiles(full_name)")
-    .order("transaction_date", { ascending: false });
-
-  // Empty until the transaction_reconciliations migrations have been applied.
-  const { data: reconciliations } = await supabase
-    .from("transaction_reconciliations")
-    .select("transaction_id, bank_account, reconciled_at");
-
-  // Empty until the gst_documents migration has been applied.
-  const { data: gstDocuments } = await supabase
-    .from("gst_documents")
-    .select("*")
-    .order("doc_date", { ascending: false })
-    .order("created_at", { ascending: false });
+  // Reconciliations are empty until their migrations are applied; same for gst_documents.
+  const [{ data: transactions }, { data: reconciliations }, { data: gstDocuments }] =
+    await Promise.all([
+      supabase
+        .from("transactions")
+        .select("*, booking:bookings(customer_name, brand), creator:profiles(full_name)")
+        .order("transaction_date", { ascending: false }),
+      supabase
+        .from("transaction_reconciliations")
+        .select("transaction_id, bank_account, reconciled_at"),
+      supabase
+        .from("gst_documents")
+        .select("*")
+        .order("doc_date", { ascending: false })
+        .order("created_at", { ascending: false }),
+    ]);
 
   return (
     <TransactionsClient

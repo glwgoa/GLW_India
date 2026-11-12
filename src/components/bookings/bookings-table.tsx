@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -131,6 +131,32 @@ export function BookingsTable({
       })
       .map(([, g]) => g);
   }, [bookings, groupBy]);
+  // Render rows in chunks; more appear as the user scrolls to the bottom.
+  const [visibleCount, setVisibleCount] = useState(50);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  const hasMore = visibleCount < bookings.length;
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !hasMore) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) setVisibleCount((c) => c + 50);
+      },
+      { rootMargin: "600px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [hasMore, visibleCount]);
+  const shownGroups = useMemo(() => {
+    let budget = visibleCount;
+    const out: { label: string; items: BookingRow[]; total: number }[] = [];
+    for (const g of monthGroups) {
+      if (budget <= 0 && g.items.length > 0) break;
+      out.push({ label: g.label, items: g.items.slice(0, budget), total: g.items.length });
+      budget -= g.items.length;
+    }
+    return out;
+  }, [monthGroups, visibleCount]);
   const columnCount = 10 + (canSeeProfit ? 2 : 0) + (canEdit || canDelete ? 1 : 0);
   let serial = 0;
 
@@ -159,13 +185,13 @@ export function BookingsTable({
           </TableRow>
         </TableHeader>
         <TableBody>
-          {monthGroups.map((group) => (
+          {shownGroups.map((group) => (
             <Fragment key={group.label}>
               <TableRow className="bg-muted/40 hover:bg-muted/40">
                 <TableCell colSpan={columnCount} className="py-2 text-sm font-semibold">
                   {group.label}
                   <span className="ml-2 text-xs font-normal text-muted-foreground">
-                    {group.items.length} booking{group.items.length === 1 ? "" : "s"}
+                    {group.total} booking{group.total === 1 ? "" : "s"}
                   </span>
                 </TableCell>
               </TableRow>
@@ -311,6 +337,7 @@ export function BookingsTable({
           ))}
         </TableBody>
       </Table>
+      {hasMore && <div ref={sentinelRef} className="h-8" aria-hidden />}
       {selectedBooking && (
         <BookingDetailDialog
           open={!!selectedBooking}
