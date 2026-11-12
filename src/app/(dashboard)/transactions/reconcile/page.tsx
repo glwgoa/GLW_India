@@ -6,17 +6,20 @@ import type { TransactionRow } from "@/types/transaction";
 
 export default async function ReconcileTransactionsPage() {
   const supabase = await createClient();
-  const profile = await getCurrentProfile();
+
+  // Profile and data queries run together — RLS already guards the rows,
+  // requireRole below still redirects unauthorized roles before rendering.
+  const [profile, { data: transactions }, { data: reconciled }] = await Promise.all([
+    getCurrentProfile(),
+    supabase
+      .from("transactions")
+      .select("*, booking:bookings(customer_name, brand), creator:profiles(full_name)")
+      .order("transaction_date", { ascending: false }),
+    // Empty until the transaction_reconciliations migration has been applied.
+    supabase.from("transaction_reconciliations").select("transaction_id, reconciled_at, bank_account"),
+  ]);
 
   requireRole(profile, ["admin", "developer", "project_manager", "accountant"]);
-
-  const { data: transactions } = await supabase
-    .from("transactions")
-    .select("*, booking:bookings(customer_name, brand), creator:profiles(full_name)")
-    .order("transaction_date", { ascending: false });
-
-  // Empty until the transaction_reconciliations migration has been applied.
-  const { data: reconciled } = await supabase.from("transaction_reconciliations").select("transaction_id, reconciled_at, bank_account");
 
   return (
     <ReconcileClient

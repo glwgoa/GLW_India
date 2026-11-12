@@ -5,10 +5,12 @@ import type { InventoryRow } from "@/hooks/use-realtime-inventory";
 
 export default async function InventoryPage() {
   const supabase = await createClient();
-  const profile = await getCurrentProfile();
 
-  const [{ data: rows }, { data: vendors }, { data: regions }, { data: categories }, { data: subCategories }] =
+  // Profile and data queries run together — none of these depend on the
+  // profile, and RLS already restricts what each role can read.
+  const [profile, { data: rows }, { data: vendors }, { data: regions }, { data: categories }, { data: subCategories }] =
     await Promise.all([
+      getCurrentProfile(),
       supabase
         .from("regional_inventory")
         .select(

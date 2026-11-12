@@ -10,17 +10,19 @@ import type { VendorCategoryRow, VendorRow, VendorSubCategoryRow } from "@/types
 
 export default async function VendorsPage() {
   const supabase = await createClient();
-  const profile = await getCurrentProfile();
 
-  requireRole(profile, ["admin", "developer", "project_manager", "employee", "accountant", "vendor"]);
-
-  const [{ data: vendors }, { data: categories }, { data: subCategories }, { data: selections }] =
+  // Profile and data queries run together — RLS guards the rows,
+  // requireRole still redirects unauthorized roles before rendering.
+  const [profile, { data: vendors }, { data: categories }, { data: subCategories }, { data: selections }] =
     await Promise.all([
+      getCurrentProfile(),
       supabase.from("vendors").select("*").order("name"),
       supabase.from("vendor_categories").select("*").order("name"),
       supabase.from("vendor_sub_categories").select("*").order("name"),
       supabase.from("vendor_category_selections").select(VENDOR_CATEGORY_SELECTIONS_SELECT),
     ]);
+
+  requireRole(profile, ["admin", "developer", "project_manager", "employee", "accountant", "vendor"]);
 
   return (
     <VendorsClient

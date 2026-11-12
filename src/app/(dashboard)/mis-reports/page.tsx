@@ -11,15 +11,19 @@ import type { MonthlyBrandRow, MonthlyCreatorRow } from "@/types/mis";
 
 export default async function MisReportsPage() {
   const supabase = await createClient();
-  const profile = await getCurrentProfile();
+
+  // Profile and bookings fetch run together — RLS guards the rows,
+  // requireRole still redirects unauthorized roles before rendering.
+  const [profile, { data: bookings }] = await Promise.all([
+    getCurrentProfile(),
+    supabase
+      .from("bookings")
+      .select(
+        "brand, booking_date, status, sale_price, guest_count, kids_count, kids_price, b2b_price, kids_b2b_price, transport_type, pickup_drop_price, pickup_drop_guest_count, item:catalog_items(category), creator:profiles!bookings_created_by_fkey(full_name)",
+      ),
+  ]);
 
   requireRole(profile, ["admin", "developer", "project_manager"]);
-
-  const { data: bookings } = await supabase
-    .from("bookings")
-    .select(
-      "brand, booking_date, status, sale_price, guest_count, kids_count, kids_price, b2b_price, kids_b2b_price, transport_type, pickup_drop_price, pickup_drop_guest_count, item:catalog_items(category), creator:profiles!bookings_created_by_fkey(full_name)",
-    );
 
   // Totals per brand per month (by booking date), using the same price maths as the Bookings page.
   const monthly = new Map<string, MonthlyBrandRow>();

@@ -108,8 +108,8 @@ export function InventoryGrid({
         return (
           <Card
             key={row.id}
-            className="group animate-in fade-in-0 zoom-in-95 fill-mode-both cursor-pointer overflow-hidden gap-0 p-0 duration-500 hover:-translate-y-1 hover:shadow-lg active:translate-y-0 active:scale-[0.98]"
-            style={{ animationDelay: `${Math.min(index, 16) * 45}ms` }}
+            className="group animate-in fade-in-0 fill-mode-both cursor-pointer overflow-hidden gap-0 p-0 duration-300 hover:-translate-y-1 hover:shadow-lg active:translate-y-0 active:scale-[0.98]"
+            style={{ animationDelay: `${Math.min(index, 8) * 25}ms` }}
             onClick={() => row.item && setSelectedRow(row)}
           >
             <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted">
