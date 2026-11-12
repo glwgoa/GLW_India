@@ -60,7 +60,12 @@ export default async function DashboardOverviewPage() {
   const supabase = await createClient();
   const profile = await getCurrentProfile();
 
-  const [{ count: totalBookings }, { count: pendingBookings }, { count: activeProjects }] =
+  const dayStart = new Date();
+  dayStart.setHours(0, 0, 0, 0);
+  const dayEnd = new Date(dayStart);
+  dayEnd.setDate(dayEnd.getDate() + 1);
+
+  const [{ count: totalBookings }, { count: pendingBookings }, { count: activeProjects }, { data: todayRaw }] =
     await Promise.all([
       supabase.from("bookings").select("*", { count: "exact", head: true }),
       supabase
@@ -71,19 +76,14 @@ export default async function DashboardOverviewPage() {
         .from("projects")
         .select("*", { count: "exact", head: true })
         .eq("status", "active"),
+      supabase
+        .from("bookings")
+        .select("id, customer_name, customer_contact, brand, start_time, status, item:catalog_items(category)")
+        .gte("booking_date", dayStart.toISOString())
+        .lt("booking_date", dayEnd.toISOString())
+        .not("status", "in", "(cancelled,cancelled_refunded)")
+        .order("start_time", { ascending: true }),
     ]);
-
-  const dayStart = new Date();
-  dayStart.setHours(0, 0, 0, 0);
-  const dayEnd = new Date(dayStart);
-  dayEnd.setDate(dayEnd.getDate() + 1);
-  const { data: todayRaw } = await supabase
-    .from("bookings")
-    .select("id, customer_name, customer_contact, brand, start_time, status, item:catalog_items(category)")
-    .gte("booking_date", dayStart.toISOString())
-    .lt("booking_date", dayEnd.toISOString())
-    .not("status", "in", "(cancelled,cancelled_refunded)")
-    .order("start_time", { ascending: true });
   const todayBookings = (todayRaw ?? []) as unknown as {
     id: string;
     customer_name: string | null;
