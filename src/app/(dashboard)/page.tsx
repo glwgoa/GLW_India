@@ -78,7 +78,7 @@ export default async function DashboardOverviewPage() {
         .eq("status", "active"),
       supabase
         .from("bookings")
-        .select("id, customer_name, customer_contact, brand, start_time, status, item:catalog_items(category)")
+        .select("id, customer_name, customer_contact, brand, start_time, status, item:catalog_items(name, category)")
         .gte("booking_date", dayStart.toISOString())
         .lt("booking_date", dayEnd.toISOString())
         .not("status", "in", "(cancelled,cancelled_refunded)")
@@ -90,7 +90,7 @@ export default async function DashboardOverviewPage() {
     customer_contact: string | null;
     brand: string | null;
     start_time: string | null;
-    item: { category: string | null } | null;
+    item: { name: string | null; category: string | null } | null;
   }[];
 
   const stats = [
@@ -143,6 +143,11 @@ export default async function DashboardOverviewPage() {
                       <span className="text-muted-foreground">No number</span>
                     )}
                     <span className="text-muted-foreground">{b.brand ?? "—"}</span>
+                    {b.item?.name && (
+                      <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-medium">
+                        {b.item.name}
+                      </span>
+                    )}
                     {b.start_time && (
                       <span className="ml-auto text-xs text-muted-foreground">
                         {formatBookingTime(b.start_time)}

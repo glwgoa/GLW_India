@@ -34,14 +34,19 @@ async function fetchBase64(url: string) {
 }
 
 /** Builds the PDF for an invoice, quotation or credit note and downloads it. */
-export async function downloadGstPdf(doc: GstDocument, refNumber?: string | null) {
+export async function downloadGstPdf(
+  doc: GstDocument,
+  refNumber?: string | null,
+  withSignature = false,
+) {
   // Loaded on demand so the PDF libraries stay out of the main bundle.
-  const [{ jsPDF }, { default: autoTable }, regular, bold, logo] = await Promise.all([
+  const [{ jsPDF }, { default: autoTable }, regular, bold, logo, signature] = await Promise.all([
     import("jspdf"),
     import("jspdf-autotable"),
     fetchBase64("/invoice/Roboto-Regular.ttf"),
     fetchBase64("/invoice/Roboto-Bold.ttf"),
     fetchBase64("/invoice/logo.png"),
+    withSignature ? fetchBase64("/invoice/signature.png") : Promise.resolve(null),
   ]);
 
   const seller = GST_SELLERS[doc.brand] ?? GST_SELLERS["Waterz Goa"];
@@ -201,12 +206,31 @@ export async function downloadGstPdf(doc: GstDocument, refNumber?: string | null
     pdf.text(pdf.splitTextToSize(doc.notes, 100), left, ty - 13);
   }
 
-  // Footer note instead of a signature
-  const noteY = Math.max(ty + 14, 270);
-  font("normal", 9);
-  pdf.setTextColor(...GREY);
+  // Optional signature block, otherwise a "signature not required" note
+  let noteY = Math.max(ty + 14, 270);
   const kind = doc.doc_type === "invoice" ? "invoice" : doc.doc_type === "quotation" ? "quotation" : "credit note";
-  pdf.text(`This is a computer generated ${kind}, signature not required.`, 105, noteY, { align: "center" });
+  if (signature) {
+    let sigY = Math.max(ty + 6, 236);
+    if (sigY + 36 > 290) {
+      pdf.addPage();
+      sigY = 20;
+    }
+    const sigW = 42;
+    pdf.addImage(`data:image/png;base64,${signature}`, "PNG", right - sigW - 4, sigY, sigW, sigW * (164 / 343));
+    pdf.setDrawColor(...GREY);
+    pdf.line(right - 52, sigY + 21, right, sigY + 21);
+    font("normal", 9);
+    pdf.setTextColor(...GREY);
+    pdf.text("Authorised Signatory", right - 26, sigY + 26, { align: "center" });
+    noteY = sigY + 33;
+    font("normal", 9);
+    pdf.setTextColor(...GREY);
+    pdf.text(`This is a computer generated ${kind}.`, 105, noteY, { align: "center" });
+  } else {
+    font("normal", 9);
+    pdf.setTextColor(...GREY);
+    pdf.text(`This is a computer generated ${kind}, signature not required.`, 105, noteY, { align: "center" });
+  }
 
   if (doc.doc_type === "quotation") {
     font("normal", 8);

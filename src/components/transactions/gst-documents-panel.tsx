@@ -49,10 +49,12 @@ export function GstDocumentsPanel({
     );
   }, [documents, typeFilter, search]);
 
+  const [withSignature, setWithSignature] = useState(false);
+
   async function handleDownload(doc: GstDocument) {
     const ref = doc.ref_document_id ? documents.find((d) => d.id === doc.ref_document_id) : null;
     try {
-      await downloadGstPdf(doc, ref?.doc_number);
+      await downloadGstPdf(doc, ref?.doc_number, withSignature);
     } catch (e) {
       toast.error(`Could not create the PDF: ${e instanceof Error ? e.message : "unknown error"}`);
     }
@@ -114,6 +116,18 @@ export function GstDocumentsPanel({
           )}
         </div>
         <div className="flex items-center gap-2">
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">PDF signature</Label>
+            <Select value={withSignature ? "yes" : "no"} onValueChange={(v) => setWithSignature(v === "yes")}>
+              <SelectTrigger className="w-40">
+                <SelectValue>{(v: string) => (v === "yes" ? "With signature" : "No signature")}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="no">No signature</SelectItem>
+                <SelectItem value="yes">With signature</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <GstReportDialog documents={documents} />
           <NewGstDocumentDialog profile={profile} documents={documents} onAdded={refresh} />
         </div>
