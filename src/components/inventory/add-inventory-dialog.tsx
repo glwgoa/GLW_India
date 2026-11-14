@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { generateSku } from "@/lib/sku";
 import { DINNER_CRUISE_CATEGORY_NAME, needsKidsPricing, needsReportingTime, needsJettyDetails } from "@/lib/booking-yacht";
 
 import type { InventoryCategory } from "@/types/inventory";
@@ -53,7 +54,7 @@ export function AddInventoryDialog({
     setSubmitting(true);
     const supabase = createClient();
 
-    const sku = formData.get("sku") as string;
+    const typedSku = ((formData.get("sku") as string) ?? "").trim();
     const name = formData.get("name") as string;
     const imageFile = formData.get("imageFile") as File | null;
     const b2bPrice = Number(formData.get("b2bPrice"));
@@ -73,6 +74,8 @@ export function AddInventoryDialog({
       setSubmitting(false);
       return;
     }
+
+    const sku = typedSku || (await generateSku(supabase, category));
 
     let imageUrl: string | null = null;
     if (imageFile && imageFile.size > 0) {
@@ -168,7 +171,8 @@ export function AddInventoryDialog({
             </div>
             <div className="space-y-2">
               <Label htmlFor="sku">SKU</Label>
-              <Input id="sku" name="sku" required />
+              <Input id="sku" name="sku" placeholder="Auto — e.g. DC-001" />
+              <p className="text-xs text-muted-foreground">Leave empty to auto-generate.</p>
             </div>
           </div>
 
