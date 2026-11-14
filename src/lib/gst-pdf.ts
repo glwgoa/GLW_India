@@ -125,13 +125,13 @@ export async function downloadGstPdf(
 
   autoTable(pdf, {
     startY: y,
-    head: [["Sl.", "Description", "Qty", "Rate", "GST", "Amount"]],
+    head: [["Sl.", "Description", "Qty", "Qty × Rate", "GST", "Amount"]],
     body: [
       ...rows.map((r) => [
         String(r.n),
         r.it.description,
         String(r.it.qty),
-        inr(r.it.rate),
+        `${r.it.qty} × ${inr(r.it.rate)}\n= ${inr(round2(r.it.qty * r.it.rate))}`,
         { content: `${inr(r.gst)}\n${r.it.gst_rate}%`, styles: { halign: "right" as const } },
         inr(r.amount),
       ]),
@@ -147,7 +147,7 @@ export async function downloadGstPdf(
     columnStyles: {
       0: { cellWidth: 12, halign: "center" },
       2: { cellWidth: 14, halign: "center" },
-      3: { cellWidth: 30, halign: "right" },
+      3: { cellWidth: 40, halign: "right" },
       4: { cellWidth: 30, halign: "right" },
       5: { cellWidth: 32, halign: "right" },
     },
@@ -187,17 +187,28 @@ export async function downloadGstPdf(
     totals.push([paidLabel, inr(doc.paid_amount ?? 0), false]);
     totals.push(["Balance Due", inr(Math.max(0, round2(doc.total - (doc.paid_amount ?? 0)))), true]);
   }
-  if (ty + totals.length * 6 + 70 > 290) {
+  if (ty + totals.length * 6 + 82 > 290) {
     pdf.addPage();
     ty = 20;
   }
   const labelX = 128;
-  totals.forEach(([label, value, strong], i) => {
+  // Total and Balance Due sit centred between two rules; other rows are plain.
+  let cy = ty - 4;
+  pdf.setDrawColor(0);
+  pdf.setLineWidth(0.3);
+  totals.forEach(([label, value, strong]) => {
+    const h = strong ? 10 : 6;
+    const baseline = cy + h / 2 + 1.2;
+    if (strong) {
+      pdf.line(labelX - 2, cy, right, cy);
+      pdf.line(labelX - 2, cy + h, right, cy + h);
+    }
     font(strong ? "bold" : "normal", 10);
-    pdf.text(label, labelX, ty + i * 6);
-    pdf.text(value, right, ty + i * 6, { align: "right" });
+    pdf.text(label, labelX, baseline);
+    pdf.text(value, right, baseline, { align: "right" });
+    cy += h;
   });
-  ty += totals.length * 6;
+  ty = cy + 4;
 
   if (doc.notes) {
     font("bold", 9);
