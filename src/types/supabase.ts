@@ -886,7 +886,7 @@ export type Database = {
         | "completed"
         | "cancelled"
         | "cancelled_refunded"
-      gst_doc_type: "invoice" | "quotation" | "credit_note"
+      gst_doc_type: "invoice" | "proforma" | "quotation" | "credit_note"
       transaction_direction: "paid" | "received"
       transaction_source: "manual" | "booking"
       user_role:
@@ -1032,7 +1032,7 @@ export const Constants = {
         "cancelled",
         "cancelled_refunded",
       ],
-      gst_doc_type: ["invoice", "quotation", "credit_note"],
+      gst_doc_type: ["invoice", "proforma", "quotation", "credit_note"],
       transaction_direction: ["paid", "received"],
       transaction_source: ["manual", "booking"],
       user_role: [

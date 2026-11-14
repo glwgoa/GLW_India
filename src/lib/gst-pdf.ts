@@ -8,6 +8,7 @@ const GREY: [number, number, number] = [110, 110, 110];
 
 const TITLE: Record<GstDocument["doc_type"], string> = {
   invoice: "INVOICE",
+  proforma: "PROFORMA INVOICE",
   quotation: "QUOTATION",
   credit_note: "CREDIT NOTE",
 };
@@ -105,7 +106,8 @@ export async function downloadGstPdf(
     ...(refNumber ? ([["Against Invoice", refNumber]] as [string, string][]) : []),
   ];
   if (doc.doc_type !== "invoice") {
-    metaRows[0][0] = doc.doc_type === "quotation" ? "Quotation No" : "Credit Note No";
+    metaRows[0][0] =
+      doc.doc_type === "quotation" ? "Quotation No" : doc.doc_type === "proforma" ? "Proforma No" : "Credit Note No";
     metaRows[1][0] = "Date";
   }
   font("bold", 9.5);
@@ -192,21 +194,21 @@ export async function downloadGstPdf(
     ty = 20;
   }
   const labelX = 128;
-  // Total and Balance Due sit centred between two rules; other rows are plain.
+  // One rule above Total and one below the last row (Balance Due on invoices);
+  // everything from Total down sits between the two rules.
   let cy = ty - 4;
   pdf.setDrawColor(0);
   pdf.setLineWidth(0.3);
-  totals.forEach(([label, value, strong]) => {
+  const firstStrong = totals.findIndex(([, , strong]) => strong);
+  totals.forEach(([label, value, strong], i) => {
     const h = strong ? 10 : 6;
     const baseline = cy + h / 2 + 1.2;
-    if (strong) {
-      pdf.line(labelX - 2, cy, right, cy);
-      pdf.line(labelX - 2, cy + h, right, cy + h);
-    }
+    if (i === firstStrong) pdf.line(labelX - 2, cy, right, cy);
     font(strong ? "bold" : "normal", 10);
     pdf.text(label, labelX, baseline);
     pdf.text(value, right, baseline, { align: "right" });
     cy += h;
+    if (i === totals.length - 1) pdf.line(labelX - 2, cy, right, cy);
   });
   ty = cy + 4;
 
@@ -219,7 +221,7 @@ export async function downloadGstPdf(
 
   // Optional signature block, otherwise a "signature not required" note
   let noteY = Math.max(ty + 14, 270);
-  const kind = doc.doc_type === "invoice" ? "invoice" : doc.doc_type === "quotation" ? "quotation" : "credit note";
+  const kind = { invoice: "invoice", proforma: "proforma invoice", quotation: "quotation", credit_note: "credit note" }[doc.doc_type];
   if (signature) {
     let sigY = Math.max(ty + 6, 236);
     if (sigY + 36 > 290) {
@@ -243,10 +245,10 @@ export async function downloadGstPdf(
     pdf.text(`This is a computer generated ${kind}, signature not required.`, 105, noteY, { align: "center" });
   }
 
-  if (doc.doc_type === "quotation") {
+  if (doc.doc_type === "quotation" || doc.doc_type === "proforma") {
     font("normal", 8);
     pdf.setTextColor(...GREY);
-    pdf.text("This is a quotation and not a tax invoice.", 105, noteY + 5, { align: "center" });
+    pdf.text(`This is a ${kind} and not a tax invoice.`, 105, noteY + 5, { align: "center" });
   }
 
   pdf.save(`${doc.doc_number.replace(/\//g, "-")}.pdf`);

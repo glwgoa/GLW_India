@@ -1,4 +1,4 @@
-export type GstDocType = "invoice" | "quotation" | "credit_note";
+export type GstDocType = "invoice" | "proforma" | "quotation" | "credit_note";
 
 /** One invoice row. `rate` is the taxable unit price (GST is added on top). */
 export type GstLineItem = {

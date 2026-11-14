@@ -229,7 +229,7 @@ export function NewGstDocumentDialog({
       <DialogContent className="sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>New GST document</DialogTitle>
-          <DialogDescription>Create an invoice, quotation or credit note and download it as a PDF.</DialogDescription>
+          <DialogDescription>Create an invoice, proforma invoice, quotation or credit note and download it as a PDF.</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">

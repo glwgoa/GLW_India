@@ -37,6 +37,7 @@ export const GST_RATES = [0, 5, 12, 18, 28] as const;
 
 export const GST_DOC_LABEL: Record<GstDocType, string> = {
   invoice: "Tax Invoice",
+  proforma: "Proforma Invoice",
   quotation: "Quotation",
   credit_note: "Credit Note",
 };

@@ -18,14 +18,14 @@ import { formatInr } from "@/lib/gst";
 import { stateName } from "@/lib/gst-config";
 import type { GstDocument } from "@/types/gst-document";
 
-/** GSTR-1 / GSTR-3B style summary for one month. Credit notes count as negatives; quotations are ignored. */
+/** GSTR-1 / GSTR-3B style summary for one month. Credit notes count as negatives; quotations and proforma invoices are ignored. */
 export function GstReportDialog({ documents }: { documents: GstDocument[] }) {
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
 
   const monthDocs = useMemo(
     () =>
       documents
-        .filter((d) => d.doc_type !== "quotation" && d.doc_date.startsWith(month))
+        .filter((d) => d.doc_type !== "quotation" && d.doc_type !== "proforma" && d.doc_date.startsWith(month))
         .sort((a, b) => a.doc_date.localeCompare(b.doc_date)),
     [documents, month],
   );
