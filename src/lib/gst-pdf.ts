@@ -127,18 +127,19 @@ export async function downloadGstPdf(
 
   autoTable(pdf, {
     startY: y,
-    head: [["Sl.", "Description", "Qty", "Qty × Rate", "GST", "Amount"]],
+    head: [["Sl.", "Description", "Qty", "Price", "Total Price", "GST", "Amount"]],
     body: [
       ...rows.map((r) => [
         String(r.n),
         r.it.description,
         String(r.it.qty),
-        `${r.it.qty} × ${inr(r.it.rate)}\n= ${inr(round2(r.it.qty * r.it.rate))}`,
+        inr(r.it.rate),
+        inr(round2(r.it.qty * r.it.rate)),
         { content: `${inr(r.gst)}\n${r.it.gst_rate}%`, styles: { halign: "right" as const } },
         inr(r.amount),
       ]),
       [
-        { content: "Item Total", colSpan: 5, styles: { fontStyle: "bold" as const, halign: "right" as const } },
+        { content: "Item Total", colSpan: 6, styles: { fontStyle: "bold" as const, halign: "right" as const } },
         { content: inr(itemTotal), styles: { fontStyle: "bold" as const } },
       ],
     ],
@@ -147,11 +148,12 @@ export async function downloadGstPdf(
     styles: { font: "Roboto", fontSize: 9, cellPadding: 2.5, lineColor: [210, 210, 210], lineWidth: 0.2, textColor: 20 },
     headStyles: { fillColor: BLUE, textColor: 255, fontStyle: "bold" },
     columnStyles: {
-      0: { cellWidth: 12, halign: "center" },
-      2: { cellWidth: 14, halign: "center" },
-      3: { cellWidth: 40, halign: "right" },
-      4: { cellWidth: 30, halign: "right" },
-      5: { cellWidth: 32, halign: "right" },
+      0: { cellWidth: 10, halign: "center" },
+      2: { cellWidth: 12, halign: "center" },
+      3: { cellWidth: 27, halign: "right" },
+      4: { cellWidth: 28, halign: "right" },
+      5: { cellWidth: 25, halign: "right" },
+      6: { cellWidth: 30, halign: "right" },
     },
     didParseCell: (d) => {
       if (d.section === "head" && (d.column.index >= 3)) d.cell.styles.halign = "right";
@@ -159,7 +161,7 @@ export async function downloadGstPdf(
     },
     didDrawCell: (d) => {
       // GST % in grey under the rupee amount
-      if (d.section === "body" && d.column.index === 4 && typeof d.cell.raw === "object" && d.row.index < rows.length) {
+      if (d.section === "body" && d.column.index === 5 && typeof d.cell.raw === "object" && d.row.index < rows.length) {
         const r = rows[d.row.index];
         const x = d.cell.x + d.cell.width - d.cell.padding("right");
         const top = d.cell.y + d.cell.padding("top");
