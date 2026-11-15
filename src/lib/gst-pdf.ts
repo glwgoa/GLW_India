@@ -1,4 +1,4 @@
-import { GST_SELLERS } from "@/lib/gst-config";
+import { GST_SELLERS, INVOICE_TERMS, PAYMENT_INSTRUCTIONS } from "@/lib/gst-config";
 import { formatInr } from "@/lib/gst";
 import type { GstDocument, GstLineItem } from "@/types/gst-document";
 
@@ -198,7 +198,8 @@ export async function downloadGstPdf(
   const labelX = 128;
   // One rule above Total and one below the last row (Balance Due on invoices);
   // everything from Total down sits between the two rules.
-  let cy = ty - 4;
+  const totalsTop = ty - 4;
+  let cy = totalsTop;
   pdf.setDrawColor(0);
   pdf.setLineWidth(0.3);
   const firstStrong = totals.findIndex(([, , strong]) => strong);
@@ -212,40 +213,76 @@ export async function downloadGstPdf(
     cy += h;
     if (i === totals.length - 1) pdf.line(labelX - 2, cy, right, cy);
   });
-  ty = cy + 4;
+  const totalsBottom = cy + 4;
+  const showTerms = doc.doc_type !== "credit_note";
 
+  // Left column: payment instructions beside the totals, then notes
+  let ly = totalsBottom;
+  if (showTerms) {
+    let py = totalsTop + 4;
+    font("bold", 10);
+    pdf.setTextColor(0);
+    pdf.text("Payment Instructions", left, py);
+    py += 6;
+    PAYMENT_INSTRUCTIONS.forEach((line, i) => {
+      font("normal", 9.5);
+      pdf.setTextColor(...(i === 0 ? GREY : ([0, 0, 0] as [number, number, number])));
+      pdf.text(line, left, py);
+      py += 4.8;
+    });
+    pdf.setTextColor(0);
+    ly = Math.max(ly, py);
+  }
   if (doc.notes) {
+    ly += 4;
     font("bold", 9);
-    pdf.text("Notes", left, ty - 18);
+    pdf.text("Notes", left, ly);
     font("normal", 9);
-    pdf.text(pdf.splitTextToSize(doc.notes, 100), left, ty - 13);
+    const noteLines: string[] = pdf.splitTextToSize(doc.notes, 100);
+    pdf.text(noteLines, left, ly + 5);
+    ly += 5 + noteLines.length * 4;
   }
 
-  // Optional signature block, otherwise a "signature not required" note
-  let noteY = Math.max(ty + 14, 270);
+  // Terms (left) with the optional signature (right), then the computer-generated note
   const kind = { invoice: "invoice", proforma: "proforma invoice", quotation: "quotation", credit_note: "credit note" }[doc.doc_type];
+  const termLines = showTerms ? INVOICE_TERMS.map((t, i) => pdf.splitTextToSize(`${i + 1}. ${t}`, 118) as string[]) : [];
+  const termsH = showTerms ? 6 + termLines.reduce((s, l) => s + l.length * 4 + 0.6, 0) : 0;
+  const sigH = signature ? 33 : 0;
+  let by = ly + 8;
+  if (by + Math.max(termsH, sigH) + 14 > 285) {
+    pdf.addPage();
+    by = 20;
+  }
+  if (showTerms) {
+    font("bold", 10);
+    pdf.setTextColor(0);
+    pdf.text("Terms", left, by);
+    let tyy = by + 6;
+    font("normal", 8.5);
+    termLines.forEach((lines) => {
+      pdf.text(lines, left, tyy);
+      tyy += lines.length * 4 + 0.6;
+    });
+  }
   if (signature) {
-    let sigY = Math.max(ty + 6, 236);
-    if (sigY + 36 > 290) {
-      pdf.addPage();
-      sigY = 20;
-    }
     const sigW = 42;
+    const sigY = by - 4;
     pdf.addImage(`data:image/png;base64,${signature}`, "PNG", right - sigW - 4, sigY, sigW, sigW * (164 / 343));
     pdf.setDrawColor(...GREY);
     pdf.line(right - 52, sigY + 21, right, sigY + 21);
     font("normal", 9);
     pdf.setTextColor(...GREY);
     pdf.text("Authorised Signatory", right - 26, sigY + 26, { align: "center" });
-    noteY = sigY + 33;
-    font("normal", 9);
-    pdf.setTextColor(...GREY);
-    pdf.text(`This is a computer generated ${kind}.`, 105, noteY, { align: "center" });
-  } else {
-    font("normal", 9);
-    pdf.setTextColor(...GREY);
-    pdf.text(`This is a computer generated ${kind}, signature not required.`, 105, noteY, { align: "center" });
   }
+  const noteY = by + Math.max(termsH, sigH) + 6;
+  font("normal", 9);
+  pdf.setTextColor(...GREY);
+  pdf.text(
+    `This is a computer generated ${kind}${signature ? "" : ", signature not required"}.`,
+    105,
+    noteY,
+    { align: "center" },
+  );
 
   if (doc.doc_type === "quotation" || doc.doc_type === "proforma") {
     font("normal", 8);

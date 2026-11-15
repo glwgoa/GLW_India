@@ -30,6 +30,27 @@ export const GST_SELLERS: Record<string, GstSeller> = {
   "Cruise Goa": MRR,
 };
 
+/** Printed under "Payment Instructions" on invoices, proformas and quotations. */
+export const PAYMENT_INSTRUCTIONS = [
+  "Send to bank",
+  "A/c Name - MRR Technology Solutions Pvt Ltd",
+  "A/c No - 44302676536",
+  "IFSC Code - SBIN0040149",
+  "Bank - STATE BANK OF INDIA",
+  "Branch - MANGALORE",
+];
+
+/** Printed under "Terms" on invoices, proformas and quotations. */
+export const INVOICE_TERMS = [
+  "50% of the payment to be made in advance to confirm the booking.",
+  "Balance payment to be settled two days before the event.",
+  "We require at least 72 hours notice for any cancellations.",
+  "Cancellations received less than the above stated period will incur 100% cancellation fee.",
+  "100% charge will apply to all no-shows.",
+  "Any refunds due will be processed after the trip date and will incur a 20% admin fee.",
+  "Refunds can take 5-7 working days to show back into the account.",
+];
+
 /** TODO: set the SAC code used on your invoices. */
 export const DEFAULT_HSN_SAC = "";
 export const DEFAULT_GST_RATE = 5;
