@@ -49,25 +49,39 @@ export function BookingsClient({
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [view, setView] = useState<"daily" | "monthly">("monthly");
+  const [brandFilter, setBrandFilter] = useState("all"); // "all" | "none" | brand name
+  const [dateField, setDateField] = useState<"booking" | "added">("booking");
+
+  const brands = useMemo(
+    () => [...new Set(bookings.map((b) => b.brand).filter((x): x is string => !!x))].sort((a, b) => a.localeCompare(b)),
+    [bookings],
+  );
 
   const visibleBookings = useMemo(() => {
     return bookings.filter((b) => {
       if (nameFilter && !b.customer_name.toLowerCase().includes(nameFilter.toLowerCase())) {
         return false;
       }
-      const day = b.booking_date.slice(0, 10);
+      if (brandFilter === "none" ? b.brand : brandFilter !== "all" && b.brand !== brandFilter) {
+        return false;
+      }
+      const day =
+        dateField === "booking"
+          ? b.booking_date.slice(0, 10)
+          : new Date(b.created_at).toLocaleDateString("en-CA");
       if (fromDate && day < fromDate) return false;
       if (toDate && day > toDate) return false;
       return true;
     });
-  }, [bookings, nameFilter, fromDate, toDate]);
+  }, [bookings, nameFilter, fromDate, toDate, brandFilter, dateField]);
 
-  const hasFilters = nameFilter || fromDate || toDate;
+  const hasFilters = nameFilter || fromDate || toDate || brandFilter !== "all";
 
   function clearFilters() {
     setNameFilter("");
     setFromDate("");
     setToDate("");
+    setBrandFilter("all");
   }
 
   // Column order matches the accounts sheet (25-26 Columns); fields the app
@@ -208,6 +222,37 @@ export function BookingsClient({
             onChange={(e) => setToDate(e.target.value)}
             className="h-8 w-44"
           />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="booking-brand-filter" className="text-xs text-muted-foreground">
+            Brand
+          </Label>
+          <select
+            id="booking-brand-filter"
+            value={brandFilter}
+            onChange={(e) => setBrandFilter(e.target.value)}
+            className="h-8 w-44 rounded-lg border border-input bg-transparent px-2.5 text-sm"
+          >
+            <option value="all">All brands</option>
+            {brands.map((br) => (
+              <option key={br} value={br}>{br}</option>
+            ))}
+            <option value="none">No brand</option>
+          </select>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="booking-date-field" className="text-xs text-muted-foreground">
+            Filter dates by
+          </Label>
+          <select
+            id="booking-date-field"
+            value={dateField}
+            onChange={(e) => setDateField(e.target.value as "booking" | "added")}
+            className="h-8 w-44 rounded-lg border border-input bg-transparent px-2.5 text-sm"
+          >
+            <option value="booking">Booking date</option>
+            <option value="added">Date added</option>
+          </select>
         </div>
         {hasFilters && (
           <div className="space-y-1.5">
