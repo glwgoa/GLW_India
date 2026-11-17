@@ -6,11 +6,3 @@ export type MonthlyBrandRow = {
   revenue: number;
   earnings: number;
 };
-
-/** Bookings added by one person in one month. */
-export type MonthlyCreatorRow = {
-  month: string;
-  creator: string;
-  bookings: number;
-  revenue: number;
-};
