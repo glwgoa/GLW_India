@@ -146,6 +146,18 @@ export function ProductDetailDialog({
             {[
               { value: formatPrice(item?.sale_price ?? null), label: "Sale price" },
               { value: formatPrice(item?.b2b_price ?? null), label: "B2B price" },
+              ...(item?.sailing_price != null
+                ? [{ value: formatPrice(item.sailing_price), label: "Evening Sailing" }]
+                : []),
+              ...(item?.anchorage_price != null
+                ? [{ value: formatPrice(item.anchorage_price), label: "Evening Anchorage" }]
+                : []),
+              ...(item?.morning_sailing_price != null
+                ? [{ value: formatPrice(item.morning_sailing_price), label: "Morning Sailing" }]
+                : []),
+              ...(item?.morning_anchorage_price != null
+                ? [{ value: formatPrice(item.morning_anchorage_price), label: "Morning Anchorage" }]
+                : []),
               ...(item?.kids_sale_price != null
                 ? [{ value: formatPrice(item.kids_sale_price), label: "Kids sale price" }]
                 : []),

@@ -55,6 +55,11 @@ export function needsKidsPricing(category: string | null | undefined) {
   return isPerGuestCategory(category);
 }
 
+/** Private yachts carry separate Sailing and Anchorage prices. */
+export function needsSailingAnchorage(category: string | null | undefined) {
+  return category === YACHT_CATEGORY_NAME;
+}
+
 /** Every product has a jetty name and location link except Dudhsagar trips. */
 export function needsJettyDetails(subCategory: string | null | undefined) {
   return subCategory !== DUDHSAGAR_SUB_CATEGORY_NAME;

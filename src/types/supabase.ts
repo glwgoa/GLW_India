@@ -231,6 +231,10 @@ export type Database = {
           jetty_name: string | null
           kids_b2b_price: number | null
           kids_sale_price: number | null
+          sailing_price: number | null
+          anchorage_price: number | null
+          morning_sailing_price: number | null
+          morning_anchorage_price: number | null
           name: string
           reporting_time: string | null
           sale_price: number | null
@@ -251,6 +255,10 @@ export type Database = {
           jetty_name?: string | null
           kids_b2b_price?: number | null
           kids_sale_price?: number | null
+          sailing_price?: number | null
+          anchorage_price?: number | null
+          morning_sailing_price?: number | null
+          morning_anchorage_price?: number | null
           name: string
           reporting_time?: string | null
           sale_price?: number | null
@@ -271,6 +279,10 @@ export type Database = {
           jetty_name?: string | null
           kids_b2b_price?: number | null
           kids_sale_price?: number | null
+          sailing_price?: number | null
+          anchorage_price?: number | null
+          morning_sailing_price?: number | null
+          morning_anchorage_price?: number | null
           name?: string
           reporting_time?: string | null
           sale_price?: number | null

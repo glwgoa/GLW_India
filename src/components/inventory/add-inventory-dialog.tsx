@@ -24,7 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { generateSku } from "@/lib/sku";
-import { DINNER_CRUISE_CATEGORY_NAME, needsKidsPricing, needsReportingTime, needsJettyDetails } from "@/lib/booking-yacht";
+import { DINNER_CRUISE_CATEGORY_NAME, needsKidsPricing, needsReportingTime, needsJettyDetails, needsSailingAnchorage } from "@/lib/booking-yacht";
 
 import type { InventoryCategory } from "@/types/inventory";
 
@@ -48,6 +48,7 @@ export function AddInventoryDialog({
   const showReportingTime = needsReportingTime(category);
   const showKidsPricing = needsKidsPricing(category);
   const isDinnerCruise = category === DINNER_CRUISE_CATEGORY_NAME;
+  const showSailing = needsSailingAnchorage(category);
   const showJetty = needsJettyDetails(subCategory);
 
   async function handleSubmit(formData: FormData) {
@@ -61,6 +62,10 @@ export function AddInventoryDialog({
     const salePrice = Number(formData.get("salePrice"));
     const kidsB2bPriceRaw = formData.get("kidsB2bPrice") as string;
     const kidsSalePriceRaw = formData.get("kidsSalePrice") as string;
+    const sailingPriceRaw = formData.get("sailingPrice") as string;
+    const anchoragePriceRaw = formData.get("anchoragePrice") as string;
+    const morningSailingPriceRaw = formData.get("morningSailingPrice") as string;
+    const morningAnchoragePriceRaw = formData.get("morningAnchoragePrice") as string;
     const stockQuantity = Number(formData.get("stockQuantity"));
     const jettyName = (formData.get("jettyName") as string) || null;
     const jettyLocationUrl = (formData.get("jettyLocationUrl") as string) || null;
@@ -113,6 +118,10 @@ export function AddInventoryDialog({
         sale_price: salePrice,
         kids_b2b_price: showKidsPricing && kidsB2bPriceRaw ? Number(kidsB2bPriceRaw) : null,
         kids_sale_price: showKidsPricing && kidsSalePriceRaw ? Number(kidsSalePriceRaw) : null,
+        sailing_price: showSailing && sailingPriceRaw ? Number(sailingPriceRaw) : null,
+        anchorage_price: showSailing && anchoragePriceRaw ? Number(anchoragePriceRaw) : null,
+        morning_sailing_price: showSailing && morningSailingPriceRaw ? Number(morningSailingPriceRaw) : null,
+        morning_anchorage_price: showSailing && morningAnchoragePriceRaw ? Number(morningAnchoragePriceRaw) : null,
         vendor_id: vendorId,
         jetty_name: showJetty ? jettyName : null,
         jetty_location_url: showJetty ? jettyLocationUrl : null,
@@ -290,6 +299,27 @@ export function AddInventoryDialog({
               <Input id="stockQuantity" name="stockQuantity" type="number" required />
             </div>
           </div>
+
+          {showSailing && (
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="sailingPrice">Evening – Sailing</Label>
+                <Input id="sailingPrice" name="sailingPrice" type="number" step="0.01" placeholder="Optional" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="anchoragePrice">Evening – Anchorage</Label>
+                <Input id="anchoragePrice" name="anchoragePrice" type="number" step="0.01" placeholder="Optional" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="morningSailingPrice">Morning – Sailing</Label>
+                <Input id="morningSailingPrice" name="morningSailingPrice" type="number" step="0.01" placeholder="Optional" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="morningAnchoragePrice">Morning – Anchorage</Label>
+                <Input id="morningAnchoragePrice" name="morningAnchoragePrice" type="number" step="0.01" placeholder="Optional" />
+              </div>
+            </div>
+          )}
 
           {showKidsPricing && (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
