@@ -34,6 +34,13 @@ import {
   hasKidsPriceFields,
   needsCustomerContact,
 } from "@/lib/booking-yacht";
+import {
+  YACHT_PACKAGES,
+  computeYachtB2b,
+  packageKey,
+  packageLabel,
+  parsePackageKey,
+} from "@/lib/yacht-packages";
 import { BRAND_NAMES } from "@/lib/brands";
 import { ADV_PAID_TO_OPTIONS } from "@/lib/booking-display";
 import { isPrivileged } from "@/lib/auth/roles";
@@ -96,6 +103,11 @@ export function EditBookingDialog({
   const [addOns, setAddOns] = useState<string[]>(booking.add_ons ?? []);
   const [transportType, setTransportType] = useState<string>(booking.transport_type ?? "");
   const [advPaidTo, setAdvPaidTo] = useState<string>(booking.adv_paid_to ?? "");
+  const [yachtPackage, setYachtPackage] = useState<string>(
+    booking.sailing_hours != null
+      ? packageKey({ sailing: booking.sailing_hours, anchorage: booking.anchorage_hours ?? 0 })
+      : "",
+  );
   const [pickupLocation, setPickupLocation] = useState<string>(booking.pickup_location ?? "");
 
   const selectedProduct = products.find((p) => p.id === productId);
@@ -129,6 +141,16 @@ export function EditBookingDialog({
     }
   }
 
+  const savedPackage =
+    booking.sailing_hours != null
+      ? { sailing: booking.sailing_hours, anchorage: booking.anchorage_hours ?? 0 }
+      : null;
+  // Older bookings with hours outside the 12 presets keep showing as an extra option.
+  const packageOptions =
+    savedPackage && !YACHT_PACKAGES.some((p) => packageKey(p) === packageKey(savedPackage))
+      ? [savedPackage, ...YACHT_PACKAGES]
+      : YACHT_PACKAGES;
+
   function toggleAddOn(addOn: string) {
     setAddOns((prev) => (prev.includes(addOn) ? prev.filter((a) => a !== addOn) : [...prev, addOn]));
   }
@@ -155,16 +177,38 @@ export function EditBookingDialog({
     const agentNumber = ((formData.get("agentNumber") as string) || "").trim() || null;
     const startTime = (formData.get("startTime") as string) || null;
     const endTime = (formData.get("endTime") as string) || null;
-    const sailingHoursRaw = formData.get("sailingHours") as string;
-    const anchorageHoursRaw = formData.get("anchorageHours") as string;
     const guestCountRaw = formData.get("guestCount") as string;
     const kidsCountRaw = formData.get("kidsCount") as string;
     const pickupDropPriceRaw = formData.get("pickupDropPrice") as string;
     const pickupDropGuestCountRaw = formData.get("pickupDropGuestCount") as string;
 
+    const pkg = isYacht ? parsePackageKey(yachtPackage) : null;
+    let yachtB2b: number | undefined;
+    if (isYacht && pkg && startTime) {
+      const changed =
+        productId !== (booking.item_id ?? "") ||
+        startTime !== (booking.start_time ?? "") ||
+        pkg.sailing !== booking.sailing_hours ||
+        pkg.anchorage !== (booking.anchorage_hours ?? 0);
+      if (changed) {
+        const result = computeYachtB2b(
+          products.find((p) => p.id === productId),
+          startTime,
+          pkg,
+        );
+        if ("error" in result) {
+          toast.error(result.error);
+          setSubmitting(false);
+          return;
+        }
+        yachtB2b = result.b2b;
+      }
+    }
+
     const { error } = await supabase
       .from("bookings")
       .update({
+        ...(yachtB2b !== undefined ? { b2b_price: yachtB2b } : {}),
         customer_name: customerName,
         customer_contact: showContactNumber ? customerContact : null,
         brand: brand || null,
@@ -184,8 +228,8 @@ export function EditBookingDialog({
         status,
         start_time: isYacht ? startTime : null,
         end_time: isYacht ? endTime : null,
-        sailing_hours: isYacht && sailingHoursRaw ? Number(sailingHoursRaw) : null,
-        anchorage_hours: isYacht && anchorageHoursRaw ? Number(anchorageHoursRaw) : null,
+        sailing_hours: pkg?.sailing ?? null,
+        anchorage_hours: pkg?.anchorage ?? null,
         add_ons: isYacht && addOns.length > 0 ? addOns : null,
         guest_count: guestCountRaw ? Number(guestCountRaw) : null,
         pickup_location: isGoaTrip || (isDinnerCruise && isPickupDrop) ? pickupLocation || null : null,
@@ -496,29 +540,25 @@ export function EditBookingDialog({
                   <Input id="endTime" name="endTime" type="time" className="max-w-40" defaultValue={booking.end_time ?? ""} />
                 </div>
               </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="sailingHours">Sailing (hours)</Label>
-                  <Input
-                    id="sailingHours"
-                    name="sailingHours"
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    defaultValue={booking.sailing_hours ?? ""}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="anchorageHours">Anchorage (hours)</Label>
-                  <Input
-                    id="anchorageHours"
-                    name="anchorageHours"
-                    type="number"
-                    step="0.5"
-                    min="0"
-                    defaultValue={booking.anchorage_hours ?? ""}
-                  />
-                </div>
+              <div className="space-y-2">
+                <Label>Sailing + Anchorage</Label>
+                <Select value={yachtPackage} onValueChange={(v) => setYachtPackage(v ?? "")}>
+                  <SelectTrigger>
+                    <SelectValue>
+                      {(value: string) => {
+                        const p = parsePackageKey(value);
+                        return p ? packageLabel(p) : "Select package";
+                      }}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {packageOptions.map((p) => (
+                      <SelectItem key={packageKey(p)} value={packageKey(p)}>
+                        {packageLabel(p)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label>Add-ons</Label>

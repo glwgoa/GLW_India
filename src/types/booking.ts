@@ -16,6 +16,10 @@ export type BookingProduct = {
   category: string | null;
   sub_category?: string | null;
   vendor_id: string | null;
+  sailing_price?: number | null;
+  anchorage_price?: number | null;
+  morning_sailing_price?: number | null;
+  morning_anchorage_price?: number | null;
 };
 
 export type BookingRow = {

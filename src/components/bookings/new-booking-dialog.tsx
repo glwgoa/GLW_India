@@ -35,6 +35,13 @@ import {
   hasKidsPriceFields,
   needsCustomerContact,
 } from "@/lib/booking-yacht";
+import {
+  YACHT_PACKAGES,
+  computeYachtB2b,
+  packageKey,
+  packageLabel,
+  parsePackageKey,
+} from "@/lib/yacht-packages";
 import { BRAND_NAMES } from "@/lib/brands";
 import { ADV_PAID_TO_OPTIONS } from "@/lib/booking-display";
 import { isPrivileged, isStaffRole } from "@/lib/auth/roles";
@@ -132,6 +139,7 @@ export function NewBookingDialog({
   const [addOns, setAddOns] = useState<string[]>([]);
   const [transportType, setTransportType] = useState<string>("");
   const [advPaidTo, setAdvPaidTo] = useState<string>("");
+  const [yachtPackage, setYachtPackage] = useState<string>("");
   const [subCategory, setSubCategory] = useState<string>(
     () => products.find((p) => p.id === initialProductId)?.sub_category ?? "",
   );
@@ -338,12 +346,33 @@ export function NewBookingDialog({
     const agentNumber = ((formData.get("agentNumber") as string) || "").trim() || null;
     const startTime = (formData.get("startTime") as string) || null;
     const endTime = (formData.get("endTime") as string) || null;
-    const sailingHoursRaw = formData.get("sailingHours") as string;
-    const anchorageHoursRaw = formData.get("anchorageHours") as string;
     const guestCountRaw = formData.get("guestCount") as string;
     const kidsCountRaw = formData.get("kidsCount") as string;
     const pickupDropPriceRaw = formData.get("pickupDropPrice") as string;
     const pickupDropGuestCountRaw = formData.get("pickupDropGuestCount") as string;
+
+    let yachtB2b: number | null = null;
+    const pkg = isYacht ? parsePackageKey(yachtPackage) : null;
+    if (isYacht) {
+      if (!pkg) {
+        toast.error("Select the sailing + anchorage package");
+        return;
+      }
+      if (!startTime) {
+        toast.error("Set a start time (it decides Evening or Morning rates)");
+        return;
+      }
+      const result = computeYachtB2b(
+        products.find((p) => p.id === productId),
+        startTime,
+        pkg,
+      );
+      if ("error" in result) {
+        toast.error(result.error);
+        return;
+      }
+      yachtB2b = result.b2b;
+    }
 
     const { error } = await supabase.from("bookings").insert({
       customer_name: customerName,
@@ -376,8 +405,9 @@ export function NewBookingDialog({
         ? {
             start_time: startTime,
             end_time: endTime,
-            sailing_hours: sailingHoursRaw ? Number(sailingHoursRaw) : null,
-            anchorage_hours: anchorageHoursRaw ? Number(anchorageHoursRaw) : null,
+            sailing_hours: pkg?.sailing ?? null,
+            anchorage_hours: pkg?.anchorage ?? null,
+            b2b_price: yachtB2b,
             add_ons: addOns.length > 0 ? addOns : null,
           }
         : {}),
@@ -684,15 +714,25 @@ export function NewBookingDialog({
                   <Input id="endTime" name="endTime" type="time" className="max-w-40" />
                 </div>
               </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="sailingHours">Sailing (hours)</Label>
-                  <Input id="sailingHours" name="sailingHours" type="number" step="0.5" min="0" />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="anchorageHours">Anchorage (hours)</Label>
-                  <Input id="anchorageHours" name="anchorageHours" type="number" step="0.5" min="0" />
-                </div>
+              <div className="space-y-2">
+                <Label>Sailing + Anchorage</Label>
+                <Select value={yachtPackage} onValueChange={(v) => setYachtPackage(v ?? "")}>
+                  <SelectTrigger>
+                    <SelectValue>
+                      {(value: string) => {
+                        const p = parsePackageKey(value);
+                        return p ? packageLabel(p) : "Select package";
+                      }}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {YACHT_PACKAGES.map((p) => (
+                      <SelectItem key={packageKey(p)} value={packageKey(p)}>
+                        {packageLabel(p)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label>Add-ons</Label>

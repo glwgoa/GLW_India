@@ -26,7 +26,7 @@ export default async function BookingsPage() {
       canManageBookings
         ? supabase
             .from("catalog_items")
-            .select("id, name, sale_price, kids_sale_price, category, sub_category, vendor_id")
+            .select("id, name, sale_price, kids_sale_price, category, sub_category, vendor_id, sailing_price, anchorage_price, morning_sailing_price, morning_anchorage_price")
             .order("name")
         : Promise.resolve({
             data: [] as {
@@ -37,6 +37,10 @@ export default async function BookingsPage() {
               category: string | null;
               sub_category: string | null;
               vendor_id: string | null;
+              sailing_price: number | null;
+              anchorage_price: number | null;
+              morning_sailing_price: number | null;
+              morning_anchorage_price: number | null;
             }[],
           }),
       canAssignEmployee
