@@ -1,5 +1,6 @@
 "use client";
 
+import { TimeInput } from "@/components/ui/time-input";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Pencil } from "lucide-react";
@@ -259,13 +260,7 @@ export function EditProductDialog({
           {showReportingTime && (
             <div className="space-y-2">
               <Label htmlFor="reportingTime">Reporting time</Label>
-              <Input
-                id="reportingTime"
-                name="reportingTime"
-                type="time"
-                className="max-w-40"
-                defaultValue={item.reporting_time ?? ""}
-              />
+              <TimeInput id="reportingTime" name="reportingTime" defaultValue={item.reporting_time} />
             </div>
           )}
 

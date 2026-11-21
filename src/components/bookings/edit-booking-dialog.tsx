@@ -1,5 +1,6 @@
 "use client";
 
+import { TimeInput } from "@/components/ui/time-input";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Pencil } from "lucide-react";
@@ -556,17 +557,11 @@ export function EditBookingDialog({
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="startTime">Start time</Label>
-                  <Input
-                    id="startTime"
-                    name="startTime"
-                    type="time"
-                    className="max-w-40"
-                    defaultValue={booking.start_time ?? ""}
-                  />
+                  <TimeInput id="startTime" name="startTime" defaultValue={booking.start_time} />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="endTime">End time</Label>
-                  <Input id="endTime" name="endTime" type="time" className="max-w-40" defaultValue={booking.end_time ?? ""} />
+                  <TimeInput id="endTime" name="endTime" defaultValue={booking.end_time} />
                 </div>
               </div>
               <div className="space-y-2">

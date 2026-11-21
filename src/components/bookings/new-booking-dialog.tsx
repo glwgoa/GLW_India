@@ -1,5 +1,6 @@
 "use client";
 
+import { TimeInput } from "@/components/ui/time-input";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Plus } from "lucide-react";
@@ -50,7 +51,7 @@ import type { Profile } from "@/types/profile";
 
 const DRAFT_TTL_MS = 60 * 60 * 1000;
 /** Fields whose value lives in React state, so they are restored via state rather than the DOM. */
-const CONTROLLED_FIELDS = new Set(["salePrice", "kidsPrice"]);
+const CONTROLLED_FIELDS = new Set(["salePrice", "kidsPrice", "startTime", "endTime"]);
 
 type BookingDraft = {
   savedAt: number;
@@ -736,11 +737,11 @@ export function NewBookingDialog({
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
                   <Label htmlFor="startTime">Start time</Label>
-                  <Input id="startTime" name="startTime" type="time" className="max-w-40" />
+                  <TimeInput id="startTime" name="startTime" />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="endTime">End time</Label>
-                  <Input id="endTime" name="endTime" type="time" className="max-w-40" />
+                  <TimeInput id="endTime" name="endTime" />
                 </div>
               </div>
               <div className="space-y-2">

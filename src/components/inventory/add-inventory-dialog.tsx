@@ -1,5 +1,6 @@
 "use client";
 
+import { TimeInput } from "@/components/ui/time-input";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Loader2, Plus } from "lucide-react";
@@ -270,7 +271,7 @@ export function AddInventoryDialog({
           {showReportingTime && (
             <div className="space-y-2">
               <Label htmlFor="reportingTime">Reporting time</Label>
-              <Input id="reportingTime" name="reportingTime" type="time" className="max-w-40" />
+              <TimeInput id="reportingTime" name="reportingTime" />
             </div>
           )}
 
