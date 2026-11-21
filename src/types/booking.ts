@@ -51,6 +51,10 @@ export type BookingRow = {
   pickup_location: string | null;
   agent_name: string | null;
   agent_number: string | null;
+  agent_commission: number | null;
+  /** 5 or 18; null means no GST on this booking. */
+  gst_rate: number | null;
+  gst_status: string | null;
   kids_below_5_count: number | null;
   transport_type: TransportType | null;
   pickup_drop_price: number | null;

@@ -343,6 +343,9 @@ export function NewBookingDialog({
     const advanceRaw = formData.get("advanceAmount") as string;
     const transactionId = (formData.get("transactionId") as string) || null;
     const agentName = ((formData.get("agentName") as string) || "").trim() || null;
+    const agentCommissionRaw = formData.get("agentCommission") as string;
+    const gstRateRaw = formData.get("gstRate") as string;
+    const gstStatus = (formData.get("gstStatus") as string) || null;
     const agentNumber = ((formData.get("agentNumber") as string) || "").trim() || null;
     const startTime = (formData.get("startTime") as string) || null;
     const endTime = (formData.get("endTime") as string) || null;
@@ -395,6 +398,9 @@ export function NewBookingDialog({
       transaction_id: transactionId,
       agent_name: agentName,
       agent_number: agentNumber,
+      agent_commission: agentCommissionRaw ? Number(agentCommissionRaw) : null,
+      gst_rate: gstRateRaw ? Number(gstRateRaw) : null,
+      gst_status: gstRateRaw ? gstStatus : null,
       booking_date: new Date(date).toISOString(),
       enquiry_date: enquiryDate,
       status: "pending",
@@ -698,6 +704,29 @@ export function NewBookingDialog({
             <div className="space-y-2">
               <Label htmlFor="agentNumber">Agent Number</Label>
               <Input id="agentNumber" name="agentNumber" type="tel" placeholder="Optional" />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <div className="space-y-2">
+              <Label htmlFor="agentCommission">Agent Commission (₹)</Label>
+              <Input id="agentCommission" name="agentCommission" type="number" min="0" step="any" placeholder="Optional" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="gstRate">GST</Label>
+              <select id="gstRate" name="gstRate" className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm" defaultValue="">
+                <option value="">No GST</option>
+                <option value="5">5%</option>
+                <option value="18">18%</option>
+              </select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="gstStatus">GST Status</Label>
+              <select id="gstStatus" name="gstStatus" className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm" defaultValue="">
+                <option value="">—</option>
+                <option value="Filed">Filed</option>
+                <option value="Not filed">Not filed</option>
+              </select>
             </div>
           </div>
 

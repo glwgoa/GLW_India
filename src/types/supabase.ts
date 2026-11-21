@@ -89,6 +89,9 @@ export type Database = {
           pickup_location: string | null
           agent_name: string | null
           agent_number: string | null
+          gst_rate: number | null
+          gst_status: string | null
+          agent_commission: number | null
           pickup_drop_guest_count: number | null
           pickup_drop_price: number | null
           region_id: string | null
@@ -125,6 +128,9 @@ export type Database = {
           pickup_location?: string | null
           agent_name?: string | null
           agent_number?: string | null
+          gst_rate?: number | null
+          gst_status?: string | null
+          agent_commission?: number | null
           pickup_drop_guest_count?: number | null
           pickup_drop_price?: number | null
           region_id?: string | null
@@ -161,6 +167,9 @@ export type Database = {
           pickup_location?: string | null
           agent_name?: string | null
           agent_number?: string | null
+          gst_rate?: number | null
+          gst_status?: string | null
+          agent_commission?: number | null
           pickup_drop_guest_count?: number | null
           pickup_drop_price?: number | null
           region_id?: string | null

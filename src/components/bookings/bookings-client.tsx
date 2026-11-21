@@ -13,7 +13,7 @@ import { PageHeaderIcon } from "@/components/page-header-icon";
 import { DownloadButton } from "@/components/motion/download-button";
 import { isPerGuestCategory } from "@/lib/booking-yacht";
 import { bookingCategoryDetails } from "@/lib/booking-display";
-import { computeProfit, effectiveB2bPrice, effectiveSalePrice } from "@/lib/booking-pricing";
+import { effectiveB2bPrice, effectiveSalePrice } from "@/lib/booking-pricing";
 import type { BookingProduct, BookingRow } from "@/types/booking";
 import type { Profile } from "@/types/profile";
 import { isPrivileged, isStaffRole, isAccountant } from "@/lib/auth/roles";
@@ -97,12 +97,14 @@ export function BookingsClient({
       "SELLEMENT ID", "SETTLED BY", "INCLUSIONS", "SAILOR", "REMARKS", "AGENT",
       "AGENT COMMISSION", "GST", "BOOKING ID", "GST STATUS", "TDS", "TDS STATUS", "SOURCE",
     ];
-    const rows = visibleBookings.map((b) => {
+    const rows = visibleBookings.map((b, i) => {
+      const r = i + 2; // spreadsheet row (row 1 is the header)
       const total = effectiveSalePrice(b);
-      const advance = b.advance_amount ?? 0;
-      const balance = total != null ? total - advance : "";
+      const gstRate = b.gst_rate ?? null;
+      // GST only when a rate is picked on the booking; TDS is 1% of the GST bill (sale price + GST).
+      const gstAmount = gstRate && total != null ? Number(((total * gstRate) / 100).toFixed(2)) : "";
+      const tdsAmount = typeof gstAmount === "number" && total != null ? Number(((total + gstAmount) / 100).toFixed(2)) : "";
       const b2bPrice = canSeeProfit ? effectiveB2bPrice(b) : null;
-      const profit = canSeeProfit ? computeProfit(b) : null;
       const perGuest = isPerGuestCategory(b.item?.category);
       const reportAdults =
         canSeeProfit && b.b2b_price != null
@@ -117,7 +119,7 @@ export function BookingsClient({
         b.item?.name ?? "",
         b.transport_type ? (TRANSPORT_LABEL[b.transport_type] ?? b.transport_type) : "",
         formatCsvDate(b.enquiry_date),
-        formatCsvDate(b.created_at),
+        formatCsvDate(b.booking_date),
         b.vendor?.name ?? "",
         formatCsvDate(b.booking_date),
         b.customer_name,
@@ -131,12 +133,12 @@ export function BookingsClient({
         b2bPrice ?? "", // TOTAL REPORT (includes pickup/drop)
         total ?? "",
         b.advance_amount ?? "",
-        balance,
+        `=T${r}`, // BALANCE = PAID BY CUSTOMER
         b.advance_amount ?? "", // PAID BY CUSTOMER
-        "", // SETTLED TO VENDOR
-        b2bPrice ?? "", // TO BE PAID (vendor B2B cost)
-        balance, // TO BE RECEIVED
-        profit ?? "",
+        "", // SETTLED TO VENDOR: filled by hand after download
+        canSeeProfit && b2bPrice != null ? `=P${r}-T${r}-U${r}` : "", // TO BE PAID
+        canSeeProfit && b2bPrice != null ? `=P${r}-T${r}+U${r}` : "", // TO BE RECEIVED
+        canSeeProfit && b2bPrice != null && total != null ? `=Q${r}-P${r}` : "", // EARNING
         b.adv_paid_to ?? "",
         formatCsvDate(b.created_at), // ADV PAID DATE: day the booking was added
         b.transaction_id ?? "",
@@ -145,9 +147,12 @@ export function BookingsClient({
         b.creator?.full_name ?? "", // SAILOR: employee who added the booking
         bookingCategoryDetails(b) ?? "",
         [b.agent_name, b.agent_number].filter(Boolean).join(" · "), // AGENT
-        "", "", // AGENT COMMISSION / GST
+        b.agent_commission ?? "", // AGENT COMMISSION
+        gstAmount, // GST
         b.id,
-        "", "", "", "", // GST STATUS / TDS / TDS STATUS / SOURCE
+        gstRate ? (b.gst_status ?? "") : "", // GST STATUS
+        tdsAmount, // TDS
+        "", "", // TDS STATUS / SOURCE
       ];
     });
     const date = new Date().toISOString().slice(0, 10);
