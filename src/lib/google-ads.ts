@@ -147,7 +147,7 @@ export async function fetchCampaigns(start: string, end: string): Promise<AdCamp
           query: `SELECT campaign.id, campaign.name, campaign.status, campaign_budget.id,
       campaign_budget.amount_micros, metrics.cost_micros, metrics.clicks,
       metrics.impressions, metrics.conversions
-      FROM campaign WHERE campaign.status = 'ENABLED' AND segments.date BETWEEN '${start}' AND '${end}'
+      FROM campaign WHERE campaign.status = 'ENABLED' AND campaign.primary_status NOT IN ('ENDED', 'PENDING', 'REMOVED') AND segments.date BETWEEN '${start}' AND '${end}'
       ORDER BY metrics.cost_micros DESC`,
         },
         a.id,
