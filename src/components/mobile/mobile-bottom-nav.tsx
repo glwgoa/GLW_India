@@ -14,6 +14,7 @@ import {
   LogOut,
   Tags,
   Receipt,
+  Megaphone,
 } from "lucide-react";
 import { signOut } from "@/lib/actions/auth";
 import type { Profile } from "@/types/profile";
@@ -42,6 +43,12 @@ const NAV_ITEMS = [
     href: "/mis-reports",
     label: "MIS Reports",
     icon: BarChart3,
+    roles: ["admin", "developer", "project_manager"] as const,
+  },
+  {
+    href: "/google-ads",
+    label: "Google Ads",
+    icon: Megaphone,
     roles: ["admin", "developer", "project_manager"] as const,
   },
   {
