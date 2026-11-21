@@ -136,7 +136,8 @@ async function clientAccounts(): Promise<{ id: string; name: string }[]> {
 }
 
 /** Campaigns (last 30 days) from every client account. */
-export async function fetchCampaigns(): Promise<AdCampaign[]> {
+export async function fetchCampaigns(start: string, end: string): Promise<AdCampaign[]> {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(start) || !/^\d{4}-\d{2}-\d{2}$/.test(end)) throw new Error("Invalid date range.");
   const accounts = await clientAccounts();
   const perAccount = await Promise.all(
     accounts.map(async (a) => {
@@ -146,7 +147,7 @@ export async function fetchCampaigns(): Promise<AdCampaign[]> {
           query: `SELECT campaign.id, campaign.name, campaign.status, campaign_budget.id,
       campaign_budget.amount_micros, metrics.cost_micros, metrics.clicks,
       metrics.impressions, metrics.conversions
-      FROM campaign WHERE campaign.status != 'REMOVED' AND segments.date DURING LAST_30_DAYS
+      FROM campaign WHERE campaign.status = 'ENABLED' AND segments.date BETWEEN '${start}' AND '${end}'
       ORDER BY metrics.cost_micros DESC`,
         },
         a.id,
