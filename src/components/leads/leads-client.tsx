@@ -42,11 +42,58 @@ function formatDate(iso: string) {
 
 const selectClass = "h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm";
 
+type Range = "today" | "yesterday" | "7d" | "month" | "all" | "custom";
+
+const RANGES: { value: Range; label: string }[] = [
+  { value: "today", label: "Today" },
+  { value: "yesterday", label: "Yesterday" },
+  { value: "7d", label: "Last 7 days" },
+  { value: "month", label: "This month" },
+  { value: "all", label: "All time" },
+  { value: "custom", label: "Custom" },
+];
+
+/** YYYY-MM-DD of a moment in India time. */
+function istDay(d: Date | string) {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Kolkata" }).format(new Date(d));
+}
+
+function shiftDay(day: string, days: number) {
+  const d = new Date(`${day}T12:00:00+05:30`);
+  d.setDate(d.getDate() + days);
+  return istDay(d);
+}
+
+/** Inclusive from/to days for a preset; null means open-ended. */
+function rangeDays(range: Range, from: string, to: string): [string | null, string | null] {
+  const today = istDay(new Date());
+  switch (range) {
+    case "today":
+      return [today, today];
+    case "yesterday":
+      return [shiftDay(today, -1), shiftDay(today, -1)];
+    case "7d":
+      return [shiftDay(today, -6), today];
+    case "month":
+      return [`${today.slice(0, 7)}-01`, today];
+    case "custom":
+      return [from || null, to || null];
+    default:
+      return [null, null];
+  }
+}
+
+const leadTime = (lead: LeadListRow) => lead.lead_created_at ?? lead.created_at;
+
 export function LeadsClient({ leads, bookings, error }: { leads: LeadListRow[]; bookings: LeadBooking[]; error: string | null }) {
   const [brand, setBrand] = useState("all");
   const [source, setSource] = useState("all");
   const [booked, setBooked] = useState("all");
   const [search, setSearch] = useState("");
+  const [range, setRange] = useState<Range>("today");
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const [newestFirst, setNewestFirst] = useState(true);
 
   // A lead is booked when a booking links to it, or (unlinked) shares its phone number.
   const bookingFor = useMemo(() => {
@@ -68,17 +115,24 @@ export function LeadsClient({ leads, bookings, error }: { leads: LeadListRow[]; 
 
   const rows = useMemo(() => {
     const q = search.trim().toLowerCase();
+    const [fromDay, toDay] = rangeDays(range, from, to);
     return leads
-      .map((lead) => ({ lead, booking: bookingFor(lead) }))
-      .filter(({ lead, booking }) => {
+      .map((lead) => ({ lead, booking: bookingFor(lead), day: istDay(leadTime(lead)) }))
+      .filter(({ lead, booking, day }) => {
+        if (fromDay && day < fromDay) return false;
+        if (toDay && day > toDay) return false;
         if (brand !== "all" && (lead.brand ?? NO_BRAND) !== brand) return false;
         if (source !== "all" && (lead.source ?? "Not set") !== source) return false;
         if (booked === "yes" && !booking) return false;
         if (booked === "no" && booking) return false;
         if (!q) return true;
         return [lead.contact_name, lead.phone, lead.utm_campaign, String(lead.kommo_lead_id)].some((v) => v?.toLowerCase().includes(q));
+      })
+      .sort((a, b) => {
+        const diff = new Date(leadTime(a.lead)).getTime() - new Date(leadTime(b.lead)).getTime();
+        return newestFirst ? -diff : diff;
       });
-  }, [leads, bookingFor, brand, source, booked, search]);
+  }, [leads, bookingFor, brand, source, booked, search, range, from, to, newestFirst]);
 
   const bookedCount = rows.filter((r) => r.booking).length;
   const conversion = rows.length ? Math.round((bookedCount / rows.length) * 100) : 0;
@@ -88,7 +142,7 @@ export function LeadsClient({ leads, bookings, error }: { leads: LeadListRow[]; 
       "leads.csv",
       ["Date", "Kommo ID", "Contact", "Phone", "Brand", "Source", "UTM source", "UTM medium", "Campaign", "GCLID", "Booked", "Booking date"],
       rows.map(({ lead, booking }) => [
-        formatDate(lead.lead_created_at ?? lead.created_at),
+        formatDate(leadTime(lead)),
         lead.kommo_lead_id,
         lead.contact_name ?? "",
         lead.phone ?? "",
@@ -138,6 +192,20 @@ export function LeadsClient({ leads, bookings, error }: { leads: LeadListRow[]; 
               onChange={(e) => setSearch(e.target.value)}
               className="h-8 w-full sm:w-64"
             />
+            <select aria-label="Date" value={range} onChange={(e) => setRange(e.target.value as Range)} className={selectClass}>
+              {RANGES.map((r) => (
+                <option key={r.value} value={r.value}>
+                  {r.label}
+                </option>
+              ))}
+            </select>
+            {range === "custom" && (
+              <>
+                <input type="date" aria-label="From" value={from} max={to || undefined} onChange={(e) => setFrom(e.target.value)} className={selectClass} />
+                <span className="text-sm text-muted-foreground">to</span>
+                <input type="date" aria-label="To" value={to} min={from || undefined} onChange={(e) => setTo(e.target.value)} className={selectClass} />
+              </>
+            )}
             <select aria-label="Brand" value={brand} onChange={(e) => setBrand(e.target.value)} className={selectClass}>
               <option value="all">All brands</option>
               {brands.map((b) => (
@@ -164,14 +232,23 @@ export function LeadsClient({ leads, bookings, error }: { leads: LeadListRow[]; 
 
           {rows.length === 0 ? (
             <p className="py-6 text-center text-sm text-muted-foreground">
-              {leads.length === 0 ? "No leads yet. They appear here once the Kommo webhook is connected." : "No leads match these filters."}
+              {leads.length === 0 ? "No leads yet. They appear here once the Kommo webhook is connected." : range === "today" ? "No leads yet today." : "No leads match these filters."}
             </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b text-left text-muted-foreground">
-                    <th className="py-2 pr-3 font-medium">Date</th>
+                    <th className="py-2 pr-3 font-medium">
+                      <button
+                        type="button"
+                        onClick={() => setNewestFirst((v) => !v)}
+                        className="inline-flex items-center gap-1 hover:text-foreground"
+                        aria-label={newestFirst ? "Sorted newest first; show oldest first" : "Sorted oldest first; show newest first"}
+                      >
+                        Date {newestFirst ? "↓" : "↑"}
+                      </button>
+                    </th>
                     <th className="px-2 py-2 font-medium">Contact</th>
                     <th className="px-2 py-2 font-medium">Brand</th>
                     <th className="px-2 py-2 font-medium">Source</th>
@@ -183,7 +260,7 @@ export function LeadsClient({ leads, bookings, error }: { leads: LeadListRow[]; 
                   {rows.map(({ lead, booking }) => (
                     <tr key={lead.id} className="border-b align-top">
                       <td className="whitespace-nowrap py-2 pr-3 text-muted-foreground">
-                        {formatDate(lead.lead_created_at ?? lead.created_at)}
+                        {formatDate(leadTime(lead))}
                       </td>
                       <td className="px-2 py-2">
                         <div className="font-medium">{lead.contact_name ?? "Unnamed"}</div>
