@@ -50,7 +50,7 @@ export function BookingsClient({
   const [toDate, setToDate] = useState("");
   const [view, setView] = useState<"daily" | "monthly">("monthly");
   const [brandFilter, setBrandFilter] = useState("all"); // "all" | "none" | brand name
-  const [dateField, setDateField] = useState<"booking" | "added">("booking");
+  const [dateField, setDateField] = useState<"booking" | "added" | "enquiry">("booking");
 
   const brands = useMemo(
     () => [...new Set(bookings.map((b) => b.brand).filter((x): x is string => !!x))].sort((a, b) => a.localeCompare(b)),
@@ -68,7 +68,10 @@ export function BookingsClient({
       const day =
         dateField === "booking"
           ? b.booking_date.slice(0, 10)
-          : new Date(b.created_at).toLocaleDateString("en-CA");
+          : dateField === "enquiry"
+            ? (b.enquiry_date ?? "").slice(0, 10)
+            : new Date(b.created_at).toLocaleDateString("en-CA");
+      if ((fromDate || toDate) && !day) return false;
       if (fromDate && day < fromDate) return false;
       if (toDate && day > toDate) return false;
       return true;
@@ -252,11 +255,12 @@ export function BookingsClient({
           <select
             id="booking-date-field"
             value={dateField}
-            onChange={(e) => setDateField(e.target.value as "booking" | "added")}
+            onChange={(e) => setDateField(e.target.value as "booking" | "added" | "enquiry")}
             className="h-8 w-44 rounded-lg border border-input bg-transparent px-2.5 text-sm"
           >
             <option value="booking">Booking date</option>
             <option value="added">Date added</option>
+            <option value="enquiry">Enquiry date</option>
           </select>
         </div>
         {hasFilters && (
