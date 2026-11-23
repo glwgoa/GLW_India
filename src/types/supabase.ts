@@ -66,6 +66,8 @@ export type Database = {
         Row: {
           add_ons: string[] | null
           advance_amount: number | null
+          confirmation_sent_at: string | null
+          confirmation_sent_by: string | null
           anchorage_hours: number | null
           assigned_employee_id: string | null
           assigned_vendor_id: string | null
@@ -109,6 +111,8 @@ export type Database = {
         Insert: {
           add_ons?: string[] | null
           advance_amount?: number | null
+          confirmation_sent_at?: string | null
+          confirmation_sent_by?: string | null
           anchorage_hours?: number | null
           assigned_employee_id?: string | null
           assigned_vendor_id?: string | null
@@ -152,6 +156,8 @@ export type Database = {
         Update: {
           add_ons?: string[] | null
           advance_amount?: number | null
+          confirmation_sent_at?: string | null
+          confirmation_sent_by?: string | null
           anchorage_hours?: number | null
           assigned_employee_id?: string | null
           assigned_vendor_id?: string | null

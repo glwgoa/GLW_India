@@ -1,11 +1,14 @@
 "use client";
 
+import { useState, useTransition } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { toast } from "sonner";
 import {
   Building2,
   CalendarClock,
   Copy,
+  Loader2,
+  MessageCircle,
   MapPin,
   Megaphone,
   Package,
@@ -23,6 +26,7 @@ import { Button } from "@/components/ui/button";
 import { computeProfit, effectiveB2bPrice, effectiveSalePrice } from "@/lib/booking-pricing";
 import { BOOKING_STATUS_LABEL, bookingCategoryDetails } from "@/lib/booking-display";
 import { generateBookingConfirmation } from "@/lib/booking-confirmation";
+import { sendBookingConfirmation } from "@/lib/actions/bookings";
 import {
   DINNER_CRUISE_CATEGORY_NAME,
   GOA_TRIP_CATEGORY_NAME,
@@ -95,12 +99,18 @@ export function BookingDetailDialog({
   onOpenChange,
   booking,
   canSeeProfit,
+  canSendConfirmation,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   booking: BookingRow;
   canSeeProfit: boolean;
+  canSendConfirmation: boolean;
 }) {
+  const [sending, startSending] = useTransition();
+  // Set right after a send, so the status shows before the bookings list refreshes.
+  const [justSent, setJustSent] = useState<{ id: string; at: string } | null>(null);
+  const sentAt = justSent?.id === booking.id ? justSent.at : booking.confirmation_sent_at;
   const shouldReduceMotion = useReducedMotion();
   const shouldAnimate = !shouldReduceMotion;
 
@@ -115,6 +125,24 @@ export function BookingDetailDialog({
     color: "var(--chart-3)",
   };
   const CategoryIcon = visual.icon;
+
+  function handleSendConfirmation() {
+    const text = generateBookingConfirmation(booking);
+    if (!text) {
+      toast.error("No confirmation template for this booking's category yet");
+      return;
+    }
+    if (sentAt && !window.confirm("A confirmation was already sent for this booking. Send it again?")) return;
+    startSending(async () => {
+      const result = await sendBookingConfirmation(booking.id, text);
+      if (result.error) {
+        toast.error(result.error);
+        return;
+      }
+      if (result.sentAt) setJustSent({ id: booking.id, at: result.sentAt });
+      toast.success(result.success ?? "Confirmation sent");
+    });
+  }
 
   async function handleCopyConfirmation() {
     const text = generateBookingConfirmation(booking);
@@ -261,11 +289,26 @@ export function BookingDetailDialog({
             initial={shouldAnimate ? "hidden" : "visible"}
             animate="visible"
             variants={shouldAnimate ? childVariants : undefined}
+            className="space-y-2"
           >
-            <Button type="button" className="w-full" onClick={handleCopyConfirmation}>
-              <Copy />
-              Copy confirmation
-            </Button>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Button type="button" variant="outline" className="sm:flex-1" onClick={handleCopyConfirmation}>
+                <Copy />
+                Copy confirmation
+              </Button>
+              {canSendConfirmation && booking.customer_contact && (
+                <Button type="button" className="sm:flex-1" onClick={handleSendConfirmation} disabled={sending}>
+                  {sending ? <Loader2 className="animate-spin" /> : <MessageCircle />}
+                  {sending ? "Sending…" : sentAt ? "Resend on WhatsApp" : "Send on WhatsApp"}
+                </Button>
+              )}
+            </div>
+            {sentAt && (
+              <p className="text-center text-xs text-muted-foreground">
+                Confirmation sent on WhatsApp{" "}
+                {new Date(sentAt).toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" })}
+              </p>
+            )}
           </motion.div>
         </div>
       </DialogContent>

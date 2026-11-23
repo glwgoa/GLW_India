@@ -63,6 +63,8 @@ export type BookingRow = {
   /** Where the customer came from (one of LEAD_SOURCES), set from a linked Kommo lead or by hand. */
   source: string | null;
   kommo_lead_id: string | null;
+  /** Last time the confirmation was sent to the customer on WhatsApp through Kommo. */
+  confirmation_sent_at: string | null;
   utm_campaign: string | null;
   gclid: string | null;
   transaction_id: string | null;

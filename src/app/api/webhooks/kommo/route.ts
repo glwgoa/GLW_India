@@ -2,6 +2,7 @@ import { timingSafeEqual } from "node:crypto";
 import { after, NextResponse, type NextRequest } from "next/server";
 import { createClient as createServiceRoleClient } from "@supabase/supabase-js";
 import { normalizeLeadSource, phoneDigits } from "@/lib/lead-source";
+import { kommoFetch, KommoError } from "@/lib/kommo";
 
 /**
  * Kommo "lead added / lead status changed" webhook: /api/webhooks/kommo?secret=...
@@ -111,24 +112,13 @@ function fieldValue(
   return v == null || v === "" ? null : String(v);
 }
 
-async function kommoGet<T>(
-  subdomain: string,
-  token: string,
-  path: string,
-): Promise<T | null> {
-  // Accept "acme", "acme.kommo.com" or "https://acme.kommo.com/".
-  const host = subdomain
-    .trim()
-    .replace(/^https?:\/\//, "")
-    .replace(/\/.*$/, "")
-    .replace(/\.kommo\.com$/, "");
-  const res = await fetch(`https://${host}.kommo.com/api/v4${path}`, {
-    headers: { Authorization: `Bearer ${token}` },
-    cache: "no-store",
-  });
-  if (res.status === 204 || res.status === 404) return null;
-  if (!res.ok) throw new Error(`Kommo ${path} → ${res.status}`);
-  return (await res.json()) as T;
+async function kommoGet<T>(subdomain: string, token: string, path: string): Promise<T | null> {
+  try {
+    return await kommoFetch<T>(subdomain, token, path);
+  } catch (e) {
+    if (e instanceof KommoError && e.status === 404) return null;
+    throw e;
+  }
 }
 
 type KommoEnv = { subdomain: string; token: string; supabaseUrl: string; serviceRoleKey: string };

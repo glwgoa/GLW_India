@@ -351,6 +351,7 @@ export function BookingsTable({
           onOpenChange={(o) => !o && setSelectedBooking(null)}
           booking={selectedBooking}
           canSeeProfit={canSeeProfit}
+          canSendConfirmation={canManageBookings}
         />
       )}
     </div>
