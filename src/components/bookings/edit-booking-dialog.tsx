@@ -43,6 +43,7 @@ import {
   parsePackageKey,
 } from "@/lib/yacht-packages";
 import { BRAND_NAMES } from "@/lib/brands";
+import { LEAD_SOURCES } from "@/lib/lead-source";
 import { ADV_PAID_TO_OPTIONS } from "@/lib/booking-display";
 import { isPrivileged } from "@/lib/auth/roles";
 import type { BookingProduct, BookingRow, BookingStatus, TransportType } from "@/types/booking";
@@ -96,6 +97,7 @@ export function EditBookingDialog({
   const [submitting, setSubmitting] = useState(false);
   const [vendorId, setVendorId] = useState(booking.assigned_vendor_id ?? "");
   const [brand, setBrand] = useState(booking.brand ?? "");
+  const [source, setSource] = useState(booking.source ?? "");
   const [employeeId, setEmployeeId] = useState<string>(booking.assigned_employee_id ?? "");
   const [productId, setProductId] = useState(booking.item_id ?? "");
   const [salePrice, setSalePrice] = useState(booking.sale_price != null ? String(booking.sale_price) : "");
@@ -216,6 +218,7 @@ export function EditBookingDialog({
         customer_name: customerName,
         customer_contact: showContactNumber ? customerContact : null,
         brand: brand || null,
+        source: source || null,
         assigned_vendor_id: vendorId || null,
         assigned_employee_id: canAssignEmployee ? employeeId || null : booking.assigned_employee_id,
         item_id: productId || null,
@@ -320,6 +323,21 @@ export function EditBookingDialog({
                   {BRAND_NAMES.map((b) => (
                     <SelectItem key={b} value={b}>
                       {b}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Lead source</Label>
+              <Select value={source} onValueChange={(v) => setSource(v ?? "")}>
+                <SelectTrigger>
+                  <SelectValue>{(value: string) => value || "Select source"}</SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {[...new Set([...LEAD_SOURCES, ...(booking.source ? [booking.source] : [])])].map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
                     </SelectItem>
                   ))}
                 </SelectContent>

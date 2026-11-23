@@ -7,6 +7,7 @@ import {
   CalendarClock,
   Copy,
   MapPin,
+  Megaphone,
   Package,
   Phone,
   Receipt,
@@ -229,6 +230,8 @@ export function BookingDetailDialog({
               />
             )}
             {booking.brand && <InfoRow icon={Building2} label="Brand" value={booking.brand} />}
+            {booking.source && <InfoRow icon={Megaphone} label="Source" value={booking.source} />}
+            {booking.utm_campaign && <InfoRow icon={Megaphone} label="Campaign" value={booking.utm_campaign} />}
             {booking.transaction_id && (
               <InfoRow icon={Receipt} label="Transaction ID" value={booking.transaction_id} />
             )}

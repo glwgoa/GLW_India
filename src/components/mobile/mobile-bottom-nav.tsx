@@ -15,6 +15,7 @@ import {
   Tags,
   Receipt,
   Megaphone,
+  Inbox,
 } from "lucide-react";
 import { signOut } from "@/lib/actions/auth";
 import type { Profile } from "@/types/profile";
@@ -23,6 +24,12 @@ import { isMobileApp } from "@/lib/platform";
 const NAV_ITEMS = [
   { href: "/", label: "Overview", icon: LayoutDashboard, roles: null },
   { href: "/bookings", label: "Bookings", icon: CalendarClock, roles: null },
+  {
+    href: "/leads",
+    label: "Leads",
+    icon: Inbox,
+    roles: ["admin", "developer", "project_manager", "employee", "accountant"] as const,
+  },
   { href: "/inventory", label: "Inventory", icon: Boxes, roles: null },
   {
     href: "/vendors",
@@ -65,9 +72,9 @@ function isActive(pathname: string, href: string) {
 
 /** Bottom tab bar shown only inside the Capacitor mobile app. */
 export function MobileBottomNav({ profile }: { profile: Profile }) {
+  const pathname = usePathname();
   if (!isMobileApp()) return null;
 
-  const pathname = usePathname();
   const items = NAV_ITEMS.filter((item) => !item.roles || item.roles.includes(profile.role as never));
 
   return (

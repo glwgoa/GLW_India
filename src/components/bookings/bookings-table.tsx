@@ -222,7 +222,14 @@ export function BookingsTable({
                   </div>
                 )}
               </TableCell>
-              <TableCell className="text-muted-foreground">{booking.brand ?? "—"}</TableCell>
+              <TableCell className="text-muted-foreground">
+                <div>{booking.brand ?? "—"}</div>
+                {booking.source && (
+                  <span className="mt-0.5 inline-block rounded-full border px-1.5 py-px text-[10px] font-medium text-foreground/70">
+                    {booking.source}
+                  </span>
+                )}
+              </TableCell>
               <TableCell>{booking.item?.name ?? "—"}</TableCell>
               <TableCell>
                 {(() => {

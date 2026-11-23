@@ -3,7 +3,7 @@
 import { TimeInput } from "@/components/ui/time-input";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Loader2, Plus } from "lucide-react";
+import { Link2, Loader2, Plus, X } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,10 +46,17 @@ import {
 import { BRAND_NAMES } from "@/lib/brands";
 import { ADV_PAID_TO_OPTIONS } from "@/lib/booking-display";
 import { isPrivileged, isStaffRole } from "@/lib/auth/roles";
-import type { BookingProduct, TransportType } from "@/types/booking";
+import { LEAD_SOURCES, phoneDigits } from "@/lib/lead-source";
+import type { BookingProduct, KommoLead, TransportType } from "@/types/booking";
 import type { Profile } from "@/types/profile";
 
 const DRAFT_TTL_MS = 60 * 60 * 1000;
+const LEAD_COLUMNS = "id, kommo_lead_id, brand, contact_name, phone, phone_digits, source, utm_campaign, gclid, created_at";
+
+function leadLabel(lead: KommoLead) {
+  const when = new Date(lead.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+  return `${lead.contact_name || lead.phone || "Unnamed lead"} · ${lead.brand ?? "No brand"} · ${lead.source ?? "—"} · ${when}`;
+}
 /** Fields whose value lives in React state, so they are restored via state rather than the DOM. */
 const CONTROLLED_FIELDS = new Set(["salePrice", "kidsPrice", "startTime", "endTime"]);
 
@@ -68,6 +75,8 @@ type BookingDraft = {
     advPaidTo?: string;
     subCategory?: string;
     pickupLocation?: string;
+    source?: string;
+    linkedLead?: KommoLead | null;
   };
   fields: Record<string, string>;
 };
@@ -145,6 +154,12 @@ export function NewBookingDialog({
     () => products.find((p) => p.id === initialProductId)?.sub_category ?? "",
   );
   const [pickupLocation, setPickupLocation] = useState<string>("");
+  // Lead source: a linked Kommo lead wins; otherwise staff pick a source by hand.
+  const [source, setSource] = useState<string>("");
+  const [linkedLead, setLinkedLead] = useState<KommoLead | null>(null);
+  const [recentLeads, setRecentLeads] = useState<KommoLead[] | null>(null);
+  // Phone digits whose auto-match the user unlinked, so blur doesn't re-link it.
+  const [dismissedDigits, setDismissedDigits] = useState<string | null>(null);
 
   // Draft memory: unsaved form contents are kept in this browser for 1 hour.
   // Skipped when the dialog is opened for a specific product (initialProductId).
@@ -169,10 +184,10 @@ export function NewBookingDialog({
       }
     }
     // Nothing entered yet — don't create an empty draft.
-    if (Object.keys(fields).length === 0 && !category && !productId && !brand && !vendorId) return;
+    if (Object.keys(fields).length === 0 && !category && !productId && !brand && !vendorId && !source && !linkedLead) return;
     const draft: BookingDraft = {
       savedAt: Date.now(),
-      state: { vendorId, brand, employeeId, category, productId, salePrice, kidsPrice, addOns, transportType, advPaidTo, subCategory, pickupLocation },
+      state: { vendorId, brand, employeeId, category, productId, salePrice, kidsPrice, addOns, transportType, advPaidTo, subCategory, pickupLocation, source, linkedLead },
       fields,
     };
     try {
@@ -211,6 +226,8 @@ export function NewBookingDialog({
     setAdvPaidTo(d.advPaidTo ?? "");
     setSubCategory(d.subCategory ?? "");
     setPickupLocation(d.pickupLocation ?? "");
+    setSource(d.source ?? "");
+    setLinkedLead(d.linkedLead ?? null);
     setPendingFields(draft.fields);
     setDraftRestored(true);
   }
@@ -238,7 +255,7 @@ export function NewBookingDialog({
     const t = setTimeout(saveDraft, 300);
     return () => clearTimeout(t);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, vendorId, brand, employeeId, category, productId, salePrice, kidsPrice, addOns, transportType, advPaidTo, subCategory, pickupLocation]);
+  }, [open, vendorId, brand, employeeId, category, productId, salePrice, kidsPrice, addOns, transportType, advPaidTo, subCategory, pickupLocation, source, linkedLead]);
 
   function discardDraft() {
     clearDraft();
@@ -255,7 +272,57 @@ export function NewBookingDialog({
     setAdvPaidTo("");
     setSubCategory("");
     setPickupLocation("");
+    resetLead();
     setDraftRestored(false);
+  }
+
+  function resetLead() {
+    setSource("");
+    setLinkedLead(null);
+    setRecentLeads(null);
+    setDismissedDigits(null);
+  }
+
+  function linkLead(lead: KommoLead) {
+    setLinkedLead(lead);
+    // Fill the brand from the lead when it is still empty.
+    if (!brand && lead.brand && (BRAND_NAMES as readonly string[]).includes(lead.brand)) setBrand(lead.brand);
+  }
+
+  /** Auto-match the typed contact number to the latest Kommo lead with the same last 10 digits. */
+  async function matchLeadByPhone(contact: string) {
+    const digits = phoneDigits(contact);
+    if (!digits || linkedLead || digits === dismissedDigits) return;
+    const { data } = await createClient()
+      .from("kommo_leads")
+      .select(LEAD_COLUMNS)
+      .eq("phone_digits", digits)
+      .order("created_at", { ascending: false })
+      .limit(1);
+    const lead = (data?.[0] as KommoLead | undefined) ?? null;
+    if (lead) {
+      linkLead(lead);
+      toast.success(`Linked to Kommo lead: ${lead.contact_name || lead.phone}`);
+    }
+  }
+
+  async function loadRecentLeads() {
+    if (recentLeads) return;
+    const { data, error } = await createClient()
+      .from("kommo_leads")
+      .select(LEAD_COLUMNS)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (error) {
+      toast.error(`Could not load leads: ${error.message}`);
+      return;
+    }
+    setRecentLeads((data ?? []) as KommoLead[]);
+  }
+
+  function unlinkLead() {
+    if (linkedLead?.phone_digits) setDismissedDigits(linkedLead.phone_digits);
+    setLinkedLead(null);
   }
 
   const isGoaTrip = category === GOA_TRIP_CATEGORY_NAME;
@@ -382,6 +449,10 @@ export function NewBookingDialog({
       customer_name: customerName,
       customer_contact: showContactNumber ? customerContact : null,
       brand: brand || null,
+      kommo_lead_id: linkedLead?.id ?? null,
+      source: linkedLead?.source ?? (source || null),
+      utm_campaign: linkedLead?.utm_campaign ?? null,
+      gclid: linkedLead?.gclid ?? null,
       assigned_vendor_id: vendorId || null,
       assigned_employee_id:
         canAssignEmployee && employeeId
@@ -452,6 +523,7 @@ export function NewBookingDialog({
     setAdvPaidTo("");
     setSubCategory("");
     setPickupLocation("");
+    resetLead();
     await onAdded();
   }
 
@@ -487,10 +559,82 @@ export function NewBookingDialog({
             {showContactNumber && (
               <div className="space-y-2">
                 <Label htmlFor="customerContact">Customer contact number</Label>
-                <Input id="customerContact" name="customerContact" type="tel" />
+                <Input
+                  id="customerContact"
+                  name="customerContact"
+                  type="tel"
+                  onBlur={(e) => void matchLeadByPhone(e.target.value)}
+                />
               </div>
             )}
           </div>
+
+          {linkedLead ? (
+            <div className="flex items-start justify-between gap-2 rounded-md border px-3 py-2 text-sm">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 font-medium">
+                  <Link2 className="size-3.5 shrink-0" />
+                  <span className="truncate">{linkedLead.contact_name || linkedLead.phone || "Kommo lead"}</span>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {linkedLead.brand ?? "No brand"} · Source: {linkedLead.source ?? "—"}
+                  {linkedLead.utm_campaign ? ` · Campaign: ${linkedLead.utm_campaign}` : ""}
+                </div>
+              </div>
+              <Button type="button" variant="ghost" size="sm" onClick={unlinkLead}>
+                <X />
+                Unlink
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label>Lead source</Label>
+                <Select value={source} onValueChange={(v) => setSource(v ?? "")}>
+                  <SelectTrigger>
+                    <SelectValue>{(value: string) => value || "Select source"}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LEAD_SOURCES.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        {s}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Link Kommo lead</Label>
+                <Select
+                  value=""
+                  onOpenChange={(o) => {
+                    if (o) void loadRecentLeads();
+                  }}
+                  onValueChange={(v) => {
+                    const lead = recentLeads?.find((l) => l.id === v);
+                    if (lead) linkLead(lead);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue>{() => "Optional"}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {recentLeads === null ? (
+                      <div className="px-2 py-1.5 text-sm text-muted-foreground">Loading…</div>
+                    ) : recentLeads.length === 0 ? (
+                      <div className="px-2 py-1.5 text-sm text-muted-foreground">No leads yet</div>
+                    ) : (
+                      recentLeads.map((l) => (
+                        <SelectItem key={l.id} value={l.id}>
+                          {leadLabel(l)}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Label>Category</Label>

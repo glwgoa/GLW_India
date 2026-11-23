@@ -15,6 +15,7 @@ import {
   Tags,
   Receipt,
   Megaphone,
+  Inbox,
 } from "lucide-react";
 import { signOut } from "@/lib/actions/auth";
 import type { Profile } from "@/types/profile";
@@ -22,6 +23,12 @@ import type { Profile } from "@/types/profile";
 const NAV_ITEMS = [
   { href: "/", label: "Overview", icon: LayoutDashboard, roles: null },
   { href: "/bookings", label: "Bookings", icon: CalendarClock, roles: null },
+  {
+    href: "/leads",
+    label: "Leads",
+    icon: Inbox,
+    roles: ["admin", "developer", "project_manager", "employee", "accountant"] as const,
+  },
   { href: "/inventory", label: "Inventory", icon: Boxes, roles: null },
   {
     href: "/vendors",

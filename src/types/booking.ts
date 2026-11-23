@@ -60,6 +60,11 @@ export type BookingRow = {
   pickup_drop_price: number | null;
   pickup_drop_guest_count: number | null;
   brand: string | null;
+  /** Where the customer came from (one of LEAD_SOURCES), set from a linked Kommo lead or by hand. */
+  source: string | null;
+  kommo_lead_id: string | null;
+  utm_campaign: string | null;
+  gclid: string | null;
   transaction_id: string | null;
   created_at: string;
   vendor: { name: string; contact_phone: string | null } | null;
@@ -79,4 +84,18 @@ export type BookingRow = {
     coordinator_name: string | null;
     coordinator_phone: string | null;
   } | null;
+};
+
+/** A lead saved from the Kommo webhook. */
+export type KommoLead = {
+  id: string;
+  kommo_lead_id: number;
+  brand: string | null;
+  contact_name: string | null;
+  phone: string | null;
+  phone_digits: string | null;
+  source: string | null;
+  utm_campaign: string | null;
+  gclid: string | null;
+  created_at: string;
 };

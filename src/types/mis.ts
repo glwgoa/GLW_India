@@ -6,3 +6,8 @@ export type MonthlyBrandRow = {
   revenue: number;
   earnings: number;
 };
+
+/** Bookings from one lead source for one brand in one month (month is "YYYY-MM", by booking date). */
+export type SourceBrandRow = MonthlyBrandRow & {
+  source: string;
+};

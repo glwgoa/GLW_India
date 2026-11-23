@@ -50,10 +50,16 @@ export function BookingsClient({
   const [toDate, setToDate] = useState("");
   const [view, setView] = useState<"daily" | "monthly">("monthly");
   const [brandFilter, setBrandFilter] = useState("all"); // "all" | "none" | brand name
+  const [sourceFilter, setSourceFilter] = useState("all"); // "all" | "none" | source name
   const [dateField, setDateField] = useState<"booking" | "added" | "enquiry">("booking");
 
   const brands = useMemo(
     () => [...new Set(bookings.map((b) => b.brand).filter((x): x is string => !!x))].sort((a, b) => a.localeCompare(b)),
+    [bookings],
+  );
+
+  const sources = useMemo(
+    () => [...new Set(bookings.map((b) => b.source).filter((x): x is string => !!x))].sort((a, b) => a.localeCompare(b)),
     [bookings],
   );
 
@@ -63,6 +69,9 @@ export function BookingsClient({
         return false;
       }
       if (brandFilter === "none" ? b.brand : brandFilter !== "all" && b.brand !== brandFilter) {
+        return false;
+      }
+      if (sourceFilter === "none" ? b.source : sourceFilter !== "all" && b.source !== sourceFilter) {
         return false;
       }
       const day =
@@ -76,15 +85,16 @@ export function BookingsClient({
       if (toDate && day > toDate) return false;
       return true;
     });
-  }, [bookings, nameFilter, fromDate, toDate, brandFilter, dateField]);
+  }, [bookings, nameFilter, fromDate, toDate, brandFilter, sourceFilter, dateField]);
 
-  const hasFilters = nameFilter || fromDate || toDate || brandFilter !== "all";
+  const hasFilters = nameFilter || fromDate || toDate || brandFilter !== "all" || sourceFilter !== "all";
 
   function clearFilters() {
     setNameFilter("");
     setFromDate("");
     setToDate("");
     setBrandFilter("all");
+    setSourceFilter("all");
   }
 
   // Column order matches the accounts sheet (25-26 Columns); fields the app
@@ -155,7 +165,8 @@ export function BookingsClient({
         b.id,
         gstRate ? (b.gst_status ?? "") : "", // GST STATUS
         tdsAmount, // TDS
-        "", "", // TDS STATUS / SOURCE
+        "", // TDS STATUS
+        b.source ?? "", // SOURCE
       ];
     });
     const date = new Date().toISOString().slice(0, 10);
@@ -246,6 +257,23 @@ export function BookingsClient({
               <option key={br} value={br}>{br}</option>
             ))}
             <option value="none">No brand</option>
+          </select>
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor="booking-source-filter" className="text-xs text-muted-foreground">
+            Source
+          </Label>
+          <select
+            id="booking-source-filter"
+            value={sourceFilter}
+            onChange={(e) => setSourceFilter(e.target.value)}
+            className="h-8 w-44 rounded-lg border border-input bg-transparent px-2.5 text-sm"
+          >
+            <option value="all">All sources</option>
+            {sources.map((src) => (
+              <option key={src} value={src}>{src}</option>
+            ))}
+            <option value="none">No source</option>
           </select>
         </div>
         <div className="space-y-1.5">

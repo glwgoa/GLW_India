@@ -92,6 +92,10 @@ export type Database = {
           gst_rate: number | null
           gst_status: string | null
           agent_commission: number | null
+          kommo_lead_id: string | null
+          source: string | null
+          utm_campaign: string | null
+          gclid: string | null
           pickup_drop_guest_count: number | null
           pickup_drop_price: number | null
           region_id: string | null
@@ -131,6 +135,10 @@ export type Database = {
           gst_rate?: number | null
           gst_status?: string | null
           agent_commission?: number | null
+          kommo_lead_id?: string | null
+          source?: string | null
+          utm_campaign?: string | null
+          gclid?: string | null
           pickup_drop_guest_count?: number | null
           pickup_drop_price?: number | null
           region_id?: string | null
@@ -170,6 +178,10 @@ export type Database = {
           gst_rate?: number | null
           gst_status?: string | null
           agent_commission?: number | null
+          kommo_lead_id?: string | null
+          source?: string | null
+          utm_campaign?: string | null
+          gclid?: string | null
           pickup_drop_guest_count?: number | null
           pickup_drop_price?: number | null
           region_id?: string | null
@@ -224,6 +236,66 @@ export type Database = {
             referencedColumns: ["region_id"]
           },
         ]
+      }
+      kommo_leads: {
+        Row: {
+          id: string
+          kommo_lead_id: number
+          brand: string | null
+          contact_name: string | null
+          phone: string | null
+          phone_digits: string | null
+          source: string | null
+          utm_source: string | null
+          utm_medium: string | null
+          utm_campaign: string | null
+          ref_code: string | null
+          gclid: string | null
+          status: string | null
+          raw_payload: Json | null
+          lead_created_at: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          kommo_lead_id: number
+          brand?: string | null
+          contact_name?: string | null
+          phone?: string | null
+          phone_digits?: string | null
+          source?: string | null
+          utm_source?: string | null
+          utm_medium?: string | null
+          utm_campaign?: string | null
+          ref_code?: string | null
+          gclid?: string | null
+          status?: string | null
+          raw_payload?: Json | null
+          lead_created_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          kommo_lead_id?: number
+          brand?: string | null
+          contact_name?: string | null
+          phone?: string | null
+          phone_digits?: string | null
+          source?: string | null
+          utm_source?: string | null
+          utm_medium?: string | null
+          utm_campaign?: string | null
+          ref_code?: string | null
+          gclid?: string | null
+          status?: string | null
+          raw_payload?: Json | null
+          lead_created_at?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       catalog_items: {
         Row: {
