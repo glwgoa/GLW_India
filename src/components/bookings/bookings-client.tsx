@@ -133,11 +133,11 @@ export function BookingsClient({
         b2bPrice ?? "", // TOTAL REPORT (includes pickup/drop)
         total ?? "",
         b.advance_amount ?? "",
-        `=T${r}`, // BALANCE = PAID BY CUSTOMER
-        b.advance_amount ?? "", // PAID BY CUSTOMER
+        total != null ? `=Q${r}-R${r}` : "", // BALANCE = TOTAL - ADVANCE
+        total != null ? `=S${r}` : "", // PAID BY CUSTOMER = BALANCE
         "", // SETTLED TO VENDOR: filled by hand after download
-        canSeeProfit && b2bPrice != null ? `=P${r}-T${r}-U${r}` : "", // TO BE PAID
-        canSeeProfit && b2bPrice != null ? `=P${r}-T${r}+U${r}` : "", // TO BE RECEIVED
+        canSeeProfit && b2bPrice != null ? `=P${r}-R${r}-U${r}` : "", // TO BE PAID
+        canSeeProfit && b2bPrice != null ? `=P${r}-R${r}+U${r}` : "", // TO BE RECEIVED
         canSeeProfit && b2bPrice != null && total != null ? `=Q${r}-P${r}` : "", // EARNING
         b.adv_paid_to ?? "",
         formatCsvDate(b.created_at), // ADV PAID DATE: day the booking was added
