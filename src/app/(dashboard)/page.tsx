@@ -4,8 +4,10 @@ import {
   CalendarCheck,
   Clock3,
   Hourglass,
+  Inbox,
   KanbanSquare,
   Layers,
+  Megaphone,
   Package,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -16,15 +18,31 @@ import { activityCode } from "@/lib/booking-activity";
 import { formatBookingTime } from "@/lib/booking-display";
 import { Badge } from "@/components/ui/badge";
 
-const MODULE_TINT: Record<string, string> = {"/bookings": "from-sky-500/90 to-blue-600/90", "/inventory": "from-emerald-500/90 to-teal-600/90", "/projects": "from-violet-500/90 to-purple-600/90", "/attendance": "from-amber-400/95 to-orange-500/95", "/mis-reports": "from-rose-500/90 to-pink-600/90"};
+const MODULE_TINT: Record<string, string> = {"/bookings": "from-sky-500/90 to-blue-600/90", "/inventory": "from-emerald-500/90 to-teal-600/90", "/projects": "from-violet-500/90 to-purple-600/90", "/attendance": "from-amber-400/95 to-orange-500/95", "/mis-reports": "from-rose-500/90 to-pink-600/90", "/leads": "from-cyan-500/90 to-sky-700/90", "/google-ads": "from-indigo-500/90 to-blue-700/90"};
 
-const MODULES = [
+// roles: who sees the shortcut (matches the sidebar); null means everyone.
+const MODULES: {
+  href: string;
+  label: string;
+  description: string;
+  icon: typeof Inbox;
+  color: string;
+  roles?: readonly string[];
+}[] = [
   {
     href: "/bookings",
     label: "Bookings",
     description: "Active bookings and booking dates",
     icon: CalendarCheck,
     color: "var(--chart-1)",
+  },
+  {
+    href: "/leads",
+    label: "Leads",
+    description: "Kommo enquiries and which ones booked",
+    icon: Inbox,
+    color: "var(--chart-2)",
+    roles: ["admin", "developer", "project_manager", "employee", "accountant"],
   },
   {
     href: "/inventory",
@@ -53,6 +71,15 @@ const MODULES = [
     description: "Monthly bookings by brand",
     icon: BarChart3,
     color: "var(--chart-3)",
+    roles: ["admin", "developer", "project_manager"],
+  },
+  {
+    href: "/google-ads",
+    label: "Google Ads",
+    description: "Ad spend, clicks and conversions",
+    icon: Megaphone,
+    color: "var(--chart-1)",
+    roles: ["admin", "developer", "project_manager"],
   },
 ];
 
@@ -163,7 +190,7 @@ export default async function DashboardOverviewPage() {
         <div>
           <h2 className="mb-3 text-sm font-semibold">Modules</h2>
           <Reveal className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {MODULES.map((mod) => (
+            {MODULES.filter((mod) => !mod.roles || mod.roles.includes(profile.role)).map((mod) => (
               <RevealItem key={mod.href}>
                 <Link
                   href={mod.href}
