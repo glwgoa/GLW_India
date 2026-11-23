@@ -2,7 +2,8 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 const AUTH_ROUTES = ["/login"];
-const PUBLIC_ROUTES = ["/auth/confirm"];
+// Webhooks are called by outside services (no login); each route checks its own secret.
+const PUBLIC_ROUTES = ["/auth/confirm", "/api/webhooks/"];
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
