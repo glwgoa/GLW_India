@@ -41,6 +41,21 @@ function brandFromSource(texts: (string | null | undefined)[]) {
 }
 
 /**
+ * The brand picked in Kommo's "LEAD SOURCE" select (KOMMO_BRAND_FIELD_ID, default 1886161).
+ * Variants of the two main brands ("Waterz FB", "Life On Yachts Goa") are folded into their canonical
+ * name; any other option ("Goa Cruising", ...) is used as-is so new Kommo options show up on their own.
+ */
+function brandFromSelect(fields: KommoCustomField[] | null | undefined) {
+  const id = Number(process.env.KOMMO_BRAND_FIELD_ID || 1886161);
+  const raw = fields?.find((f) => f.field_id === id)?.values?.[0]?.value;
+  const value = raw == null ? "" : String(raw).trim();
+  if (!value) return null;
+  if (/life\s*on\s*yachts|\bloy\b/i.test(value)) return "Life on Yachts";
+  if (/waterz|gowaterz|\bwz\b/i.test(value)) return "Waterz Goa";
+  return value;
+}
+
+/**
  * Pipeline IDs we save leads from (KOMMO_PIPELINE_LOY_WZ, comma-separated). Empty means every pipeline.
  * Each entry may be the ID or the pipeline's URL (".../leads/pipeline/6262459"); the last number is used.
  */
@@ -54,6 +69,7 @@ function allowedPipeline(pipelineId: number | undefined) {
 }
 
 type KommoCustomField = {
+  field_id?: number | null;
   field_code?: string | null;
   field_name?: string | null;
   values?: { value?: unknown; enum_code?: string | null }[];
@@ -112,7 +128,11 @@ function fieldValue(
   return v == null || v === "" ? null : String(v);
 }
 
-async function kommoGet<T>(subdomain: string, token: string, path: string): Promise<T | null> {
+async function kommoGet<T>(
+  subdomain: string,
+  token: string,
+  path: string,
+): Promise<T | null> {
   try {
     return await kommoFetch<T>(subdomain, token, path);
   } catch (e) {
@@ -121,7 +141,12 @@ async function kommoGet<T>(subdomain: string, token: string, path: string): Prom
   }
 }
 
-type KommoEnv = { subdomain: string; token: string; supabaseUrl: string; serviceRoleKey: string };
+type KommoEnv = {
+  subdomain: string;
+  token: string;
+  supabaseUrl: string;
+  serviceRoleKey: string;
+};
 
 function kommoEnv(): KommoEnv | null {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -167,7 +192,11 @@ function sourceLookup(env: KommoEnv) {
 }
 
 /** The kommo_leads row for a lead, its main contact and its source name. */
-function leadRow(lead: KommoLead, contact: KommoContact | null, sourceName: string | null) {
+function leadRow(
+  lead: KommoLead,
+  contact: KommoContact | null,
+  sourceName: string | null,
+) {
   const fields = lead.custom_fields_values;
   const phone = fieldValue(contact?.custom_fields_values, "PHONE");
   const utmSource = fieldValue(fields, "UTM_SOURCE");
@@ -182,13 +211,15 @@ function leadRow(lead: KommoLead, contact: KommoContact | null, sourceName: stri
   const fieldTexts = (fields ?? []).flatMap((f) =>
     (f.values ?? []).map((v) => (v.value == null ? null : String(v.value))),
   );
-  const brand = brandFromSource([
-    sourceName,
-    lead._embedded?.source?.name,
-    ...tags,
-    ...fieldTexts,
-    lead.name,
-  ]);
+  const brand =
+    brandFromSelect(fields) ??
+    brandFromSource([
+      sourceName,
+      lead._embedded?.source?.name,
+      ...tags,
+      ...fieldTexts,
+      lead.name,
+    ]);
   return {
     kommo_lead_id: lead.id,
     brand,
@@ -233,13 +264,19 @@ async function syncLead(leadId: number) {
 
   const contactId = mainContactId(lead);
   const contact = contactId
-    ? await kommoGet<KommoContact>(env.subdomain, env.token, `/contacts/${contactId}`)
+    ? await kommoGet<KommoContact>(
+        env.subdomain,
+        env.token,
+        `/contacts/${contactId}`,
+      )
     : null;
   const sourceName = await sourceLookup(env)(lead.source_id);
 
   const { error } = await serviceClient(env)
     .from("kommo_leads")
-    .upsert(leadRow(lead, contact, sourceName), { onConflict: "kommo_lead_id" });
+    .upsert(leadRow(lead, contact, sourceName), {
+      onConflict: "kommo_lead_id",
+    });
   if (error)
     console.error(`Kommo webhook: saving lead ${leadId} failed`, error.message);
 }
@@ -253,7 +290,9 @@ async function backfillLeads(fromDate: string) {
   if (!env) return;
   const supabase = serviceClient(env);
   const sourceName = sourceLookup(env);
-  const from = Math.floor(new Date(`${fromDate}T00:00:00+05:30`).getTime() / 1000);
+  const from = Math.floor(
+    new Date(`${fromDate}T00:00:00+05:30`).getTime() / 1000,
+  );
   const pipelineIds = (process.env.KOMMO_PIPELINE_LOY_WZ ?? "")
     .split(",")
     .map((x) => x.trim().match(/(\d+)\/?$/)?.[1])
@@ -273,32 +312,46 @@ async function backfillLeads(fromDate: string) {
       env.token,
       `/leads?${query}`,
     );
-    const leads = (res?._embedded?.leads ?? []).filter((l) => allowedPipeline(l.pipeline_id));
+    const leads = (res?._embedded?.leads ?? []).filter((l) =>
+      allowedPipeline(l.pipeline_id),
+    );
     if (leads.length === 0 && !res?._embedded?.leads?.length) break;
 
-    const contactIds = [...new Set(leads.map(mainContactId).filter((id): id is number => id != null))];
+    const contactIds = [
+      ...new Set(
+        leads.map(mainContactId).filter((id): id is number => id != null),
+      ),
+    ];
     const contacts = new Map<number, KommoContact>();
     for (let i = 0; i < contactIds.length; i += 250) {
       const q = new URLSearchParams({ limit: "250" });
-      for (const id of contactIds.slice(i, i + 250)) q.append("filter[id][]", String(id));
-      const batch = await kommoGet<{ _embedded?: { contacts?: KommoContact[] } }>(
-        env.subdomain,
-        env.token,
-        `/contacts?${q}`,
-      );
+      for (const id of contactIds.slice(i, i + 250))
+        q.append("filter[id][]", String(id));
+      const batch = await kommoGet<{
+        _embedded?: { contacts?: KommoContact[] };
+      }>(env.subdomain, env.token, `/contacts?${q}`);
       for (const c of batch?._embedded?.contacts ?? []) contacts.set(c.id, c);
     }
 
     const rows = await Promise.all(
       leads.map(async (lead) => {
         const id = mainContactId(lead);
-        return leadRow(lead, id ? contacts.get(id) ?? null : null, await sourceName(lead.source_id));
+        return leadRow(
+          lead,
+          id ? (contacts.get(id) ?? null) : null,
+          await sourceName(lead.source_id),
+        );
       }),
     );
     if (rows.length) {
-      const { error } = await supabase.from("kommo_leads").upsert(rows, { onConflict: "kommo_lead_id" });
+      const { error } = await supabase
+        .from("kommo_leads")
+        .upsert(rows, { onConflict: "kommo_lead_id" });
       if (error) {
-        console.error(`Kommo backfill: saving page ${page} failed`, error.message);
+        console.error(
+          `Kommo backfill: saving page ${page} failed`,
+          error.message,
+        );
         return;
       }
       saved += rows.length;
@@ -331,11 +384,17 @@ export async function POST(request: NextRequest) {
       if (json.backfill_from) {
         const fromDate = json.backfill_from;
         if (!/^\d{4}-\d{2}-\d{2}$/.test(fromDate)) {
-          return NextResponse.json({ error: "backfill_from must be YYYY-MM-DD" }, { status: 400 });
+          return NextResponse.json(
+            { error: "backfill_from must be YYYY-MM-DD" },
+            { status: 400 },
+          );
         }
         after(() =>
           backfillLeads(fromDate).catch((e) =>
-            console.error("Kommo backfill failed", e instanceof Error ? e.message : e),
+            console.error(
+              "Kommo backfill failed",
+              e instanceof Error ? e.message : e,
+            ),
           ),
         );
         return NextResponse.json({ ok: true, backfill_from: fromDate });
