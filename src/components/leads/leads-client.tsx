@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { DownloadButton } from "@/components/motion/download-button";
 import { downloadCsv } from "@/lib/csv";
-import { LEAD_SOURCES, phoneDigits } from "@/lib/lead-source";
+import { LEAD_SOURCES, allPhoneDigits } from "@/lib/lead-source";
 
 export type LeadListRow = {
   id: string;
@@ -101,8 +101,9 @@ export function LeadsClient({ leads, bookings, error }: { leads: LeadListRow[]; 
     const byPhone = new Map<string, LeadBooking>();
     for (const b of bookings) {
       if (b.kommo_lead_id && !byLead.has(b.kommo_lead_id)) byLead.set(b.kommo_lead_id, b);
-      const digits = phoneDigits(b.customer_contact);
-      if (digits && !byPhone.has(digits)) byPhone.set(digits, b);
+      for (const digits of allPhoneDigits(b.customer_contact)) {
+        if (!byPhone.has(digits)) byPhone.set(digits, b);
+      }
     }
     return (lead: LeadListRow) => byLead.get(lead.id) ?? (lead.phone_digits ? byPhone.get(lead.phone_digits) : undefined) ?? null;
   }, [bookings]);

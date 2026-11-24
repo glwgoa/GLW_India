@@ -41,6 +41,16 @@ export function normalizeLeadSource({ utmSource, utmMedium, gclid, channel }: So
 }
 
 /** Last 10 digits of a phone number, so "+91 98765-43210" and "9876543210" match. */
+/** Every phone number in a free-text field ("98886 37038, 75039 93431" gives both), as last-10-digit keys. */
+export function allPhoneDigits(text: string | null | undefined): string[] {
+  const out = new Set<string>();
+  for (const part of (text ?? "").split(/[,;/|&\n]|\s{2,}|\band\b|\bor\b/i)) {
+    const d = phoneDigits(part);
+    if (d) out.add(d);
+  }
+  return [...out];
+}
+
 export function phoneDigits(phone: string | null | undefined): string | null {
   const digits = (phone ?? "").replace(/\D/g, "");
   return digits.length >= 10 ? digits.slice(-10) : null;
