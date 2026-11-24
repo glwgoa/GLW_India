@@ -4,6 +4,7 @@ import { UniversalSearch } from "@/components/universal-search";
 import { PageTransition } from "@/components/motion/page-transition";
 import { Suspense } from "react";
 import { NavProgress } from "@/components/nav-progress";
+import { NewLeadAlerts } from "@/components/leads/new-lead-alerts";
 import { MobileBottomNav } from "@/components/mobile/mobile-bottom-nav";
 
 export default async function DashboardLayout({
@@ -47,6 +48,9 @@ export default async function DashboardLayout({
       <Suspense fallback={null}>
         <NavProgress />
       </Suspense>
+      {["admin", "developer", "project_manager", "employee", "accountant"].includes(profile.role) && (
+        <NewLeadAlerts />
+      )}
       <MobileBottomNav profile={profile} />
     </>
   );
