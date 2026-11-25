@@ -85,6 +85,35 @@ function rangeDays(range: Range, from: string, to: string): [string | null, stri
 
 const leadTime = (lead: LeadListRow) => lead.lead_created_at ?? lead.created_at;
 
+/** One person: every Kommo lead sharing a phone number (or a lone lead with no phone), newest first. */
+type Person = {
+  key: string;
+  leads: LeadListRow[];
+  brands: (string | null)[];
+  sources: (string | null)[];
+};
+
+const distinct = <T,>(values: T[]) => [...new Set(values)];
+
+function groupByPerson(leads: LeadListRow[]): Person[] {
+  const groups = new Map<string, LeadListRow[]>();
+  for (const lead of leads) {
+    const key = lead.phone_digits ? `p:${lead.phone_digits}` : `k:${lead.kommo_lead_id}`;
+    const list = groups.get(key);
+    if (list) list.push(lead);
+    else groups.set(key, [lead]);
+  }
+  return [...groups].map(([key, list]) => {
+    list.sort((a, b) => new Date(leadTime(b)).getTime() - new Date(leadTime(a)).getTime());
+    return {
+      key,
+      leads: list,
+      brands: distinct(list.map((l) => l.brand)).sort((a, b) => (a ?? "~").localeCompare(b ?? "~")),
+      sources: distinct(list.map((l) => l.source)),
+    };
+  });
+}
+
 export function LeadsClient({ leads, bookings, error }: { leads: LeadListRow[]; bookings: LeadBooking[]; error: string | null }) {
   const [brand, setBrand] = useState("all");
   const [source, setSource] = useState("all");
@@ -105,8 +134,11 @@ export function LeadsClient({ leads, bookings, error }: { leads: LeadListRow[]; 
         if (!byPhone.has(digits)) byPhone.set(digits, b);
       }
     }
-    return (lead: LeadListRow) => byLead.get(lead.id) ?? (lead.phone_digits ? byPhone.get(lead.phone_digits) : undefined) ?? null;
+    const forLead = (lead: LeadListRow) => byLead.get(lead.id) ?? (lead.phone_digits ? byPhone.get(lead.phone_digits) : undefined);
+    return (person: Person) => person.leads.map(forLead).find(Boolean) ?? null;
   }, [bookings]);
+
+  const people = useMemo(() => groupByPerson(leads), [leads]);
 
   const brands = useMemo(() => [...new Set(leads.map((l) => l.brand ?? NO_BRAND))].sort(), [leads]);
   const sources = useMemo(() => {
@@ -117,23 +149,28 @@ export function LeadsClient({ leads, bookings, error }: { leads: LeadListRow[]; 
   const rows = useMemo(() => {
     const q = search.trim().toLowerCase();
     const [fromDay, toDay] = rangeDays(range, from, to);
-    return leads
-      .map((lead) => ({ lead, booking: bookingFor(lead), day: istDay(leadTime(lead)) }))
-      .filter(({ lead, booking, day }) => {
-        if (fromDay && day < fromDay) return false;
-        if (toDay && day > toDay) return false;
-        if (brand !== "all" && (lead.brand ?? NO_BRAND) !== brand) return false;
-        if (source !== "all" && (lead.source ?? "Not set") !== source) return false;
-        if (booked === "yes" && !booking) return false;
-        if (booked === "no" && booking) return false;
-        if (!q) return true;
-        return [lead.contact_name, lead.phone, lead.utm_campaign, String(lead.kommo_lead_id)].some((v) => v?.toLowerCase().includes(q));
+    return people
+      .flatMap((person) => {
+        // The newest enquiry inside the date range stands for the person.
+        const lead = person.leads.find((l) => {
+          const day = istDay(leadTime(l));
+          return (!fromDay || day >= fromDay) && (!toDay || day <= toDay);
+        });
+        if (!lead) return [];
+        const booking = bookingFor(person);
+        if (brand !== "all" && !person.brands.some((b) => (b ?? NO_BRAND) === brand)) return [];
+        if (source !== "all" && !person.sources.some((s) => (s ?? "Not set") === source)) return [];
+        if (booked === "yes" && !booking) return [];
+        if (booked === "no" && booking) return [];
+        if (q && !person.leads.some((l) => [l.contact_name, l.phone, l.utm_campaign, String(l.kommo_lead_id)].some((v) => v?.toLowerCase().includes(q)))) return [];
+        const name = person.leads.find((l) => l.contact_name)?.contact_name ?? null;
+        return [{ person, lead, name, booking }];
       })
       .sort((a, b) => {
         const diff = new Date(leadTime(a.lead)).getTime() - new Date(leadTime(b.lead)).getTime();
         return newestFirst ? -diff : diff;
       });
-  }, [leads, bookingFor, brand, source, booked, search, range, from, to, newestFirst]);
+  }, [people, bookingFor, brand, source, booked, search, range, from, to, newestFirst]);
 
   const bookedCount = rows.filter((r) => r.booking).length;
   const conversion = rows.length ? Math.round((bookedCount / rows.length) * 100) : 0;
@@ -141,14 +178,14 @@ export function LeadsClient({ leads, bookings, error }: { leads: LeadListRow[]; 
   function handleDownload() {
     downloadCsv(
       "leads.csv",
-      ["Date", "Kommo ID", "Contact", "Phone", "Brand", "Source", "UTM source", "UTM medium", "Campaign", "GCLID", "Booked", "Booking date"],
-      rows.map(({ lead, booking }) => [
+      ["Date", "Kommo IDs", "Contact", "Phone", "Brands", "Sources", "UTM source", "UTM medium", "Campaign", "GCLID", "Booked", "Booking date"],
+      rows.map(({ person, lead, name, booking }) => [
         formatDate(leadTime(lead)),
-        lead.kommo_lead_id,
-        lead.contact_name ?? "",
+        person.leads.map((l) => l.kommo_lead_id).join(", "),
+        name ?? "",
         lead.phone ?? "",
-        lead.brand ?? NO_BRAND,
-        lead.source ?? "",
+        person.brands.map((b) => b ?? NO_BRAND).join(", "),
+        person.sources.filter(Boolean).join(", "),
         lead.utm_source ?? "",
         lead.utm_medium ?? "",
         lead.utm_campaign ?? "",
@@ -258,18 +295,41 @@ export function LeadsClient({ leads, bookings, error }: { leads: LeadListRow[]; 
                   </tr>
                 </thead>
                 <tbody>
-                  {rows.map(({ lead, booking }) => (
-                    <tr key={lead.id} className="border-b align-top">
+                  {rows.map(({ person, lead, name, booking }) => (
+                    <tr key={person.key} className="border-b align-top">
                       <td className="whitespace-nowrap py-2 pr-3 text-muted-foreground">
                         {formatDate(leadTime(lead))}
                       </td>
                       <td className="px-2 py-2">
-                        <div className="font-medium">{lead.contact_name ?? "Unnamed"}</div>
+                        <div className="font-medium">{name ?? "Unnamed"}</div>
                         <div className="text-xs text-muted-foreground">{lead.phone ?? "No phone"}</div>
+                        {person.leads.length > 1 && <div className="text-xs text-muted-foreground">{person.leads.length} enquiries</div>}
                       </td>
-                      <td className="whitespace-nowrap px-2 py-2">{lead.brand ?? <span className="text-muted-foreground">{NO_BRAND}</span>}</td>
-                      <td className="whitespace-nowrap px-2 py-2">
-                        <span className="rounded-full bg-muted px-2 py-0.5 text-xs">{lead.source ?? "Not set"}</span>
+                      <td className="px-2 py-2">
+                        <div className="flex flex-wrap gap-1">
+                          {person.brands.map((b) =>
+                            b ? (
+                              <span key={b} className="whitespace-nowrap rounded-full border px-2 py-0.5 text-xs">
+                                {b}
+                              </span>
+                            ) : (
+                              person.brands.length === 1 && (
+                                <span key="none" className="text-muted-foreground">
+                                  {NO_BRAND}
+                                </span>
+                              )
+                            ),
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-2 py-2">
+                        <div className="flex flex-wrap gap-1">
+                          {person.sources.map((s) => (
+                            <span key={s ?? "none"} className="whitespace-nowrap rounded-full bg-muted px-2 py-0.5 text-xs">
+                              {s ?? "Not set"}
+                            </span>
+                          ))}
+                        </div>
                       </td>
                       <td className="px-2 py-2 text-muted-foreground">{lead.utm_campaign ?? "—"}</td>
                       <td className="whitespace-nowrap py-2 pl-2">

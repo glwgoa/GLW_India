@@ -35,7 +35,7 @@ function chime() {
   }
 }
 
-/** Toasts (with a chime) whenever a new lead lands in kommo_leads. */
+/** Toasts (with a chime) for new leads; keeps the Leads page current when leads change or are deleted. */
 export function NewLeadAlerts() {
   const router = useRouter();
   const pathname = usePathname();
@@ -46,6 +46,14 @@ export function NewLeadAlerts() {
   }, [pathname]);
 
   useEffect(() => {
+    // Edits and deletions in Kommo arrive in bursts; refresh the Leads page once per burst.
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const refreshLeads = () => {
+      if (!pathRef.current.startsWith("/leads")) return;
+      clearTimeout(timer);
+      timer = setTimeout(() => router.refresh(), 1500);
+    };
+
     const supabase = createClient();
     const channel = supabase
       .channel("new-kommo-leads")
@@ -68,9 +76,20 @@ export function NewLeadAlerts() {
           if (onLeads) router.refresh();
         },
       )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "kommo_leads" },
+        () => refreshLeads(),
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "kommo_leads" },
+        () => refreshLeads(),
+      )
       .subscribe();
 
     return () => {
+      clearTimeout(timer);
       supabase.removeChannel(channel);
     };
   }, [router]);

@@ -102,16 +102,20 @@ function safeEqual(a: string, b: string) {
   return ab.length === bb.length && timingSafeEqual(ab, bb);
 }
 
-/** Lead IDs from Kommo's form-encoded body, e.g. leads[add][0][id]=123 or leads[status][0][id]=123. */
+/**
+ * Lead IDs from Kommo's form-encoded body: leads[add|status|update][0][id]=123 are re-synced,
+ * leads[delete][0][id]=123 are removed from the dashboard.
+ */
 function leadIdsFromForm(form: URLSearchParams) {
-  const ids = new Set<number>();
+  const sync = new Set<number>();
+  const remove = new Set<number>();
   for (const [key, value] of form) {
-    if (/^leads\[(add|status|update)\]\[\d+\]\[id\]$/.test(key)) {
-      const id = Number(value);
-      if (Number.isFinite(id) && id > 0) ids.add(id);
-    }
+    const m = key.match(/^leads\[(add|status|update|delete)\]\[\d+\]\[id\]$/);
+    const id = Number(value);
+    if (!m || !Number.isFinite(id) || id <= 0) continue;
+    (m[1] === "delete" ? remove : sync).add(id);
   }
-  return [...ids];
+  return { sync: [...sync], remove: [...remove] };
 }
 
 function fieldValue(
@@ -241,6 +245,17 @@ function leadRow(
   };
 }
 
+/** Remove a lead deleted in Kommo. Linked bookings keep their data; their kommo_lead_id becomes null. */
+async function deleteLead(leadId: number) {
+  const env = kommoEnv();
+  if (!env) return;
+  const { error } = await serviceClient(env)
+    .from("kommo_leads")
+    .delete()
+    .eq("kommo_lead_id", leadId);
+  if (error) throw new Error(`delete lead ${leadId}: ${error.message}`);
+}
+
 /** Fetch one lead plus its main contact and save it. Safe to repeat: upserts on kommo_lead_id. */
 async function syncLead(leadId: number) {
   const env = kommoEnv();
@@ -252,7 +267,8 @@ async function syncLead(leadId: number) {
     `/leads/${leadId}?with=contacts,source_id`,
   );
   if (!lead) {
-    console.warn(`Kommo webhook: lead ${leadId} not found in Kommo`);
+    // Gone from Kommo (deleted): drop it from the dashboard too.
+    await deleteLead(leadId);
     return;
   }
   if (!allowedPipeline(lead.pipeline_id)) {
@@ -372,6 +388,7 @@ export async function POST(request: NextRequest) {
   const body = await request.text();
   const contentType = request.headers.get("content-type") ?? "";
   let leadIds: number[] = [];
+  let deletedIds: number[] = [];
   if (contentType.includes("application/json")) {
     // Manual tests: {"lead_id": 123} or {"lead_ids": [1, 2]}
     try {
@@ -409,10 +426,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Bad JSON" }, { status: 400 });
     }
   } else {
-    leadIds = leadIdsFromForm(new URLSearchParams(body));
+    ({ sync: leadIds, remove: deletedIds } = leadIdsFromForm(
+      new URLSearchParams(body),
+    ));
   }
 
   after(async () => {
+    for (const id of deletedIds) {
+      try {
+        await deleteLead(id);
+      } catch (e) {
+        console.error(
+          `Kommo webhook: deleting lead ${id} failed`,
+          e instanceof Error ? e.message : e,
+        );
+      }
+    }
     for (const id of leadIds) {
       try {
         await syncLead(id);
@@ -425,5 +454,9 @@ export async function POST(request: NextRequest) {
     }
   });
 
-  return NextResponse.json({ ok: true, leads: leadIds.length });
+  return NextResponse.json({
+    ok: true,
+    leads: leadIds.length,
+    deleted: deletedIds.length,
+  });
 }
