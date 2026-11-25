@@ -118,6 +118,7 @@ export function LeadsClient({ leads, bookings, error }: { leads: LeadListRow[]; 
   const [brand, setBrand] = useState("all");
   const [source, setSource] = useState("all");
   const [booked, setBooked] = useState("all");
+  const [dupes, setDupes] = useState("all");
   const [search, setSearch] = useState("");
   const [range, setRange] = useState<Range>("today");
   const [from, setFrom] = useState("");
@@ -162,6 +163,8 @@ export function LeadsClient({ leads, bookings, error }: { leads: LeadListRow[]; 
         if (source !== "all" && !person.sources.some((s) => (s ?? "Not set") === source)) return [];
         if (booked === "yes" && !booking) return [];
         if (booked === "no" && booking) return [];
+        if (dupes === "yes" && person.leads.length < 2) return [];
+        if (dupes === "no" && person.leads.length > 1) return [];
         if (q && !person.leads.some((l) => [l.contact_name, l.phone, l.utm_campaign, String(l.kommo_lead_id)].some((v) => v?.toLowerCase().includes(q)))) return [];
         const name = person.leads.find((l) => l.contact_name)?.contact_name ?? null;
         return [{ person, lead, name, booking }];
@@ -170,21 +173,23 @@ export function LeadsClient({ leads, bookings, error }: { leads: LeadListRow[]; 
         const diff = new Date(leadTime(a.lead)).getTime() - new Date(leadTime(b.lead)).getTime();
         return newestFirst ? -diff : diff;
       });
-  }, [people, bookingFor, brand, source, booked, search, range, from, to, newestFirst]);
+  }, [people, bookingFor, brand, source, booked, dupes, search, range, from, to, newestFirst]);
 
   const bookedCount = rows.filter((r) => r.booking).length;
+  const duplicateCount = rows.filter((r) => r.person.leads.length > 1).length;
   const conversion = rows.length ? Math.round((bookedCount / rows.length) * 100) : 0;
 
   function handleDownload() {
     downloadCsv(
       "leads.csv",
-      ["Date", "Kommo IDs", "Contact", "Phone", "Brands", "Sources", "UTM source", "UTM medium", "Campaign", "GCLID", "Booked", "Booking date"],
+      ["Date", "Kommo IDs", "Contact", "Phone", "Brands", "Duplicate", "Sources", "UTM source", "UTM medium", "Campaign", "GCLID", "Booked", "Booking date"],
       rows.map(({ person, lead, name, booking }) => [
         formatDate(leadTime(lead)),
         person.leads.map((l) => l.kommo_lead_id).join(", "),
         name ?? "",
         lead.phone ?? "",
         person.brands.map((b) => b ?? NO_BRAND).join(", "),
+        person.leads.length > 1 ? `Yes (${person.leads.length})` : "No",
         person.sources.filter(Boolean).join(", "),
         lead.utm_source ?? "",
         lead.utm_medium ?? "",
@@ -206,9 +211,10 @@ export function LeadsClient({ leads, bookings, error }: { leads: LeadListRow[]; 
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {[
           { label: "Leads", value: rows.length },
+          { label: "Duplicates", value: duplicateCount },
           { label: "Booked", value: bookedCount },
           { label: "Conversion", value: `${conversion}%` },
         ].map((s) => (
@@ -265,6 +271,11 @@ export function LeadsClient({ leads, bookings, error }: { leads: LeadListRow[]; 
               <option value="yes">Booked</option>
               <option value="no">Not booked</option>
             </select>
+            <select aria-label="Duplicates" value={dupes} onChange={(e) => setDupes(e.target.value)} className={selectClass}>
+              <option value="all">All leads</option>
+              <option value="yes">Duplicates only</option>
+              <option value="no">No duplicates</option>
+            </select>
             <div className="ml-auto">{rows.length > 0 && <DownloadButton onDownload={handleDownload} />}</div>
           </div>
 
@@ -319,6 +330,16 @@ export function LeadsClient({ leads, bookings, error }: { leads: LeadListRow[]; 
                                 </span>
                               )
                             ),
+                          )}
+                          {person.leads.length > 1 && (
+                            <span
+                              className="whitespace-nowrap rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800 dark:bg-amber-900/40 dark:text-amber-300"
+                              title={person.leads
+                                .map((l) => `${formatDate(leadTime(l))} · ${l.brand ?? NO_BRAND} · #${l.kommo_lead_id}`)
+                                .join("\n")}
+                            >
+                              Duplicate ×{person.leads.length}
+                            </span>
                           )}
                         </div>
                       </td>
